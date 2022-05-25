@@ -16,10 +16,7 @@
 /**
  * Helper to send APDU response with public key and chain code.
  *
- * response = PUBKEY_LEN (1) ||
- *            G_context.pk_info.public_key (PUBKEY_LEN) ||
- *            CHAINCODE_LEN (1) ||
- *            G_context.pk_info.chain_code (CHAINCODE_LEN)
+ * response = G_context.pk_info.public_key (PUBKEY_LEN)
  *
  * @return zero or positive integer if success, -1 otherwise.
  *

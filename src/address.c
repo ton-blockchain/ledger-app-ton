@@ -27,16 +27,14 @@
 
 #include "transaction/types.h"
 
-bool address_from_pubkey(const uint8_t public_key[static 64], uint8_t *out, size_t out_len) {
+bool address_from_pubkey(const uint8_t public_key[static 32], uint8_t *out, size_t out_len) {
     uint8_t address[32] = {0};
-    cx_sha3_t keccak256;
-
+    cx_sha256_t state;
     if (out_len < ADDRESS_LEN) {
         return false;
     }
-
-    cx_keccak_init(&keccak256, 256);
-    cx_hash((cx_hash_t *) &keccak256, CX_LAST, public_key, 64, address, sizeof(address));
+    cx_sha256_init(&state);
+    cx_hash((cx_hash_t *) &state, CX_LAST, public_key, 32, address, sizeof(address));
 
     memmove(out, address + sizeof(address) - ADDRESS_LEN, ADDRESS_LEN);
 

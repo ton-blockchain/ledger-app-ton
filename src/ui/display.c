@@ -35,11 +35,12 @@
 #include "../transaction/types.h"
 #include "../common/bip32.h"
 #include "../common/format.h"
+#include "../common/base64.h"
 
 static action_validate_cb g_validate_callback;
 static char g_amount[30];
 static char g_bip32_path[60];
-static char g_address[43];
+static char g_address[45];
 
 // Step with icon and text
 UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Address"});
@@ -106,7 +107,7 @@ int ui_display_address() {
     if (!address_from_pubkey(G_context.pk_info.raw_public_key, address, sizeof(address))) {
         return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
     }
-    snprintf(g_address, sizeof(g_address), "0x%.*H", sizeof(address), address);
+    base64_encode(address, sizeof(address), g_address, sizeof(g_address));
 
     g_validate_callback = &ui_action_validate_pubkey;
 
