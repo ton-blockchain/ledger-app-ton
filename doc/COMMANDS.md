@@ -49,7 +49,7 @@
 
 | Response length (bytes) | SW | RData |
 | --- | --- | --- |
-| var | 0x9000 | `len(public_key) (1)` \|\|<br> `public_key (var)` \|\|<br> `len(chain_code) (1)` \|\|<br> `chain_code (var)` |
+| var | 0x9000 |  `public_key (32)` |
 
 ## SIGN_TX
 
