@@ -63,10 +63,17 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
 int crypto_init_public_key(cx_ecfp_private_key_t *private_key,
                            cx_ecfp_public_key_t *public_key,
                            uint8_t raw_public_key[static 64]) {
+    
     // generate corresponding public key
-    cx_ecfp_generate_pair(CX_CURVE_256K1, public_key, private_key, 1);
+    cx_ecfp_generate_pair(CX_CURVE_Ed25519, public_key, private_key, 1);
 
-    memmove(raw_public_key, public_key->W + 1, 64);
+    // Convert to NaCL format
+    for (int i = 0; i < 32; i++) {
+        raw_public_key[i] = public_key->W[64 - i];
+    }
+    if ((public_key->W[32] & 1) != 0) {
+        raw_public_key[31] |= 0x80;
+    }
 
     return 0;
 }
