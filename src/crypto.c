@@ -31,14 +31,19 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
 
     BEGIN_TRY {
         TRY {
+            
             // derive the seed with bip32_path
-            os_perso_derive_node_bip32(CX_CURVE_256K1,
-                                       bip32_path,
-                                       bip32_path_len,
-                                       raw_private_key,
-                                       chain_code);
+            os_perso_derive_node_bip32_seed_key(HDW_ED25519_SLIP10, 
+                                                CX_CURVE_Ed25519, 
+                                                bip32_path, 
+                                                bip32_path_len, 
+                                                raw_private_key, 
+                                                NULL, 
+                                                (unsigned char*) "ed25519 seed",
+                                                12);
+
             // new private_key from raw
-            cx_ecfp_init_private_key(CX_CURVE_256K1,
+            cx_ecfp_init_private_key(CX_CURVE_Ed25519,
                                      raw_private_key,
                                      sizeof(raw_private_key),
                                      private_key);
