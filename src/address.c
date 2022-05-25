@@ -27,15 +27,35 @@
 
 #include "transaction/types.h"
 
+// initialData.bits.writeUint(698983191, 32);
+// initialData.bits.writeUint(walletId, 32);
+// initialData.bits.writeBuffer(opts.publicKey);
+// initialData.bits.writeBit(0);
+
+const uint8_t data_header[] = {
+    0x00, 0x00, 0x00, 0x00, // Seqno
+    0x29, 0xa9, 0xa3, 0x17, // Wallet ID
+};
+
+const uint8_t data_tail[] = {
+    0x40 // zero bit + padding
+};
+
 bool address_from_pubkey(const uint8_t public_key[static 32], uint8_t *out, size_t out_len) {
     uint8_t address[32] = {0};
     cx_sha256_t state;
+    
     if (out_len < ADDRESS_LEN) {
         return false;
     }
-    cx_sha256_init(&state);
-    cx_hash((cx_hash_t *) &state, CX_LAST, public_key, 32, address, sizeof(address));
 
+    // Hash init data cell bits
+    cx_sha256_init(&state);
+    cx_hash((cx_hash_t *) &state, 0, data_header, sizeof(data_header), NULL, 0);
+    cx_hash((cx_hash_t *) &state, 0, public_key, 32, NULL, 0);
+    cx_hash((cx_hash_t *) &state, CX_LAST, data_tail, sizeof(data_tail), address, sizeof(address));
+
+    // Copy results
     memmove(out, address + sizeof(address) - ADDRESS_LEN, ADDRESS_LEN);
 
     return true;
