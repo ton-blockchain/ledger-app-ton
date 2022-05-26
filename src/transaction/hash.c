@@ -82,24 +82,38 @@ bool hash_tx(transaction_ctx_t *ctx) {
     // Internal Message
     //
 
-    // BitString_init(&bits);
-    // BitString_storeBit(&bits, 0); // tag
-    // BitString_storeBit(&bits, 1); // ihr_disabled
-    // BitString_storeBit(&bits, 1); // bounce
-    // BitString_storeBit(&bits, 0); // bounced
-    // BitString_storeAddressNull(&bits); // from
-    // BitString_storeAddress(&bits, ctx->transaction.to_chain, ctx->transaction.to_hash); // to
-    // BitString_storeCoins(&bits, ctx->transaction.value); // amount
-    // BitString_storeBit(&bits, 0); // Currency collection (not supported)
-    // BitString_storeCoins(&bits, 0); // ihr_fees
-    // BitString_storeCoins(&bits, 0); // fwd_fees
-    // BitString_storeUint(&bits, 0, 64); // CreatedLT
-    // BitString_storeUint(&bits, 0, 32); // CreatedAt
-    // struct CellRef_t internalMessageRefs[1] = {commonMessageRef};
-    // hash_Cell(&bits, internalMessageRefs, 1, ctx->m_hash);
+    struct CellRef_t internalMessageRef;
+    BitString_init(&bits);
+    BitString_storeBit(&bits, 0); // tag
+    BitString_storeBit(&bits, 1); // ihr_disabled
+    BitString_storeBit(&bits, 1); // bounce
+    BitString_storeBit(&bits, 0); // bounced
+    BitString_storeAddressNull(&bits); // from
+    BitString_storeAddress(&bits, ctx->transaction.to_chain, ctx->transaction.to_hash); // to
+    BitString_storeCoins(&bits, ctx->transaction.value); // amount
+    BitString_storeBit(&bits, 0); // Currency collection (not supported)
+    BitString_storeCoins(&bits, 0); // ihr_fees
+    BitString_storeCoins(&bits, 0); // fwd_fees
+    BitString_storeUint(&bits, 0, 64); // CreatedLT
+    BitString_storeUint(&bits, 0, 32); // CreatedAt
+    struct CellRef_t internalMessageRefs[1] = {commonMessageRef};
+    hash_Cell(&bits, internalMessageRefs, 1, &internalMessageRef);
+
+    //
+    // Order
+    //
+    
+    struct CellRef_t orderRef;
+    BitString_init(&bits);
+    BitString_storeUint(&bits, 698983191, 32); // Wallet ID
+    BitString_storeUint(&bits, ctx->transaction.timeout, 32); // Timeout
+    BitString_storeUint(&bits, ctx->transaction.seqno, 32); // Seqno
+    BitString_storeUint(&bits, 0, 8); // Simple order
+    struct CellRef_t orderRefs[1] = {internalMessageRef};
+    hash_Cell(&bits, orderRefs, 1, &orderRef);
 
     // Result
-    memmove(ctx->m_hash, commonMessageRef.hash, 32);
+    memmove(ctx->m_hash, orderRef.hash, 32);
 
     return true;
 }
