@@ -6,7 +6,7 @@
 /**
  * Encode input bytes in base 64.
  *
- * @see https://tools.ietf.org/html/draft-msporny-base58-02
+ * @see https://datatracker.ietf.org/doc/html/rfc4648
  *
  * @param[in]  in
  *   Pointer to input byte buffer.

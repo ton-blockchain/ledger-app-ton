@@ -24,7 +24,6 @@
 #include "globals.h"
 
 int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
-                              uint8_t chain_code[static 32],
                               const uint32_t *bip32_path,
                               uint8_t bip32_path_len) {
     uint8_t raw_private_key[32] = {0};
@@ -80,13 +79,11 @@ int crypto_init_public_key(cx_ecfp_private_key_t *private_key,
 
 int crypto_sign_message() {
     cx_ecfp_private_key_t private_key = {0};
-    uint8_t chain_code[32] = {0};
     uint32_t info = 0;
     int sig_len = 0;
 
     // derive private key according to BIP32 path
     crypto_derive_private_key(&private_key,
-                              chain_code,
                               G_context.bip32_path,
                               G_context.bip32_path_len);
 

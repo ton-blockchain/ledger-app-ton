@@ -9,10 +9,9 @@
 
 /**
  * Handler for GET_PUBLIC_KEY command. If successfully parse BIP32 path,
- * derive public key/chain code and send APDU response.
+ * derive public key and send APDU response.
  *
- * @see G_context.bip32_path, G_context.pk_info.raw_public_key and
- *      G_context.pk_info.chain_code.
+ * @see G_context.bip32_path, G_context.pk_info.raw_public_key
  *
  * @param[in,out] cdata
  *   Command data with BIP32 path.
