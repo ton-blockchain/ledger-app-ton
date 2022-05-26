@@ -2,7 +2,7 @@
 
 #include "../types.h"
 
-/**`
+/**
  * Computes transaction hash for signing
  *
  * @param[out]     tx
@@ -11,4 +11,4 @@
  * @return true if success, false otherwise.
  *
  */
-bool hash_tx(transaction_ctx_t *сtx);
+bool hash_tx(transaction_ctx_t *ctx);
