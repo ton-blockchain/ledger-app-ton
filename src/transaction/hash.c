@@ -72,11 +72,11 @@ bool hash_tx(transaction_ctx_t *ctx) {
     // Common Message
     //
 
-    struct CellRef_t commonMessageRef;
-    BitString_init(&bits);
-    BitString_storeBit(&bits, 0); // no state-init
-    BitString_storeBit(&bits, 0); // no body
-    hash_Cell(&bits, NULL, 0, &commonMessageRef);
+    // struct CellRef_t commonMessageRef;
+    // BitString_init(&bits);
+    // BitString_storeBit(&bits, 0); // no state-init
+    // BitString_storeBit(&bits, 0); // no body
+    // hash_Cell(&bits, NULL, 0, &commonMessageRef);
 
     //
     // Internal Message
@@ -96,8 +96,12 @@ bool hash_tx(transaction_ctx_t *ctx) {
     BitString_storeCoins(&bits, 0); // fwd_fees
     BitString_storeUint(&bits, 0, 64); // CreatedLT
     BitString_storeUint(&bits, 0, 32); // CreatedAt
-    struct CellRef_t internalMessageRefs[1] = {commonMessageRef};
-    hash_Cell(&bits, internalMessageRefs, 1, &internalMessageRef);
+    BitString_storeBit(&bits, 0); // no state-init
+    BitString_storeBit(&bits, 0); // no body
+    // struct CellRef_t internalMessageRefs[1] = {commonMessageRef};
+    // hash_Cell(&bits, internalMessageRefs, 1, &internalMessageRef);
+    // struct CellRef_t internalMessageRefs[1] = {commonMessageRef};
+    hash_Cell(&bits, NULL, 0, &internalMessageRef);
 
     //
     // Order
@@ -109,6 +113,7 @@ bool hash_tx(transaction_ctx_t *ctx) {
     BitString_storeUint(&bits, ctx->transaction.timeout, 32); // Timeout
     BitString_storeUint(&bits, ctx->transaction.seqno, 32); // Seqno
     BitString_storeUint(&bits, 0, 8); // Simple order
+    BitString_storeUint(&bits, 0, 8); // Send Mode
     struct CellRef_t orderRefs[1] = {internalMessageRef};
     hash_Cell(&bits, orderRefs, 1, &orderRef);
 
