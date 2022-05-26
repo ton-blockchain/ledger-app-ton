@@ -36,13 +36,18 @@ int helper_send_response_pubkey() {
 }
 
 int helper_send_response_sig() {
-    uint8_t resp[1 + MAX_DER_SIG_LEN + 1] = {0};
+    uint8_t resp[1 + MAX_SIG_LEN + 1 + 32] = {0};
     size_t offset = 0;
 
+    // Signature
     resp[offset++] = G_context.tx_info.signature_len;
     memmove(resp + offset, G_context.tx_info.signature, G_context.tx_info.signature_len);
     offset += G_context.tx_info.signature_len;
-    resp[offset++] = (uint8_t) G_context.tx_info.v;
+
+    // Hash
+    resp[offset++] = 32;
+    memmove(resp + offset, G_context.tx_info.m_hash, 32);
+    offset += 32;
 
     return io_send_response(&(const buffer_t){.ptr = resp, .size = offset, .offset = 0}, SW_OK);
 }

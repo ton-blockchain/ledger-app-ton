@@ -9,19 +9,18 @@
 
 typedef enum {
     PARSING_OK = 1,
-    NONCE_PARSING_ERROR = -1,
-    TO_PARSING_ERROR = -2,
-    VALUE_PARSING_ERROR = -3,
-    MEMO_LENGTH_ERROR = -4,
-    MEMO_PARSING_ERROR = -5,
-    MEMO_ENCODING_ERROR = -6,
-    WRONG_LENGTH_ERROR = -7
+    SEQ_PARSING_ERROR = -1,
+    TIMEOUT_PARSING_ERROR = -2,
+    TO_PARSING_ERROR = -3,
+    VALUE_PARSING_ERROR = -4,
+    WRONG_LENGTH_ERROR = -5,
 } parser_status_e;
 
 typedef struct {
-    uint64_t nonce;     /// nonce (8 bytes)
+    uint32_t seqno;     /// seqno (4 bytes)
+    uint32_t timeout;   /// timeout (4 bytes)
     uint64_t value;     /// amount value (8 bytes)
-    uint8_t *to;        /// pointer to address (20 bytes)
-    uint8_t *memo;      /// memo (variable length)
-    uint64_t memo_len;  /// length of memo (8 bytes)
+    uint8_t to_chain;   /// target chain (1 byte)
+    uint8_t *to_hash;   /// target address (32 bytes)
+    // uint8_t *payload;   /// payload hash (32 bytes)
 } transaction_t;

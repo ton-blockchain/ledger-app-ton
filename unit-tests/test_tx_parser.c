@@ -7,7 +7,6 @@
 
 #include <cmocka.h>
 
-#include "transaction/serialize.h"
 #include "transaction/deserialize.h"
 #include "transaction/types.h"
 
@@ -67,10 +66,10 @@ static void test_tx_serialization(void **state) {
 
     assert_int_equal(status, PARSING_OK);
 
-    uint8_t output[300];
-    int length = transaction_serialize(&tx, output, sizeof(output));
-    assert_int_equal(length, sizeof(raw_tx));
-    assert_memory_equal(raw_tx, output, sizeof(raw_tx));
+    // uint8_t output[300];
+    // int length = transaction_serialize(&tx, output, sizeof(output));
+    // assert_int_equal(length, sizeof(raw_tx));
+    // assert_memory_equal(raw_tx, output, sizeof(raw_tx));
 }
 
 int main() {

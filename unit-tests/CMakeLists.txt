@@ -43,7 +43,7 @@ add_executable(test_buffer test_buffer.c)
 add_executable(test_format test_format.c)
 add_executable(test_write test_write.c)
 add_executable(test_apdu_parser test_apdu_parser.c)
-add_executable(test_tx_parser test_tx_parser.c)
+# add_executable(test_tx_parser test_tx_parser.c)
 add_executable(test_tx_utils test_tx_utils.c)
 
 add_library(base58 SHARED ../src/common/base58.c)
@@ -55,7 +55,6 @@ add_library(format SHARED ../src/common/format.c)
 add_library(varint SHARED ../src/common/varint.c)
 add_library(apdu_parser SHARED ../src/apdu/parser.c)
 add_library(transaction_deserialize ../src/transaction/deserialize.c)
-add_library(transaction_serialize ../src/transaction/serialize.c)
 add_library(transaction_utils ../src/transaction/utils.c)
 
 target_link_libraries(test_base58 PUBLIC cmocka gcov base58)
@@ -64,17 +63,16 @@ target_link_libraries(test_buffer PUBLIC cmocka gcov buffer bip32 varint write r
 target_link_libraries(test_format PUBLIC cmocka gcov format)
 target_link_libraries(test_write PUBLIC cmocka gcov write)
 target_link_libraries(test_apdu_parser PUBLIC cmocka gcov apdu_parser)
-target_link_libraries(test_tx_parser PUBLIC
-                      transaction_deserialize
-                      transaction_serialize
-                      buffer
-                      bip32
-                      cmocka
-                      gcov
-                      write
-                      read
-                      varint
-                      transaction_utils)
+# target_link_libraries(test_tx_parser PUBLIC
+#                      transaction_deserialize
+#                      buffer
+#                      bip32
+#                      cmocka
+#                      gcov
+#                      write
+#                      read
+#                      varint
+#                      transaction_utils)
 target_link_libraries(test_tx_utils PUBLIC
                       cmocka
                       gcov
@@ -86,5 +84,5 @@ add_test(test_buffer test_buffer)
 add_test(test_format test_format)
 add_test(test_write test_write)
 add_test(test_apdu_parser test_apdu_parser)
-add_test(test_tx_parser test_tx_parser)
+# add_test(test_tx_parser test_tx_parser)
 add_test(test_tx_utils test_tx_utils)

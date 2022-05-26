@@ -151,6 +151,7 @@ int ui_display_transaction() {
         return io_send_sw(SW_BAD_STATE);
     }
 
+    // Amount
     memset(g_amount, 0, sizeof(g_amount));
     char amount[30] = {0};
     if (!format_fpu64(amount,
@@ -162,11 +163,14 @@ int ui_display_transaction() {
     snprintf(g_amount, sizeof(g_amount), "TON %.*s", sizeof(amount), amount);
     PRINTF("Amount: %s\n", g_amount);
 
+    // Address
+    uint8_t address[ADDRESS_LEN] = {0};
+    address_to_friendly(G_context.tx_info.transaction.to_chain, G_context.tx_info.transaction.to_hash, true, false, address, sizeof(address));
     memset(g_address, 0, sizeof(g_address));
-    snprintf(g_address, sizeof(g_address), "0x%.*H", ADDRESS_LEN, G_context.tx_info.transaction.to);
+    base64_encode(address, sizeof(address), g_address, sizeof(g_address));
 
+    // Start flow
     g_validate_callback = &ui_action_validate_transaction;
-
     ux_flow_init(0, ux_display_transaction_flow, NULL);
 
     return 0;

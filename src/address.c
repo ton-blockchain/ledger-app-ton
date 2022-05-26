@@ -48,6 +48,35 @@ const uint8_t data_tail[] = {
     0x40 // zero bit + padding
 };
 
+bool address_to_friendly(const uint8_t chain, const uint8_t hash[static 32], const bool bounceable, const bool testOnly, uint8_t *out, size_t out_len) {
+    if (out_len < ADDRESS_LEN) {
+        return false;
+    }
+
+    // Address Tag
+    if (bounceable) {
+        out[0] = 0x11; // Bounceable
+    } else {
+        out[0] = 0x51; // Non-Bounceable
+    }
+    if (testOnly) {
+        out[0] = out[0] | 0x80;
+    }
+
+    // Workchain
+    out[1] = chain;
+
+    // Hash
+    memmove(out + 2, hash, 32);
+
+    // crc16
+    uint16_t crc = crc16(out, 34);
+    out[34] = (crc >> 8) & 0xff;
+    out[35] = crc & 0xff;
+
+    return true;
+}
+
 bool address_from_pubkey(const uint8_t public_key[static 32], uint8_t *out, size_t out_len) {
     uint8_t hash[32] = {0};
     uint8_t inner[32] = {0};
@@ -68,15 +97,8 @@ bool address_from_pubkey(const uint8_t public_key[static 32], uint8_t *out, size
     cx_hash((cx_hash_t *) &state, 0, root_header, sizeof(root_header), NULL, 0);
     cx_hash((cx_hash_t *) &state, CX_LAST, inner, sizeof(inner), hash, sizeof(hash));
 
-    // Prepare hashtag for crc16
-    out[0] = 0x11; // Bounceable
-    out[1] = 0; // Workchain
-    memmove(out + 2, hash, 32);
-
-    // crc16
-    uint16_t crc = crc16(out, 34);
-    out[34] = (crc >> 8) & 0xff;
-    out[35] = crc & 0xff;
-
+    // Convert to friendly
+    address_to_friendly(0, hash, true, false, out, out_len);
+    
     return true;
 }
