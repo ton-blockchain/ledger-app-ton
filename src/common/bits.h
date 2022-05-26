@@ -10,3 +10,7 @@ typedef struct BitStream_t {
 
 void BitStream_init(struct BitStream_t* self);
 void BitStream_storeBit(struct BitStream_t* self, int8_t v);
+void BitStream_storeUint(struct BitStream_t* self, uint64_t v, uint8_t bits);
+void BitStream_storeCoins(struct BitStream_t* self, uint64_t v);
+void BitStream_storeBuffer(struct BitStream_t* self, uint8_t *v, uint8_t length);
+void BitStream_finalize(struct BitStream_t* self);

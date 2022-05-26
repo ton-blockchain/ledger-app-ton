@@ -10,7 +10,10 @@
 #include "common/bits.h"
 
 static void test_bits(void **state) {
-    // (void) state;
+    
+    uint8_t expected[21] = {
+        0xe3,0x79,0x2f,0x59,0x01,0x0a,0x30,0xf4,0x24,0x05,0x02,0x54,0x0b,0xe4,0x00,0x50,0x2d,0xdd,0xef,0xa0,0x38
+    };
 
     BitStream_t bits;
     BitStream_init(&bits);
@@ -32,53 +35,34 @@ static void test_bits(void **state) {
     assert_true(bits.data_cursor == 7);
     BitStream_storeBit(&bits, 1);
     assert_true(bits.data_cursor == 8);
+    assert_int_equal(bits.data[0], 0xe3);
 
-    // Test data
-    assert_int_equal(bits.data[0], 0b11100011);
+    // Test uint writes
+    BitStream_storeUint(&bits, 121, 8);
+    BitStream_storeUint(&bits, 12121, 16);
+    assert_int_equal(bits.data[1], 0x79);
+    assert_int_equal(bits.data[2], 0x2f);
+    assert_int_equal(bits.data[3], 0x59);
 
-    // uint8_t tmp2[2] = {0};
+    // Test coins writes
+    // 010a30f4240502540be400
+    BitStream_storeCoins(&bits, 0);
+    assert_true(bits.data_cursor == 36);
+    BitStream_storeCoins(&bits, 10);
+    assert_true(bits.data_cursor == 48);
+    BitStream_storeCoins(&bits, 1000000);
+    assert_true(bits.data_cursor == 76);
+    BitStream_storeCoins(&bits, 10000000000);
+    assert_true(bits.data_cursor == 120);
+    BitStream_storeCoins(&bits, 12312312323);
+    assert_true(bits.data_cursor == 164);
 
-    // uint8_t expected2[2] = {0x01, 0x07};
-    // write_u16_be(tmp2, 0, (uint16_t) 263U);
-    // assert_memory_equal(tmp2, expected2, sizeof(expected2));
-
-    // memset(tmp2, 0, sizeof(tmp2));
-    // expected2[0] = 0x07;
-    // expected2[1] = 0x01;
-    // write_u16_le(tmp2, 0, (uint16_t) 263U);
-    // assert_memory_equal(tmp2, expected2, sizeof(expected2));
-
-    // uint8_t tmp4[4] = {0};
-
-    // uint8_t expected4[4] = {0x01, 0x3B, 0xAC, 0xC7};
-    // write_u32_be(tmp4, 0, (uint32_t) 20688071UL);
-    // assert_memory_equal(tmp4, expected4, sizeof(expected4));
-
-    // memset(tmp4, 0, sizeof(tmp4));
-    // expected4[0] = 0xC7;
-    // expected4[1] = 0xAC;
-    // expected4[2] = 0x3B;
-    // expected4[3] = 0x01;
-    // write_u32_le(tmp4, 0, (uint32_t) 20688071UL);
-    // assert_memory_equal(tmp4, expected4, sizeof(expected4));
-
-    // uint8_t tmp8[8] = {0};
-
-    // uint8_t expected8[8] = {0xEB, 0x68, 0x44, 0xC0, 0x2C, 0x61, 0xB0, 0x99};
-    // write_u64_be(tmp8, 0, (uint64_t) 16962883588659982489ULL);
-    // assert_memory_equal(tmp8, expected8, sizeof(expected8));
-
-    // memset(tmp8, 0, sizeof(tmp8));
-    // expected8[0] = 0x99;
-    // expected8[1] = 0xB0;
-    // expected8[2] = 0x61;
-    // expected8[3] = 0x2C;
-    // expected8[4] = 0xC0;
-    // expected8[5] = 0x44;
-    // expected8[6] = 0x68;
-    // expected8[7] = 0xEB;
-    // write_u64_le(tmp8, 0, (uint64_t) 16962883588659982489ULL);
-    // assert_memory_equal(tmp8, expected8, sizeof(expected8));
+    // Finalize
+    BitStream_finalize(&bits);
+    
+    // Contents and hash
+    assert_memory_equal(bits.data, expected, sizeof(expected));
+    
 }
 
 int main() {
