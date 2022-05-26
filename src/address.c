@@ -26,6 +26,7 @@
 #include "address.h"
 
 #include "transaction/types.h"
+#include "common/crc16.h"
 
 const uint8_t root_header[] = {
     // Cell data and refs descriptor
@@ -48,7 +49,7 @@ const uint8_t data_tail[] = {
 };
 
 bool address_from_pubkey(const uint8_t public_key[static 32], uint8_t *out, size_t out_len) {
-    uint8_t address[32] = {0};
+    uint8_t hash[32] = {0};
     uint8_t inner[32] = {0};
     cx_sha256_t state;
 
@@ -65,10 +66,17 @@ bool address_from_pubkey(const uint8_t public_key[static 32], uint8_t *out, size
     // Hash root
     cx_sha256_init(&state);
     cx_hash((cx_hash_t *) &state, 0, root_header, sizeof(root_header), NULL, 0);
-    cx_hash((cx_hash_t *) &state, CX_LAST, inner, sizeof(inner), address, sizeof(address));
+    cx_hash((cx_hash_t *) &state, CX_LAST, inner, sizeof(inner), hash, sizeof(hash));
 
-    // Copy results
-    memmove(out, address, ADDRESS_LEN);
+    // Prepare hashtag for crc16
+    out[0] = 0x11; // Bounceable
+    out[1] = 0; // Workchain
+    memmove(out + 2, hash, 32);
+
+    // crc16
+    uint16_t crc = crc16(out, 34);
+    out[34] = (crc >> 8) & 0xff;
+    out[35] = crc & 0xff;
 
     return true;
 }

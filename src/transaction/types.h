@@ -4,7 +4,7 @@
 #include <stdint.h>  // uint*_t
 
 #define MAX_TX_LEN   510
-#define ADDRESS_LEN  32
+#define ADDRESS_LEN  36
 #define MAX_MEMO_LEN 465  // 510 - ADDRESS_LEN - 2*SIZE(U64) - SIZE(MAX_VARINT)
 
 typedef enum {
