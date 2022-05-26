@@ -3,14 +3,16 @@
 #include <stddef.h>   // size_t
 #include <stdint.h>   // uint*_t
 
-typedef struct BitStream_t {
+typedef struct BitString_t {
     uint8_t data[128];
     uint16_t data_cursor; // NOTE: In bits
-} BitStream_t;
+} BitString_t;
 
-void BitStream_init(struct BitStream_t* self);
-void BitStream_storeBit(struct BitStream_t* self, int8_t v);
-void BitStream_storeUint(struct BitStream_t* self, uint64_t v, uint8_t bits);
-void BitStream_storeCoins(struct BitStream_t* self, uint64_t v);
-void BitStream_storeBuffer(struct BitStream_t* self, uint8_t *v, uint8_t length);
-void BitStream_finalize(struct BitStream_t* self);
+void BitString_init(struct BitString_t* self);
+void BitString_storeBit(struct BitString_t* self, int8_t v);
+void BitString_storeUint(struct BitString_t* self, uint64_t v, uint8_t bits);
+void BitString_storeCoins(struct BitString_t* self, uint64_t v);
+void BitString_storeBuffer(struct BitString_t* self, uint8_t *v, uint8_t length);
+void BitString_storeAddress(struct BitString_t* self, uint8_t chain, uint8_t *hash);
+void BitString_storeAddressNull(struct BitString_t* self);
+void BitString_finalize(struct BitString_t* self);

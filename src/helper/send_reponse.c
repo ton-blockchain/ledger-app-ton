@@ -45,9 +45,9 @@ int helper_send_response_sig() {
     offset += G_context.tx_info.signature_len;
 
     // Hash
-    resp[offset++] = 32;
-    memmove(resp + offset, G_context.tx_info.m_hash, 32);
-    offset += 32;
+    resp[offset++] = 64;
+    memmove(resp + offset, G_context.tx_info.m_hash, 64);
+    offset += 64;
 
     return io_send_response(&(const buffer_t){.ptr = resp, .size = offset, .offset = 0}, SW_OK);
 }
