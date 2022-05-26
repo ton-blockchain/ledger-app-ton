@@ -6,6 +6,7 @@
 
 void BitString_init(struct BitString_t* self) {
     self->data_cursor = 0;
+    explicit_bzero(self->data, 128);
 }
 
 void BitString_storeBit(struct BitString_t* self, int8_t v) {
@@ -68,8 +69,9 @@ void BitString_storeAddressNull(struct BitString_t* self) {
 }
 
 void BitString_finalize(struct BitString_t* self) {
-    uint8_t padBytes = self->data_cursor % 8;
+    uint8_t padBytes = self->data_cursor %  8;
     if (padBytes > 0) {
+        padBytes = 8 - padBytes;
         padBytes = padBytes - 1;
         BitString_storeBit(self, 1);
         while(padBytes > 0) {

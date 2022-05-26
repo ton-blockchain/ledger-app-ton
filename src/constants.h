@@ -26,9 +26,14 @@
 #define MAX_TRANSACTION_LEN 510
 
 /**
- * Maximum signature length (bytes).
+ * Signature length (bytes).
  */
-#define MAX_SIG_LEN 64
+#define SIG_LEN 64
+
+/**
+ * Cell Hash length (bytes).
+ */
+#define HASH_LEN 64
 
 /**
  * Exponent used to convert mBOL to BOL unit (N BOL = N * 10^3 mBOL).

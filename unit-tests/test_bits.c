@@ -65,8 +65,22 @@ static void test_bits(void **state) {
     
 }
 
+static void test_bits_2(void **state) {
+    
+    uint8_t expected[1] = {
+        0x20
+    };
+    BitString_t bits;
+    BitString_init(&bits);
+    BitString_storeBit(&bits, 0);
+    BitString_storeBit(&bits, 0);
+    BitString_finalize(&bits);
+    assert_int_equal(bits.data_cursor, 8);
+    assert_memory_equal(bits.data, expected, sizeof(expected));
+}
+
 int main() {
-    const struct CMUnitTest tests[] = {cmocka_unit_test(test_bits)};
+    const struct CMUnitTest tests[] = {cmocka_unit_test(test_bits),cmocka_unit_test(test_bits_2)};
 
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

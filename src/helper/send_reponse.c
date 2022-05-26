@@ -36,7 +36,7 @@ int helper_send_response_pubkey() {
 }
 
 int helper_send_response_sig() {
-    uint8_t resp[1 + MAX_SIG_LEN + 1 + 32] = {0};
+    uint8_t resp[1 + SIG_LEN + 1 + HASH_LEN] = {0};
     size_t offset = 0;
 
     // Signature
@@ -45,9 +45,9 @@ int helper_send_response_sig() {
     offset += G_context.tx_info.signature_len;
 
     // Hash
-    resp[offset++] = 64;
-    memmove(resp + offset, G_context.tx_info.m_hash, 64);
-    offset += 64;
+    resp[offset++] = HASH_LEN;
+    memmove(resp + offset, G_context.tx_info.m_hash, HASH_LEN);
+    offset += HASH_LEN;
 
     return io_send_response(&(const buffer_t){.ptr = resp, .size = offset, .offset = 0}, SW_OK);
 }
