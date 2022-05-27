@@ -122,7 +122,11 @@ bool address_to_friendly(const uint8_t chain,
     return true;
 }
 
-bool address_from_pubkey(const uint8_t public_key[static 32], uint8_t *out, size_t out_len) {
+bool address_from_pubkey(const uint8_t public_key[static 32],
+                         const bool bounceable,
+                         const bool testOnly,
+                         uint8_t *out,
+                         size_t out_len) {
     uint8_t hash[32] = {0};
     uint8_t inner[32] = {0};
     cx_sha256_t state;
@@ -143,7 +147,7 @@ bool address_from_pubkey(const uint8_t public_key[static 32], uint8_t *out, size
     cx_hash((cx_hash_t *) &state, CX_LAST, inner, sizeof(inner), hash, sizeof(hash));
 
     // Convert to friendly
-    address_to_friendly(0, hash, true, false, out, out_len);
+    address_to_friendly(0, hash, bounceable, testOnly, out, out_len);
 
     return true;
 }

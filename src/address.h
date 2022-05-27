@@ -37,6 +37,10 @@ bool address_to_friendly(const uint8_t chain,
  *   Pointer to byte buffer with public key.
  *   The public key is represented as 64 bytes with 32 bytes for
  *   each coordinate.
+ * @param[in]  bounceable
+ *   Address have to have bounceable flag set
+ * @param[in]  testOnly
+ *   Address have to have testnet flag set
  * @param[out] out
  *   Pointer to output byte buffer for address.
  * @param[in]  out_len
@@ -45,4 +49,8 @@ bool address_to_friendly(const uint8_t chain,
  * @return true if success, false otherwise.
  *
  */
-bool address_from_pubkey(const uint8_t public_key[static 32], uint8_t *out, size_t out_len);
+bool address_from_pubkey(const uint8_t public_key[static 32],
+                         const bool bounceable,
+                         const bool testOnly,
+                         uint8_t *out,
+                         size_t out_len);

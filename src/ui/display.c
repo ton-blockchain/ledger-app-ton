@@ -89,7 +89,7 @@ UX_FLOW(ux_display_pubkey_flow,
         &ux_display_approve_step,
         &ux_display_reject_step);
 
-int ui_display_address() {
+int ui_display_address(uint8_t flags) {
     if (G_context.req_type != CONFIRM_ADDRESS || G_context.state != STATE_NONE) {
         G_context.state = STATE_NONE;
         return io_send_sw(SW_BAD_STATE);
@@ -105,7 +105,19 @@ int ui_display_address() {
 
     memset(g_address, 0, sizeof(g_address));
     uint8_t address[ADDRESS_LEN] = {0};
-    if (!address_from_pubkey(G_context.pk_info.raw_public_key, address, sizeof(address))) {
+    bool bounceable = true;
+    bool testnet = false;
+    if (flags & 0x01) {
+        bounceable = false;
+    }
+    if (flags & 0x02) {
+        testnet = true;
+    }
+    if (!address_from_pubkey(G_context.pk_info.raw_public_key,
+                             bounceable,
+                             testnet,
+                             address,
+                             sizeof(address))) {
         return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
     }
     base64_encode(address, sizeof(address), g_address, sizeof(g_address));

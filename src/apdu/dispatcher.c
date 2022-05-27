@@ -51,7 +51,10 @@ int apdu_dispatcher(const command_t *cmd) {
 
             return handler_get_app_name();
         case GET_PUBLIC_KEY:
-            if (cmd->p1 > 1 || cmd->p2 > 0) {
+            if (cmd->p1 > 1 || cmd->p2 > 3) {
+                return io_send_sw(SW_WRONG_P1P2);
+            }
+            if (cmd->p1 == 0 && cmd->p2 > 0) {
                 return io_send_sw(SW_WRONG_P1P2);
             }
 
@@ -63,7 +66,7 @@ int apdu_dispatcher(const command_t *cmd) {
             buf.size = cmd->lc;
             buf.offset = 0;
 
-            return handler_get_public_key(&buf, (bool) cmd->p1);
+            return handler_get_public_key(cmd->p2, &buf, (bool) cmd->p1);
         case SIGN_TX:
             if ((cmd->p1 == P1_START && cmd->p2 != P2_MORE) ||  //
                 cmd->p1 > P1_MAX ||                             //

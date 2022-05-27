@@ -33,7 +33,7 @@
 #include "../ui/display.h"
 #include "../helper/send_response.h"
 
-int handler_get_public_key(buffer_t *cdata, bool display) {
+int handler_get_public_key(uint8_t flags, buffer_t *cdata, bool display) {
     explicit_bzero(&G_context, sizeof(G_context));
     G_context.req_type = CONFIRM_ADDRESS;
     G_context.state = STATE_NONE;
@@ -54,7 +54,7 @@ int handler_get_public_key(buffer_t *cdata, bool display) {
     explicit_bzero(&private_key, sizeof(private_key));
 
     if (display) {
-        return ui_display_address();
+        return ui_display_address(flags);
     }
 
     return helper_send_response_pubkey();
