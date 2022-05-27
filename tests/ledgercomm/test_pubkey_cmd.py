@@ -4,11 +4,11 @@ def test_get_public_key(cmd):
         display=False
     )  # type: bytes, bytes
 
-    assert len(pub_key) == 65
+    assert len(pub_key) == 32
 
     pub_key2 = cmd.get_public_key(
         bip32_path="m/44'/607'/0'/1'",
         display=False
     )  # type: bytes, bytes
 
-    assert len(pub_key2) == 65
+    assert len(pub_key2) == 32
