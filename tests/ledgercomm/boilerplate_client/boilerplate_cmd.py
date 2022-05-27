@@ -73,7 +73,7 @@ class BoilerplateCommand:
 
         return response.decode("ascii")
 
-    def get_public_key(self, bip32_path: str, display: bool = False) -> Tuple[bytes, bytes]:
+    def get_public_key(self, bip32_path: str, display: bool = False) -> bytes:
         sw, response = self.transport.exchange_raw(
             self.builder.get_public_key(bip32_path=bip32_path,
                                         display=display)
@@ -83,23 +83,17 @@ class BoilerplateCommand:
             raise DeviceException(error_code=sw, ins=InsType.INS_GET_PUBLIC_KEY)
 
         # response = pub_key_len (1) ||
-        #            pub_key (var) ||
-        #            chain_code_len (1) ||
-        #            chain_code (var)
+        #            pub_key (var)
         offset: int = 0
 
         pub_key_len: int = response[offset]
         offset += 1
         pub_key: bytes = response[offset:offset + pub_key_len]
         offset += pub_key_len
-        chain_code_len: int = response[offset]
-        offset += 1
-        chain_code: bytes = response[offset:offset + chain_code_len]
-        offset += chain_code_len
 
-        assert len(response) == 1 + pub_key_len + 1 + chain_code_len
+        assert len(response) == 1 + pub_key_len
 
-        return pub_key, chain_code
+        return pub_key
 
     def sign_tx(self, bip32_path: str, transaction: Transaction, button: Button) -> Tuple[int, bytes]:
         sw: int
