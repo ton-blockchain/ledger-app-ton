@@ -17,10 +17,10 @@ typedef enum {
 } parser_status_e;
 
 typedef struct {
-    uint32_t seqno;     /// seqno (4 bytes)
-    uint32_t timeout;   /// timeout (4 bytes)
-    uint64_t value;     /// amount value (8 bytes)
-    uint8_t to_chain;   /// target chain (1 byte)
-    uint8_t *to_hash;   /// target address (32 bytes)
+    uint32_t seqno;    /// seqno (4 bytes)
+    uint32_t timeout;  /// timeout (4 bytes)
+    uint64_t value;    /// amount value (8 bytes)
+    uint8_t to_chain;  /// target chain (1 byte)
+    uint8_t *to_hash;  /// target address (32 bytes)
     // uint8_t *payload;   /// payload hash (32 bytes)
 } transaction_t;

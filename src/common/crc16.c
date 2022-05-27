@@ -5,7 +5,7 @@ uint16_t crc16(uint8_t *ptr, size_t count) {
     int counter = count;
     int i = 0;
     while (--counter >= 0) {
-        crc = crc ^ (size_t)*ptr++ << 8;
+        crc = crc ^ (size_t) *ptr++ << 8;
         i = 8;
         do {
             if (crc & 0x8000) {

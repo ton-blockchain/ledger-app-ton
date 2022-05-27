@@ -165,7 +165,12 @@ int ui_display_transaction() {
 
     // Address
     uint8_t address[ADDRESS_LEN] = {0};
-    address_to_friendly(G_context.tx_info.transaction.to_chain, G_context.tx_info.transaction.to_hash, true, false, address, sizeof(address));
+    address_to_friendly(G_context.tx_info.transaction.to_chain,
+                        G_context.tx_info.transaction.to_hash,
+                        true,
+                        false,
+                        address,
+                        sizeof(address));
     memset(g_address, 0, sizeof(g_address));
     base64_encode(address, sizeof(address), g_address, sizeof(g_address));
 

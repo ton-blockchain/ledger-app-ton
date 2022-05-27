@@ -28,7 +28,7 @@
 int helper_send_response_pubkey() {
     uint8_t resp[PUBKEY_LEN] = {0};
     size_t offset = 0;
-    
+
     memmove(resp + offset, G_context.pk_info.raw_public_key, PUBKEY_LEN);
     offset += PUBKEY_LEN;
 

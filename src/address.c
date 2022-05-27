@@ -30,34 +30,79 @@
 
 const uint8_t root_header[] = {
     // Cell data and refs descriptor
-    0x02, 0x01, 0x34, 0x00, 0x07, 0x00, 0x00,
+    0x02,
+    0x01,
+    0x34,
+    0x00,
+    0x07,
+    0x00,
+    0x00,
     // Code cell hash
-    0xfe, 0xb5, 0xff, 0x68, 0x20, 0xe2, 0xff, 0x0d, 
-    0x94, 0x83, 0xe7, 0xe0, 0xd6, 0x2c, 0x81, 0x7d,
-    0x84, 0x67, 0x89, 0xfb, 0x4a, 0xe5, 0x80, 0xc8,
-    0x78, 0x86, 0x6d, 0x95, 0x9d, 0xab, 0xd5, 0xc0
-};
+    0xfe,
+    0xb5,
+    0xff,
+    0x68,
+    0x20,
+    0xe2,
+    0xff,
+    0x0d,
+    0x94,
+    0x83,
+    0xe7,
+    0xe0,
+    0xd6,
+    0x2c,
+    0x81,
+    0x7d,
+    0x84,
+    0x67,
+    0x89,
+    0xfb,
+    0x4a,
+    0xe5,
+    0x80,
+    0xc8,
+    0x78,
+    0x86,
+    0x6d,
+    0x95,
+    0x9d,
+    0xab,
+    0xd5,
+    0xc0};
 
 const uint8_t data_header[] = {
-    0x00, 0x51, // Cell header
-    0x00, 0x00, 0x00, 0x00, // Seqno
-    0x29, 0xa9, 0xa3, 0x17, // Wallet ID
+    0x00,
+    0x51,  // Cell header
+    0x00,
+    0x00,
+    0x00,
+    0x00,  // Seqno
+    0x29,
+    0xa9,
+    0xa3,
+    0x17,  // Wallet ID
 };
 
 const uint8_t data_tail[] = {
-    0x40 // zero bit + padding
+    0x40  // zero bit + padding
 };
 
-bool address_to_friendly(const uint8_t chain, const uint8_t hash[static 32], const bool bounceable, const bool testOnly, uint8_t *out, size_t out_len) {
+bool address_to_friendly(const uint8_t chain,
+                         const uint8_t hash[static 32],
+                         const bool bounceable,
+                         const bool testOnly,
+                         uint8_t *out,
+                         size_t out_len) {
     if (out_len < ADDRESS_LEN) {
         return false;
     }
 
     // Address Tag
     if (bounceable) {
-        out[0] = 0x11; // Bounceable
+        out[0] = 0x11;  // Bounceable
     } else {
-        out[0] = 0x51; // Non-Bounceable
+        out[0] = 0x51;  // Non-Bounceable
     }
     if (testOnly) {
         out[0] = out[0] | 0x80;
@@ -99,6 +144,6 @@ bool address_from_pubkey(const uint8_t public_key[static 32], uint8_t *out, size
 
     // Convert to friendly
     address_to_friendly(0, hash, true, false, out, out_len);
-    
+
     return true;
 }

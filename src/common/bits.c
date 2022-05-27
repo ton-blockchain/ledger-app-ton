@@ -22,18 +22,17 @@ void BitString_storeBit(struct BitString_t* self, int8_t v) {
 }
 
 void BitString_storeUint(struct BitString_t* self, uint64_t v, uint8_t bits) {
-    for(int i = 0; i < bits; i++) {
+    for (int i = 0; i < bits; i++) {
         int8_t b = (v >> (bits - i - 1)) & 0x01;
         BitString_storeBit(self, b);
     }
 }
 
 void BitString_storeCoins(struct BitString_t* self, uint64_t v) {
-
     // Measure length
     uint8_t len = 0;
     uint64_t r = v;
-    for(int i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++) {
         if (r > 0) {
             len++;
             r = r >> 8;
@@ -46,18 +45,18 @@ void BitString_storeCoins(struct BitString_t* self, uint64_t v) {
     BitString_storeUint(self, len, 4);
 
     // Write remaining
-    for(int i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) {
         BitString_storeUint(self, v >> ((len - i - 1) * 8), 8);
     }
 }
 
-void BitString_storeBuffer(struct BitString_t* self, uint8_t *v, uint8_t length) {
-    for(int i = 0; i < length; i++) {
+void BitString_storeBuffer(struct BitString_t* self, uint8_t* v, uint8_t length) {
+    for (int i = 0; i < length; i++) {
         BitString_storeUint(self, v[i], 8);
     }
 }
 
-void BitString_storeAddress(struct BitString_t* self, uint8_t chain, uint8_t *hash) {
+void BitString_storeAddress(struct BitString_t* self, uint8_t chain, uint8_t* hash) {
     BitString_storeUint(self, 2, 2);
     BitString_storeUint(self, 0, 1);
     BitString_storeUint(self, chain, 8);
@@ -69,12 +68,12 @@ void BitString_storeAddressNull(struct BitString_t* self) {
 }
 
 void BitString_finalize(struct BitString_t* self) {
-    uint8_t padBytes = self->data_cursor %  8;
+    uint8_t padBytes = self->data_cursor % 8;
     if (padBytes > 0) {
         padBytes = 8 - padBytes;
         padBytes = padBytes - 1;
         BitString_storeBit(self, 1);
-        while(padBytes > 0) {
+        while (padBytes > 0) {
             padBytes = padBytes - 1;
             BitString_storeBit(self, 0);
         }

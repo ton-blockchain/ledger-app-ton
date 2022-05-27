@@ -23,7 +23,12 @@
  * @return true if success, false otherwise.
  *
  */
-bool address_to_friendly(const uint8_t chain, const uint8_t hash[static 32], const bool bounceable, const bool testOnly, uint8_t *out, size_t out_len);
+bool address_to_friendly(const uint8_t chain,
+                         const uint8_t hash[static 32],
+                         const bool bounceable,
+                         const bool testOnly,
+                         uint8_t *out,
+                         size_t out_len);
 
 /**
  * Convert public key to address. Uses Wallet V4 contract.
