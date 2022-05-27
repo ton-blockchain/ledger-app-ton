@@ -30,15 +30,14 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
 
     BEGIN_TRY {
         TRY {
-            
             // derive the seed with bip32_path
-            os_perso_derive_node_bip32_seed_key(HDW_ED25519_SLIP10, 
-                                                CX_CURVE_Ed25519, 
-                                                bip32_path, 
-                                                bip32_path_len, 
-                                                raw_private_key, 
-                                                NULL, 
-                                                (unsigned char*) "ed25519 seed",
+            os_perso_derive_node_bip32_seed_key(HDW_ED25519_SLIP10,
+                                                CX_CURVE_Ed25519,
+                                                bip32_path,
+                                                bip32_path_len,
+                                                raw_private_key,
+                                                NULL,
+                                                (unsigned char *) "ed25519 seed",
                                                 12);
 
             // new private_key from raw
@@ -62,7 +61,6 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
 int crypto_init_public_key(cx_ecfp_private_key_t *private_key,
                            cx_ecfp_public_key_t *public_key,
                            uint8_t raw_public_key[static 32]) {
-    
     // generate corresponding public key
     cx_ecfp_generate_pair(CX_CURVE_Ed25519, public_key, private_key, 1);
 
@@ -82,9 +80,7 @@ int crypto_sign_message() {
     int sig_len = 0;
 
     // derive private key according to BIP32 path
-    crypto_derive_private_key(&private_key,
-                              G_context.bip32_path,
-                              G_context.bip32_path_len);
+    crypto_derive_private_key(&private_key, G_context.bip32_path, G_context.bip32_path_len);
 
     BEGIN_TRY {
         TRY {
@@ -93,7 +89,8 @@ int crypto_sign_message() {
                                     CX_SHA512,
                                     G_context.tx_info.m_hash,
                                     sizeof(G_context.tx_info.m_hash),
-                                    NULL, 0,
+                                    NULL,
+                                    0,
                                     G_context.tx_info.signature,
                                     sizeof(G_context.tx_info.signature),
                                     NULL);
