@@ -47,7 +47,7 @@
 /**
  * Status word for fail of transaction parsing.
  */
-#define SW_TX_PARSING_FAIL 0xB005
+#define SW_TX_PARSING_FAIL 0xB010
 /**
  * Status word for fail of transaction hash.
  */

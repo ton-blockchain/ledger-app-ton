@@ -81,7 +81,7 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
             parser_status_e status = transaction_deserialize(&buf, &G_context.tx_info.transaction);
             PRINTF("Parsing status: %d.\n", status);
             if (status != PARSING_OK) {
-                return io_send_sw(SW_TX_PARSING_FAIL);
+                return io_send_sw(SW_TX_PARSING_FAIL + status);
             }
 
             // Hash
