@@ -1,6 +1,7 @@
 #include <stddef.h>   // size_t
 #include <stdint.h>   // uint*_t
 #include <stdbool.h>  // bool
+#include <string.h>   // explicit_bzero
 
 #include "bits.h"
 
@@ -45,7 +46,6 @@ void BitString_storeCoins(struct BitString_t* self, uint64_t v) {
     BitString_storeUint(self, len, 4);
 
     // Write remaining
-    r = v;
     for(int i = 0; i < len; i++) {
         BitString_storeUint(self, v >> ((len - i - 1) * 8), 8);
     }
