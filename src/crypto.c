@@ -61,7 +61,7 @@ int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
 
 int crypto_init_public_key(cx_ecfp_private_key_t *private_key,
                            cx_ecfp_public_key_t *public_key,
-                           uint8_t raw_public_key[static 64]) {
+                           uint8_t raw_public_key[static 32]) {
     
     // generate corresponding public key
     cx_ecfp_generate_pair(CX_CURVE_Ed25519, public_key, private_key, 1);
