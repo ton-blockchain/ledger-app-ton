@@ -13,16 +13,16 @@ on:
 
 jobs:
   nano_build:
-    name: Build boilerplate application for NanoS, X and S+
+    name: Build TON application for NanoS, X and S+
     strategy:
       matrix:
         include:
           - SDK: "$NANOS_SDK"
-            artifact: boilerplate-app-nanoS
+            artifact: ton-app-nanoS
           - SDK: "$NANOX_SDK"
-            artifact: boilerplate-app-nanoX
+            artifact: ton-app-nanoX
           - SDK: "$NANOSP_SDK"
-            artifact: boilerplate-app-nanoSP
+            artifact: ton-app-nanoSP
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
@@ -92,7 +92,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./unit-tests/coverage.info
           flags: unittests
-          name: codecov-app-boilerplate
+          name: codecov-app-ton
           fail_ci_if_error: true
           verbose: true
 
@@ -135,7 +135,7 @@ jobs:
       - name: Download app binary
         uses: actions/download-artifact@v2
         with:
-          name: boilerplate-app-nanoS
+          name: ton-app-nanoS
           path: bin
       - name: Install dependencies
         run: |
@@ -165,7 +165,7 @@ jobs:
       - name: Download app binary
         uses: actions/download-artifact@v2
         with:
-          name: boilerplate-app-nanoS
+          name: ton-app-nanoS
           path: bin
       - name: Install tests dependencies
         run: |

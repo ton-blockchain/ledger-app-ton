@@ -1,39 +1,34 @@
-# Ledger Boilerplate Application
+# TON Ledger App
 
-This is a boilerplate application which can be forked to start a new project for the Ledger Nano S/X.
+This is a Nano App for Ledger S/X/S+ for TON blockchain.
 
-## Prerequisite
+* 🚀 Compatible with latest Wallet v4 contract
+* 🔎 Absolutely minimal footprint and very straight forward code that easy to audit and contribute
+* 📱 Compatible with TON wallet apps
 
-Be sure to have your environment correctly set up (see [Getting Started](https://developers.ledger.com/docs/nano-app/introduction/)) and [ledgerblue](https://pypi.org/project/ledgerblue/) and installed.
+## Installation
 
-If you want to benefit from [vscode](https://code.visualstudio.com/) integration, it's recommended to move the toolchain in `/opt` and set `BOLOS_ENV` environment variable as follows
+Right now TON app is not available through Ledger Live and have to be sideloaded to Ledger Nano S+. We support Ledger Nano S, but we generally recommend a new one. Everything have to be done on Linux on x64 CPU with docker installed.
+* Checkout this repository
+* Connect Ledger to the computer, turn it on and unlock.
+* Start and login into environment. Run in terminal: `./env.sh`
+* Run `make load` to build and upload app to the Ledger
 
-```
-BOLOS_ENV=/opt/bolos-devenv
-```
+## Development
 
-and do the same with `BOLOS_SDK` environment variable
+For Mac or Windows users we recommend to use VS Code Remote with a x64 Linux laptop and do all work there and connect ledger directly to it. 
 
-```
-BOLOS_SDK=/opt/nanos-secure-sdk
-```
-
-## Compilation
-
-```
-make DEBUG=1  # compile optionally with PRINTF
-make load     # load the app on the Nano using ledgerblue
-```
+To build and run just launch Ledger App Builder environment by calling `./env.sh` and then:
+* `make build` - to build app
+* `make load` - to build and upload to a Ledger
+* `make clean` - to clean build
+* `make scan-build` - for Clang static analyzer
+* `cmake -Bbuild -H. && make -C build && CTEST_OUTPUT_ON_FAILURE=1 make -C build test` - for unit tests in `unit-tests` directory
+* `doxygen .doxygen/Doxyfile` - to generate html and latex documentation
 
 ## Documentation
 
 High level documentation such as [APDU](doc/APDU.md), [commands](doc/COMMANDS.md) and [transaction serialization](doc/TRANSACTION.md) are included in developer documentation which can be generated with [doxygen](https://www.doxygen.nl)
-
-```
-doxygen .doxygen/Doxyfile
-```
-
-the process outputs HTML and LaTeX documentations in `doc/html` and `doc/latex` folders.
 
 ## Tests & Continuous Integration
 
@@ -52,13 +47,3 @@ It outputs 4 artifacts:
 - `speculos-log` within APDU command/response when executing end-to-end tests
 - `code-coverage` within HTML details of code coverage
 - `documentation` within HTML auto-generated documentation
-
-## Are you developing a Nano S, S Plus, X application?
-
-If so, This boilerplate will help you get started. 
-
-For a smooth and quick integration:
-- See the developers’ documentation on the [Developer Portal](https://developers.ledger.com/) and 
-- Go on Discord to chat with developper support and the developper community. See you there! If you are new to Ledger OP3N Discord server [click here](https://discord.gg/Ledger), otherwise directly join [the Nano App channel](https://discord.com/channels/885256081289379850/907623554542080070).
-
-
