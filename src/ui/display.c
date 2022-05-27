@@ -107,13 +107,18 @@ int ui_display_address(uint8_t flags) {
     uint8_t address[ADDRESS_LEN] = {0};
     bool bounceable = true;
     bool testnet = false;
+    uint8_t chain = 0;
     if (flags & 0x01) {
         bounceable = false;
     }
     if (flags & 0x02) {
         testnet = true;
     }
+    if (flags & 0x04) {
+        chain = 0xff;
+    }
     if (!address_from_pubkey(G_context.pk_info.raw_public_key,
+                             chain,
                              bounceable,
                              testnet,
                              address,

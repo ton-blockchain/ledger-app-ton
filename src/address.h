@@ -37,6 +37,8 @@ bool address_to_friendly(const uint8_t chain,
  *   Pointer to byte buffer with public key.
  *   The public key is represented as 64 bytes with 32 bytes for
  *   each coordinate.
+ * @param[in]  chain
+ *   0x00 or 0xff for workchains
  * @param[in]  bounceable
  *   Address have to have bounceable flag set
  * @param[in]  testOnly
@@ -50,6 +52,7 @@ bool address_to_friendly(const uint8_t chain,
  *
  */
 bool address_from_pubkey(const uint8_t public_key[static 32],
+                         const uint8_t chain,
                          const bool bounceable,
                          const bool testOnly,
                          uint8_t *out,

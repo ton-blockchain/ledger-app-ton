@@ -51,7 +51,7 @@ int apdu_dispatcher(const command_t *cmd) {
 
             return handler_get_app_name();
         case GET_PUBLIC_KEY:
-            if (cmd->p1 > 1 || cmd->p2 > 3) {
+            if (cmd->p1 > 1 || cmd->p2 > 7) {
                 return io_send_sw(SW_WRONG_P1P2);
             }
             if (cmd->p1 == 0 && cmd->p2 > 0) {

@@ -1,16 +1,26 @@
-# BOLOK Transaction Serialization
+# TON Transaction Serialization
 
 ## Overview
 
-The custom transaction serialization presented is for the purely fictitious BOLOK *chain* which has been inspired by other popular blockchain (see [Links](#links)).
+TON Ledger App requires custom format for transactions since it have to be assembed in ledger for security.
 
 ## Amount units
 
-The base unit in BOLOK *chain* is the BOL and the smallest unit used in raw transaction is the *bolino* or mBOL: 1 BOL = 1000 mBOL.
+TON uses 256 bit integers for amounts, but TON app limits it to 64bit uint. This limits amount that could be sent as 18M TON. This is substantinal and we don't expect cases where you would need to send much more in a single transaction.
+
+## Wallet Contract
+
+TON Ledger App works only with Wallet V4 contract and doesn't support legacy wallets. This also meants that it is impossible to work with older wallets.
 
 ## Address format
 
-BOLOK addresses are hexadecimal numbers, identifiers derived from the last 20 bytes of the Keccak-256 hash of the public key.
+Address is serialized by appending a single byte of chain - 0x00 or 0xff and then 32 bytes of hash.
+
+## Hints
+
+NOTE: This is not released yet
+
+Hints are arbitrary that could be used by Nano App
 
 ## Structure
 
@@ -18,39 +28,22 @@ BOLOK addresses are hexadecimal numbers, identifiers derived from the last 20 by
 
 | Field | Size (bytes) | Description |
 | --- | :---: | --- |
-| `nonce` | 8 | A sequence number used to prevent message replay |
-| `to` | 20 | The destination address |
-| `value` | 8 | The amount in mBOL to send to the destination address |
-| `memo_len` | 1-9 | length of the memo as [varint](#variablelenghtinteger) |
-| `memo` | var | A text ASCII-encoded of length `memo_len` to show your love |
-| `v` | 1 | 0x01 if y-coordinate of R is odd, 0x00 otherwise |
-| `r` | 32 | x-coordinate of R in ECDSA signature |
-| `s` | 32 | x-coordinate of S in ECDSA signature |
-
-### Variable length integer (varint)
-
-Integer can be encoded depending on the represented value to save space.
-Variable length integers always precede an array of a type of data that may vary in length.
-Longer numbers are encoded in little endian.
-
-| Value | Storage length (bytes) | Format |
-| --- | :---: | --- |
-| < 0xFD | 1 | uint8_t |
-| <= 0xFFFF | 3 | 0xFD followed by the length as uint16_t |
-| <= 0xFFFF FFFF | 5 | 0xFE followed by the length as uint32_t |
-| - | 9 | 0xFF followed by the length as uint64_t |
-
-### Signature
-
-Deterministic ECDSA ([RFC 6979](https://tools.ietf.org/html/rfc6979)) is used to sign transaction on the [SECP-256k1](https://www.secg.org/sec2-v2.pdf#subsubsection.2.4.1) curve.
-The signed message is `m = Keccak-256(nonce || to || value || memo_len || memo)`.
+| `tag` | 1 | 0x00. Reserved for future. |
+| `seqno` | 4 | A sequence number used to prevent message replay |
+| `timeout` | 4 | Message timeout |
+| `value` | 8 | The amount in nanotons to send to the destination address |
+| `bounce` | 1 | 0x01 or 0x00 for bounce flag |
+| `send_mode` | 1 | send mode of a message |
+| `state_init` | 1 | 0x01 if state init is present |
+| (opt) `state_init_depth` | 2 | state_init' Cell depth if state_init is 0x01 |
+| (opt) `state_init_hash` | 32 | state_init' Cell hash is 0x01 |
+| `payload` | 1 | 0x01 if payload is present |
+| (opt) `payload_depth` | 2 | payload' Cell depth if state_init is 0x01 |
+| (opt) `payload_hash` | 32 | payload' Cell hash is 0x01 |
+| `hints` | 1 | 0x01 if hints exists |
+| (opt) `hints_len` | 16 | hints data length |
+| (opt) `hints_data` | <var> | hints data |
 
 ### Fee
 
-You won't find any fee in the transaction structure because the BOLOK *chain* has constant fees.
-
-## Links
-
-- Bitcoin Transaction: https://en.bitcoin.it/wiki/Protocol_documentation#tx
-
-- Ethereum Transaction: https://ethereum.github.io/yellowpaper/paper.pdf#subsection.4.2
+You won't find any fee in the transaction structure because the TON chain has constant fees.
