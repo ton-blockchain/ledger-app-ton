@@ -82,16 +82,11 @@ class BoilerplateCommand:
         if sw != 0x9000:
             raise DeviceException(error_code=sw, ins=InsType.INS_GET_PUBLIC_KEY)
 
-        # response = pub_key_len (1) ||
-        #            pub_key (var)
+        # response = pub_key (32)
+
         offset: int = 0
-
-        pub_key_len: int = response[offset]
-        offset += 1
-        pub_key: bytes = response[offset:offset + pub_key_len]
-        offset += pub_key_len
-
-        assert len(response) == 1 + pub_key_len
+        pub_key: bytes = response[offset:offset + 32]
+        assert len(response) == 32
 
         return pub_key
 
