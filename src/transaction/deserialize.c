@@ -68,8 +68,28 @@ parser_status_e transaction_deserialize(buffer_t *buf, transaction_t *tx) {
         return SEND_MODE_PARSING_ERROR;
     }
 
+    // state-init
+    if (!buffer_read_u8(buf, &tx->state_init)) {
+        return STATE_INIT_PARSING_ERROR;
+    }
+    if (tx->state_init != 0x00 && tx->state_init != 0x01) {  // Only 0x00 and 0x01 are supported
+        return STATE_INIT_PARSING_ERROR;
+    }
+    if (tx->state_init > 0) {
+        if (!buffer_read_u16(buf, &tx->state_init_depth, BE)) {
+            return STATE_INIT_PARSING_ERROR;
+        }
+        tx->state_init_hash = (uint8_t *) (buf->ptr + buf->offset);
+        if (!buffer_seek_cur(buf, 32)) {
+            return STATE_INIT_PARSING_ERROR;
+        }
+    }
+
     // Payload
     if (!buffer_read_u8(buf, &tx->payload)) {
+        return PAYLOAD_PARSING_ERROR;
+    }
+    if (tx->payload != 0x00 && tx->payload != 0x01) {  // Only 0x00 and 0x01 are supported
         return PAYLOAD_PARSING_ERROR;
     }
     if (tx->payload > 0) {

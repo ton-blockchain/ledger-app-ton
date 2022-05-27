@@ -41,6 +41,7 @@ static action_validate_cb g_validate_callback;
 static char g_amount[30];
 static char g_bip32_path[60];
 static char g_address[49];
+static char g_payload[512];
 
 // Step with icon and text
 UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Address"});
@@ -131,6 +132,13 @@ UX_STEP_NOCB(ux_display_amount_step,
                  .title = "Amount",
                  .text = g_amount,
              });
+// Step with payload amount
+UX_STEP_NOCB(ux_display_payload_step,
+             bnnn_paging,
+             {
+                 .title = "Payload",
+                 .text = g_payload,
+             });
 
 // FLOW to display transaction information:
 // #1 screen : eye icon + "Review Transaction"
@@ -142,6 +150,7 @@ UX_FLOW(ux_display_transaction_flow,
         &ux_display_review_step,
         &ux_display_address_step,
         &ux_display_amount_step,
+        &ux_display_payload_step,
         &ux_display_approve_step,
         &ux_display_reject_step);
 
@@ -177,6 +186,14 @@ int ui_display_transaction() {
                         sizeof(address));
     memset(g_address, 0, sizeof(g_address));
     base64_encode(address, sizeof(address), g_address, sizeof(g_address));
+
+    // Payload
+    if (G_context.tx_info.transaction.payload > 0) {
+        memset(g_payload, 0, sizeof(g_payload));
+        base64_encode(G_context.tx_info.transaction.payload_hash, 32, g_payload, sizeof(g_payload));
+    } else {
+        snprintf(g_payload, sizeof(g_payload), "Nothing");
+    }
 
     // Start flow
     g_validate_callback = &ui_action_validate_transaction;
