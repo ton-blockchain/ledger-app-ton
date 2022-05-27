@@ -87,8 +87,7 @@ bool hash_tx(transaction_ctx_t *ctx) {
     // Payload
     if (ctx->transaction.payload > 0) {
         BitString_storeBit(&bits, 0);  // no state-init
-        BitString_storeBit(&bits, 1);  // body
-        BitString_storeBit(&bits, 1);  // with ref
+        BitString_storeBit(&bits, 1);  // body in ref
 
         // Create ref
         payload_ref.max_depth = ctx->transaction.payload_depth;
@@ -99,7 +98,7 @@ bool hash_tx(transaction_ctx_t *ctx) {
         hash_Cell(&bits, internalMessageRefs, 1, &internalMessageRef);
     } else {
         BitString_storeBit(&bits, 0);  // no state-init
-        BitString_storeBit(&bits, 0);  // no-body
+        BitString_storeBit(&bits, 0);  // body inline
 
         // Hash cell
         hash_Cell(&bits, NULL, 0, &internalMessageRef);
