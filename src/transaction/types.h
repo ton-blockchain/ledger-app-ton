@@ -19,6 +19,7 @@ typedef enum {
     BOUNCE_PARSING_ERROR = -8,
     PAYLOAD_PARSING_ERROR = -9,
     STATE_INIT_PARSING_ERROR = -10,
+    HINTS_PARSING_ERROR = -11,
 } parser_status_e;
 
 typedef struct {
@@ -36,4 +37,7 @@ typedef struct {
     uint8_t state_init;         // if state_init exist (1 byte)
     uint16_t state_init_depth;  // state_init depth (2 bytes)
     uint8_t *state_init_hash;   /// state_init hash (32 bytes)
+    uint8_t hints;              // Hits: reserved for future use (1 byte)
+    uint16_t hints_len;         // Hits: reserved for future (2 bytes)
+    uint8_t *hints_data;        // Hits: reserved for future (optional hints_len bytes)
 } transaction_t;

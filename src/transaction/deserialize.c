@@ -102,5 +102,19 @@ parser_status_e transaction_deserialize(buffer_t *buf, transaction_t *tx) {
         }
     }
 
+    // Hints
+    if (!buffer_read_u8(buf, &tx->hints)) {
+        return HINTS_PARSING_ERROR;
+    }
+    if (tx->hints > 0) {
+        if (!buffer_read_u16(buf, &tx->hints_len, BE)) {
+            return HINTS_PARSING_ERROR;
+        }
+        tx->hints_data = (uint8_t *) (buf->ptr + buf->offset);
+        if (!buffer_seek_cur(buf, tx->hints_len)) {
+            return HINTS_PARSING_ERROR;
+        }
+    }
+
     return (buf->offset == buf->size) ? PARSING_OK : WRONG_LENGTH_ERROR;
 }
