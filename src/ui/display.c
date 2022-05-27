@@ -152,15 +152,19 @@ int ui_display_transaction() {
     }
 
     // Amount
-    memset(g_amount, 0, sizeof(g_amount));
-    char amount[30] = {0};
-    if (!format_fpu64(amount,
-                      sizeof(amount),
-                      G_context.tx_info.transaction.value,
-                      EXPONENT_SMALLEST_UNIT)) {
-        return io_send_sw(SW_DISPLAY_AMOUNT_FAIL);
+    if ((G_context.tx_info.transaction.send_mode & 128) != 0) {
+        snprintf(g_amount, sizeof(g_amount), "ALL YOUR TONs");
+    } else {
+        memset(g_amount, 0, sizeof(g_amount));
+        char amount[30] = {0};
+        if (!format_fpu64(amount,
+                          sizeof(amount),
+                          G_context.tx_info.transaction.value,
+                          EXPONENT_SMALLEST_UNIT)) {
+            return io_send_sw(SW_DISPLAY_AMOUNT_FAIL);
+        }
+        snprintf(g_amount, sizeof(g_amount), "TON %.*s", sizeof(amount), amount);
     }
-    snprintf(g_amount, sizeof(g_amount), "TON %.*s", sizeof(amount), amount);
     PRINTF("Amount: %s\n", g_amount);
 
     // Address

@@ -45,4 +45,4 @@ bool address_to_friendly(const uint8_t chain,
  * @return true if success, false otherwise.
  *
  */
-bool address_from_pubkey(const uint8_t public_key[static 64], uint8_t *out, size_t out_len);
+bool address_from_pubkey(const uint8_t public_key[static 32], uint8_t *out, size_t out_len);
