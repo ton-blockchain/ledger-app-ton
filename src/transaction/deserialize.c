@@ -20,6 +20,12 @@
 #include "types.h"
 #include "../common/buffer.h"
 #include "hash.h"
+#include "cell.h"
+
+#define SAFE(RES, CODE) \
+    if (!RES) {         \
+        return CODE;    \
+    }
 
 parser_status_e transaction_deserialize(buffer_t *buf, transaction_t *tx) {
     if (buf->size > MAX_TX_LEN) {
@@ -27,93 +33,44 @@ parser_status_e transaction_deserialize(buffer_t *buf, transaction_t *tx) {
     }
 
     // tag
-    if (!buffer_read_u8(buf, &tx->tag)) {
-        return TAG_PARSING_ERROR;
-    }
+    SAFE(buffer_read_u8(buf, &tx->tag), TAG_PARSING_ERROR);
     if (tx->tag != 0x00) {  // Only 0x00 is supported now
         return TAG_PARSING_ERROR;
     }
 
-    // seqno
-    if (!buffer_read_u32(buf, &tx->seqno, BE)) {
-        return SEQ_PARSING_ERROR;
-    }
-
-    // timeout
-    if (!buffer_read_u32(buf, &tx->timeout, BE)) {
-        return TIMEOUT_PARSING_ERROR;
-    }
-
-    // amount value
-    if (!buffer_read_u64(buf, &tx->value, BE)) {
-        return VALUE_PARSING_ERROR;
-    }
+    // Basic Transaction parameters
+    SAFE(buffer_read_u32(buf, &tx->seqno, BE), SEQ_PARSING_ERROR);
+    SAFE(buffer_read_u32(buf, &tx->timeout, BE), TIMEOUT_PARSING_ERROR);
+    SAFE(buffer_read_u64(buf, &tx->value, BE), VALUE_PARSING_ERROR);
 
     // address
-    if (!buffer_read_u8(buf, &tx->to_chain)) {
-        return TO_PARSING_ERROR;
-    }
-    tx->to_hash = (uint8_t *) (buf->ptr + buf->offset);
-    if (!buffer_seek_cur(buf, 32)) {
-        return TO_PARSING_ERROR;
-    }
+    SAFE(buffer_read_u8(buf, &tx->to_chain), TO_PARSING_ERROR);
+    SAFE(buffer_red_ref(buf, &tx->to_hash, 32), TO_PARSING_ERROR);
 
-    // bounce
-    if (!buffer_read_u8(buf, &tx->bounce)) {
-        return BOUNCE_PARSING_ERROR;
-    }
-
-    // send mode
-    if (!buffer_read_u8(buf, &tx->send_mode)) {
-        return SEND_MODE_PARSING_ERROR;
-    }
+    // Flags
+    SAFE(buffer_read_u8(buf, &tx->bounce), BOUNCE_PARSING_ERROR);
+    SAFE(buffer_read_u8(buf, &tx->send_mode), SEND_MODE_PARSING_ERROR);
 
     // state-init
-    if (!buffer_read_u8(buf, &tx->state_init)) {
-        return STATE_INIT_PARSING_ERROR;
-    }
-    if (tx->state_init != 0x00 && tx->state_init != 0x01) {  // Only 0x00 and 0x01 are supported
-        return STATE_INIT_PARSING_ERROR;
-    }
-    if (tx->state_init > 0) {
-        if (!buffer_read_u16(buf, &tx->state_init_depth, BE)) {
-            return STATE_INIT_PARSING_ERROR;
-        }
-        tx->state_init_hash = (uint8_t *) (buf->ptr + buf->offset);
-        if (!buffer_seek_cur(buf, 32)) {
-            return STATE_INIT_PARSING_ERROR;
-        }
+    SAFE(buffer_read_bool(buf, &tx->state_init), STATE_INIT_PARSING_ERROR);
+    if (tx->state_init) {
+        SAFE(buffer_read_u16(buf, &tx->state_init_depth, BE), STATE_INIT_PARSING_ERROR);
+        SAFE(buffer_red_ref(buf, &tx->state_init_hash, 32), STATE_INIT_PARSING_ERROR);
     }
 
     // Payload
-    if (!buffer_read_u8(buf, &tx->payload)) {
-        return PAYLOAD_PARSING_ERROR;
-    }
-    if (tx->payload != 0x00 && tx->payload != 0x01) {  // Only 0x00 and 0x01 are supported
-        return PAYLOAD_PARSING_ERROR;
-    }
-    if (tx->payload > 0) {
-        if (!buffer_read_u16(buf, &tx->payload_depth, BE)) {
-            return PAYLOAD_PARSING_ERROR;
-        }
-        tx->payload_hash = (uint8_t *) (buf->ptr + buf->offset);
-        if (!buffer_seek_cur(buf, 32)) {
-            return PAYLOAD_PARSING_ERROR;
-        }
+    SAFE(buffer_read_bool(buf, &tx->payload), PAYLOAD_PARSING_ERROR);
+    if (tx->payload) {
+        SAFE(buffer_read_u16(buf, &tx->payload_depth, BE), PAYLOAD_PARSING_ERROR);
+        SAFE(buffer_red_ref(buf, &tx->payload_hash, 32), PAYLOAD_PARSING_ERROR);
     }
 
     // Hints
-    if (!buffer_read_u8(buf, &tx->hints)) {
-        return HINTS_PARSING_ERROR;
-    }
-    if (tx->hints > 0) {
-        if (!buffer_read_u16(buf, &tx->hints_len, BE)) {
-            return HINTS_PARSING_ERROR;
-        }
-        tx->hints_data = (uint8_t *) (buf->ptr + buf->offset);
-        if (!buffer_seek_cur(buf, tx->hints_len)) {
-            return HINTS_PARSING_ERROR;
-        }
+    SAFE(buffer_read_bool(buf, &tx->hints), HINTS_PARSING_ERROR);
+    if (tx->hints) {
+        SAFE(buffer_read_u64(buf, &tx->hints_type, BE), HINTS_PARSING_ERROR);
+        SAFE(buffer_read_u16(buf, &tx->hints_len, BE), HINTS_PARSING_ERROR);
+        SAFE(buffer_red_ref(buf, &tx->hints_data, tx->hints_len), PAYLOAD_PARSING_ERROR);
     }
 
     return (buf->offset == buf->size) ? PARSING_OK : WRONG_LENGTH_ERROR;

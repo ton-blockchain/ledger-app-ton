@@ -21,7 +21,6 @@
 
 #include "buffer.h"
 #include "read.h"
-#include "varint.h"
 #include "bip32.h"
 
 bool buffer_can_read(const buffer_t *buffer, size_t n) {
@@ -72,6 +71,23 @@ bool buffer_read_u8(buffer_t *buffer, uint8_t *value) {
     return true;
 }
 
+bool buffer_read_bool(buffer_t *buffer, bool *value) {
+    if (!buffer_can_read(buffer, 1)) {
+        *value = false;
+
+        return false;
+    }
+
+    uint8_t v = buffer->ptr[buffer->offset];
+    if (v != 0x00 && v != 0x01) {
+        *value = false;
+        return false;
+    }
+    *value = v == 0x01;
+    buffer_seek_cur(buffer, 1);
+    return true;
+}
+
 bool buffer_read_u16(buffer_t *buffer, uint16_t *value, endianness_t endianness) {
     if (!buffer_can_read(buffer, 2)) {
         *value = 0;
@@ -117,20 +133,6 @@ bool buffer_read_u64(buffer_t *buffer, uint64_t *value, endianness_t endianness)
     return true;
 }
 
-bool buffer_read_varint(buffer_t *buffer, uint64_t *value) {
-    int length = varint_read(buffer->ptr + buffer->offset, buffer->size - buffer->offset, value);
-
-    if (length < 0) {
-        *value = 0;
-
-        return false;
-    }
-
-    buffer_seek_cur(buffer, (size_t) length);
-
-    return true;
-}
-
 bool buffer_read_bip32_path(buffer_t *buffer, uint32_t *out, size_t out_len) {
     if (!bip32_path_read(buffer->ptr + buffer->offset,
                          buffer->size - buffer->offset,
@@ -161,5 +163,15 @@ bool buffer_move(buffer_t *buffer, uint8_t *out, size_t out_len) {
 
     buffer_seek_cur(buffer, out_len);
 
+    return true;
+}
+
+bool buffer_red_ref(buffer_t *buffer, uint8_t **out, size_t out_len) {
+    if (!buffer_can_read(buffer, out_len)) {
+        return false;
+    }
+
+    *out = (uint8_t *) (buffer->ptr + buffer->offset);
+    buffer_seek_cur(buffer, out_len);
     return true;
 }

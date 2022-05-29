@@ -74,6 +74,19 @@ bool buffer_seek_cur(buffer_t *buffer, size_t offset);
 bool buffer_seek_end(buffer_t *buffer, size_t offset);
 
 /**
+ * Read 1 byte boolean into bool.
+ *
+ * @param[in,out]  buffer
+ *   Pointer to input buffer struct.
+ * @param[out]     value
+ *   Pointer to 8-bit unsigned integer read from buffer.
+ *
+ * @return true if success, false otherwise.
+ *
+ */
+bool buffer_read_bool(buffer_t *buffer, bool *value);
+
+/**
  * Read 1 byte from buffer into uint8_t.
  *
  * @param[in,out]  buffer
@@ -132,21 +145,6 @@ bool buffer_read_u32(buffer_t *buffer, uint32_t *value, endianness_t endianness)
 bool buffer_read_u64(buffer_t *buffer, uint64_t *value, endianness_t endianness);
 
 /**
- * Read Bitcoin-like varint from buffer into uint64_t.
- *
- * @see https://en.bitcoin.it/wiki/Protocol_documentation#Variable_length_integer
- *
- * @param[in,out]  buffer
- *   Pointer to input buffer struct.
- * @param[out]     value
- *   Pointer to 64-bit unsigned integer read from buffer.
- *
- * @return true if success, false otherwise.
- *
- */
-bool buffer_read_varint(buffer_t *buffer, uint64_t *value);
-
-/**
  * Read BIP32 path from buffer.
  *
  * @param[in,out]  buffer
@@ -190,3 +188,18 @@ bool buffer_copy(const buffer_t *buffer, uint8_t *out, size_t out_len);
  *
  */
 bool buffer_move(buffer_t *buffer, uint8_t *out, size_t out_len);
+
+/**
+ * Checks if reference to a buffer is correct
+ *
+ * @param[in]  buffer
+ *   Pointer to input buffer struct.
+ * @param[out] out
+ *   Pointer to output byte buffer.
+ * @param[in]  out_len
+ *   Length of output byte buffer.
+ *
+ * @return true if success, false otherwise.
+ *
+ */
+bool buffer_red_ref(buffer_t *buffer, uint8_t **out, size_t out_len);

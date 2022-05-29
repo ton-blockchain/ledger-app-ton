@@ -1,7 +1,8 @@
 #pragma once
 
-#include <stddef.h>  // size_t
-#include <stdint.h>  // uint*_t
+#include <stddef.h>   // size_t
+#include <stdint.h>   // uint*_t
+#include <stdbool.h>  // bool
 
 #define MAX_TX_LEN   510
 #define ADDRESS_LEN  36
@@ -31,13 +32,14 @@ typedef struct {
     uint8_t send_mode;          /// send_mode (1 byte)
     uint8_t to_chain;           /// target chain (1 byte)
     uint8_t *to_hash;           /// target address (32 bytes)
-    uint8_t payload;            // if payload exist (1 byte)
-    uint16_t payload_depth;     // payload depth (2 bytes)
-    uint8_t *payload_hash;      /// payload hash (32 bytes)
-    uint8_t state_init;         // if state_init exist (1 byte)
+    bool state_init;            // if state_init exist (1 byte)
     uint16_t state_init_depth;  // state_init depth (2 bytes)
     uint8_t *state_init_hash;   /// state_init hash (32 bytes)
-    uint8_t hints;              // Hits: reserved for future use (1 byte)
+    bool payload;               // if payload exist (1 byte)
+    uint16_t payload_depth;     // payload depth (2 bytes)
+    uint8_t *payload_hash;      /// payload hash (32 bytes)
+    bool hints;                 // Hits: reserved for future use (1 byte)
+    uint64_t hints_type;        // Hits: reserved for future use (4 byte)
     uint16_t hints_len;         // Hits: reserved for future (2 bytes)
     uint8_t *hints_data;        // Hits: reserved for future (optional hints_len bytes)
 } transaction_t;
