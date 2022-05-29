@@ -83,7 +83,7 @@ bool buffer_read_bool(buffer_t *buffer, bool *value) {
         *value = false;
         return false;
     }
-    *value = v == 0x01;
+    *value = (v == 0x01);
     buffer_seek_cur(buffer, 1);
     return true;
 }

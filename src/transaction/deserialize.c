@@ -21,6 +21,7 @@
 #include "../common/buffer.h"
 #include "hash.h"
 #include "cell.h"
+#include "hints.h"
 
 #define SAFE(RES, CODE) \
     if (!RES) {         \
@@ -81,10 +82,16 @@ parser_status_e transaction_deserialize(buffer_t *buf, transaction_t *tx) {
     // Hints
     SAFE(buffer_read_bool(buf, &tx->has_hints), HINTS_PARSING_ERROR);
     if (tx->has_hints) {
-        SAFE(buffer_read_u64(buf, &tx->hints_type, BE), HINTS_PARSING_ERROR);
+        if (!tx->has_payload) {
+            return HINTS_PARSING_ERROR;
+        }
+        SAFE(buffer_read_u32(buf, &tx->hints_type, BE), HINTS_PARSING_ERROR);
         SAFE(buffer_read_u16(buf, &tx->hints_len, BE), HINTS_PARSING_ERROR);
-        SAFE(buffer_read_ref(buf, &tx->hints_data, tx->hints_len), PAYLOAD_PARSING_ERROR);
+        SAFE(buffer_read_ref(buf, &tx->hints_data, tx->hints_len), HINTS_PARSING_ERROR);
     }
+
+    // Process hints
+    SAFE(process_hints(tx), HINTS_PARSING_ERROR);
 
     return (buf->offset == buf->size) ? PARSING_OK : WRONG_LENGTH_ERROR;
 }

@@ -29,6 +29,28 @@ typedef struct {
     uint8_t hash[32];
 } address_t;
 
+enum HintKind {
+    SummaryItemNone = 0,  // SummaryItemNone always zero
+    SummaryItemAmount,
+    SummaryItemU64,
+    SummaryItemString
+};
+
+typedef struct {
+    char* string;
+    size_t length;
+} SizedString_t;
+
+typedef struct {
+    const char* title;
+    enum HintKind kind;
+    union {
+        uint64_t amount;
+        uint64_t u64;
+        SizedString_t string;
+    };
+} Hint_t;
+
 typedef struct {
     uint8_t tag;           // tag (1 byte)
     uint32_t seqno;        // seqno (4 bytes)
@@ -42,7 +64,11 @@ typedef struct {
     bool has_payload;      // true if payload exist
     CellRef_t payload;     // payload if exist
     bool has_hints;        // true if payload exist
-    uint64_t hints_type;   // hints type if exist
+    uint32_t hints_type;   // hints type if exist
     uint16_t hints_len;    // hints len if exist
     uint8_t* hints_data;   // hints data if exist
+    bool is_blind;         // Is transaction requires blind signing
+    Hint_t hints[16];
+    uint8_t hints_count;
+    char title[128];
 } transaction_t;

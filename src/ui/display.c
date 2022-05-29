@@ -36,12 +36,15 @@
 #include "../common/bip32.h"
 #include "../common/format.h"
 #include "../common/base64.h"
+#include "../transaction/hints.h"
 
 static action_validate_cb g_validate_callback;
 static char g_operation[64];
 static char g_amount[30];
 static char g_address[49];
-static char g_payload[512];
+static char g_payload[64];
+static char g_hint_title[32];
+static char g_hint_body[512];
 
 // Step with icon and text
 UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Address"});
@@ -149,6 +152,22 @@ UX_STEP_NOCB(ux_display_payload_step,
                  .title = "Payload",
                  .text = g_payload,
              });
+// Hints
+UX_STEP_NOCB_INIT(ux_display_hint_step,
+                  bnnn_paging,
+                  {
+                      size_t step_index = G_ux.flow_stack[stack_slot].index;
+                      print_hint(&G_context.tx_info.transaction,
+                                 step_index - 3,
+                                 g_hint_title,
+                                 sizeof(g_hint_title),
+                                 g_hint_body,
+                                 sizeof(g_hint_body));
+                  },
+                  {
+                      .title = g_hint_title,
+                      .text = g_hint_body,
+                  });
 
 const ux_flow_step_t *ux_approval_tx_flow[64];
 int ui_display_transaction() {
@@ -158,7 +177,7 @@ int ui_display_transaction() {
     }
 
     // Operation
-    snprintf(g_operation, sizeof(g_operation), "Transaction");
+    snprintf(g_operation, sizeof(g_operation), "%s", G_context.tx_info.transaction.title);
 
     // Amount
     if ((G_context.tx_info.transaction.send_mode & 128) != 0) {
@@ -198,13 +217,19 @@ int ui_display_transaction() {
     // Configure Flow
     int step = 0;
     ux_approval_tx_flow[step++] = &ux_display_review_step;
-    if (G_context.tx_info.transaction.has_payload) {
+    if (G_context.tx_info.transaction.is_blind) {
         ux_approval_tx_flow[step++] = &ux_display_blind_signing_warning_step;
     }
     ux_approval_tx_flow[step++] = &ux_display_address_step;
     ux_approval_tx_flow[step++] = &ux_display_amount_step;
     if (G_context.tx_info.transaction.has_payload) {
-        ux_approval_tx_flow[step++] = &ux_display_payload_step;
+        if (G_context.tx_info.transaction.is_blind) {
+            ux_approval_tx_flow[step++] = &ux_display_payload_step;
+        } else {
+            for (uint16_t i = 0; i < G_context.tx_info.transaction.hints_count; i++) {
+                ux_approval_tx_flow[step++] = &ux_display_hint_step;
+            }
+        }
     }
     ux_approval_tx_flow[step++] = &ux_display_approve_step;
     ux_approval_tx_flow[step++] = &ux_display_reject_step;
