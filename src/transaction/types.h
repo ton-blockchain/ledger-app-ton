@@ -3,6 +3,7 @@
 #include <stddef.h>   // size_t
 #include <stdint.h>   // uint*_t
 #include <stdbool.h>  // bool
+#include "cell.h"     // CellRef_t
 
 #define MAX_TX_LEN   510
 #define ADDRESS_LEN  36
@@ -24,22 +25,24 @@ typedef enum {
 } parser_status_e;
 
 typedef struct {
-    uint8_t tag;                /// tag (1 byte)
-    uint32_t seqno;             /// seqno (4 bytes)
-    uint32_t timeout;           /// timeout (4 bytes)
-    uint64_t value;             /// amount value (8 bytes)
-    uint8_t bounce;             /// bounce (1 byte)
-    uint8_t send_mode;          /// send_mode (1 byte)
-    uint8_t to_chain;           /// target chain (1 byte)
-    uint8_t *to_hash;           /// target address (32 bytes)
-    bool state_init;            // if state_init exist (1 byte)
-    uint16_t state_init_depth;  // state_init depth (2 bytes)
-    uint8_t *state_init_hash;   /// state_init hash (32 bytes)
-    bool payload;               // if payload exist (1 byte)
-    uint16_t payload_depth;     // payload depth (2 bytes)
-    uint8_t *payload_hash;      /// payload hash (32 bytes)
-    bool hints;                 // Hits: reserved for future use (1 byte)
-    uint64_t hints_type;        // Hits: reserved for future use (4 byte)
-    uint16_t hints_len;         // Hits: reserved for future (2 bytes)
-    uint8_t *hints_data;        // Hits: reserved for future (optional hints_len bytes)
+    uint8_t chain;
+    uint8_t hash[32];
+} address_t;
+
+typedef struct {
+    uint8_t tag;           // tag (1 byte)
+    uint32_t seqno;        // seqno (4 bytes)
+    uint32_t timeout;      // timeout (4 bytes)
+    uint64_t value;        // amount value (8 bytes)
+    uint8_t bounce;        // bounce (1 byte)
+    uint8_t send_mode;     // send_mode (1 byte)
+    address_t to;          // target
+    bool has_state_init;   // true if state_init exist
+    CellRef_t state_init;  // state_init if exist
+    bool has_payload;      // true if payload exist
+    CellRef_t payload;     // payload if exist
+    bool has_hints;        // true if payload exist
+    uint64_t hints_type;   // hints type if exist
+    uint16_t hints_len;    // hints len if exist
+    uint8_t* hints_data;   // hints data if exist
 } transaction_t;

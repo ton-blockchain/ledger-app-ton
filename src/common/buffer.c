@@ -166,12 +166,21 @@ bool buffer_move(buffer_t *buffer, uint8_t *out, size_t out_len) {
     return true;
 }
 
-bool buffer_red_ref(buffer_t *buffer, uint8_t **out, size_t out_len) {
+bool buffer_read_ref(buffer_t *buffer, uint8_t **out, size_t out_len) {
     if (!buffer_can_read(buffer, out_len)) {
         return false;
     }
 
     *out = (uint8_t *) (buffer->ptr + buffer->offset);
+    buffer_seek_cur(buffer, out_len);
+    return true;
+}
+
+bool buffer_read_buffer(buffer_t *buffer, uint8_t *out, size_t out_len) {
+    if (!buffer_can_read(buffer, out_len)) {
+        return false;
+    }
+    memmove(out, buffer->ptr + buffer->offset, out_len);
     buffer_seek_cur(buffer, out_len);
     return true;
 }

@@ -202,4 +202,19 @@ bool buffer_move(buffer_t *buffer, uint8_t *out, size_t out_len);
  * @return true if success, false otherwise.
  *
  */
-bool buffer_red_ref(buffer_t *buffer, uint8_t **out, size_t out_len);
+bool buffer_read_ref(buffer_t *buffer, uint8_t **out, size_t out_len);
+
+/**
+ * Checks if reference to a buffer is correct
+ *
+ * @param[in]  buffer
+ *   Pointer to input buffer struct.
+ * @param[out] out
+ *   Pointer to output byte buffer.
+ * @param[in]  out_len
+ *   Length of output byte buffer.
+ *
+ * @return true if success, false otherwise.
+ *
+ */
+bool buffer_read_buffer(buffer_t *buffer, uint8_t *out, size_t out_len);

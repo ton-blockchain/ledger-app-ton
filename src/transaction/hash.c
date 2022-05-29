@@ -20,7 +20,7 @@ bool hash_tx(transaction_ctx_t *ctx) {
     BitString_storeBit(&bits, ctx->transaction.bounce);  // bounce
     BitString_storeBit(&bits, 0);                        // bounced
     BitString_storeAddressNull(&bits);                   // from
-    BitString_storeAddress(&bits, ctx->transaction.to_chain, ctx->transaction.to_hash);  // to
+    BitString_storeAddress(&bits, ctx->transaction.to.chain, ctx->transaction.to.hash);  // to
     BitString_storeCoins(&bits, ctx->transaction.value);                                 // amount
     BitString_storeBit(&bits, 0);       // Currency collection (not supported)
     BitString_storeCoins(&bits, 0);     // ihr_fees
@@ -29,39 +29,39 @@ bool hash_tx(transaction_ctx_t *ctx) {
     BitString_storeUint(&bits, 0, 32);  // CreatedAt
 
     // Refs
-    if (ctx->transaction.payload > 0 && ctx->transaction.state_init > 0) {
+    if (ctx->transaction.has_payload && ctx->transaction.has_state_init) {
         BitString_storeBit(&bits, 1);  // state-init
         BitString_storeBit(&bits, 1);  // state-init ref
         BitString_storeBit(&bits, 1);  // body in ref
 
         // Create refs
-        payload_ref.max_depth = ctx->transaction.payload_depth;
-        memmove(payload_ref.hash, ctx->transaction.payload_hash, 32);
-        state_init_ref.max_depth = ctx->transaction.state_init_depth;
-        memmove(state_init_ref.hash, ctx->transaction.state_init_hash, 32);
+        payload_ref.max_depth = ctx->transaction.payload.max_depth;
+        memmove(payload_ref.hash, ctx->transaction.payload.hash, 32);
+        state_init_ref.max_depth = ctx->transaction.state_init.max_depth;
+        memmove(state_init_ref.hash, ctx->transaction.state_init.hash, 32);
 
         // Hash cell
         struct CellRef_t internalMessageRefs[2] = {state_init_ref, payload_ref};
         hash_Cell(&bits, internalMessageRefs, 2, &internalMessageRef);
-    } else if (ctx->transaction.payload > 0) {
+    } else if (ctx->transaction.has_payload) {
         BitString_storeBit(&bits, 0);  // no state-init
         BitString_storeBit(&bits, 1);  // body in ref
 
         // Create ref
-        payload_ref.max_depth = ctx->transaction.payload_depth;
-        memmove(payload_ref.hash, ctx->transaction.payload_hash, 32);
+        payload_ref.max_depth = ctx->transaction.payload.max_depth;
+        memmove(payload_ref.hash, ctx->transaction.payload.hash, 32);
 
         // Hash cell
         struct CellRef_t internalMessageRefs[1] = {payload_ref};
         hash_Cell(&bits, internalMessageRefs, 1, &internalMessageRef);
-    } else if (ctx->transaction.state_init > 0) {
+    } else if (ctx->transaction.has_state_init) {
         BitString_storeBit(&bits, 1);  // no state-init
         BitString_storeBit(&bits, 1);  // state-init ref
         BitString_storeBit(&bits, 0);  // body inline
 
         // Create ref
-        state_init_ref.max_depth = ctx->transaction.state_init_depth;
-        memmove(state_init_ref.hash, ctx->transaction.state_init_hash, 32);
+        state_init_ref.max_depth = ctx->transaction.state_init.max_depth;
+        memmove(state_init_ref.hash, ctx->transaction.state_init.hash, 32);
 
         // Hash cell
         struct CellRef_t internalMessageRefs[1] = {state_init_ref};

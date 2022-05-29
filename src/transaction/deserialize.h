@@ -3,6 +3,10 @@
 #include "types.h"
 #include "../common/buffer.h"
 
+bool buffer_read_address(buffer_t *buf, address_t *out);
+
+bool buffer_read_cell_ref(buffer_t *buf, CellRef_t *out);
+
 /**
  * Deserialize raw transaction in structure.
  *

@@ -127,6 +127,14 @@ UX_STEP_NOCB(ux_display_review_step,
                  "Review",
                  g_operation,
              });
+// Blind signing warning
+UX_STEP_NOCB(ux_display_blind_signing_warning_step,
+             pbb,
+             {
+                 &C_icon_warning,
+                 "Blind",
+                 "Signing",
+             });
 // Step with title/text for amount
 UX_STEP_NOCB(ux_display_amount_step,
              bnnn_paging,
@@ -142,20 +150,7 @@ UX_STEP_NOCB(ux_display_payload_step,
                  .text = g_payload,
              });
 
-// FLOW to display transaction information:
-// #1 screen : eye icon + "Review Transaction"
-// #2 screen : display amount
-// #3 screen : display destination address
-// #4 screen : approve button
-// #5 screen : reject button
-UX_FLOW(ux_display_transaction_flow,
-        &ux_display_review_step,
-        &ux_display_address_step,
-        &ux_display_amount_step,
-        &ux_display_payload_step,
-        &ux_display_approve_step,
-        &ux_display_reject_step);
-
+const ux_flow_step_t *ux_approval_tx_flow[64];
 int ui_display_transaction() {
     if (G_context.req_type != CONFIRM_TRANSACTION || G_context.state != STATE_PARSED) {
         G_context.state = STATE_NONE;
@@ -183,8 +178,8 @@ int ui_display_transaction() {
 
     // Address
     uint8_t address[ADDRESS_LEN] = {0};
-    address_to_friendly(G_context.tx_info.transaction.to_chain,
-                        G_context.tx_info.transaction.to_hash,
+    address_to_friendly(G_context.tx_info.transaction.to.chain,
+                        G_context.tx_info.transaction.to.hash,
                         true,
                         false,
                         address,
@@ -193,16 +188,31 @@ int ui_display_transaction() {
     base64_encode(address, sizeof(address), g_address, sizeof(g_address));
 
     // Payload
-    if (G_context.tx_info.transaction.payload > 0) {
+    if (G_context.tx_info.transaction.has_payload) {
         memset(g_payload, 0, sizeof(g_payload));
-        base64_encode(G_context.tx_info.transaction.payload_hash, 32, g_payload, sizeof(g_payload));
+        base64_encode(G_context.tx_info.transaction.payload.hash, 32, g_payload, sizeof(g_payload));
     } else {
         snprintf(g_payload, sizeof(g_payload), "Nothing");
     }
 
+    // Configure Flow
+    int step = 0;
+    ux_approval_tx_flow[step++] = &ux_display_review_step;
+    if (G_context.tx_info.transaction.has_payload) {
+        ux_approval_tx_flow[step++] = &ux_display_blind_signing_warning_step;
+    }
+    ux_approval_tx_flow[step++] = &ux_display_address_step;
+    ux_approval_tx_flow[step++] = &ux_display_amount_step;
+    if (G_context.tx_info.transaction.has_payload) {
+        ux_approval_tx_flow[step++] = &ux_display_payload_step;
+    }
+    ux_approval_tx_flow[step++] = &ux_display_approve_step;
+    ux_approval_tx_flow[step++] = &ux_display_reject_step;
+    ux_approval_tx_flow[step++] = FLOW_END_STEP;
+
     // Start flow
     g_validate_callback = &ui_action_validate_transaction;
-    ux_flow_init(0, ux_display_transaction_flow, NULL);
+    ux_flow_init(0, ux_approval_tx_flow, NULL);
 
     return 0;
 }
