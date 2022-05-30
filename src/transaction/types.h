@@ -33,7 +33,8 @@ enum HintKind {
     SummaryItemNone = 0,  // SummaryItemNone always zero
     SummaryItemAmount,
     SummaryItemU64,
-    SummaryItemString
+    SummaryItemString,
+    SummaryHash
 };
 
 typedef struct {
@@ -48,6 +49,7 @@ typedef struct {
         uint64_t amount;
         uint64_t u64;
         SizedString_t string;
+        uint8_t hash[32];
     };
 } Hint_t;
 

@@ -158,7 +158,7 @@ UX_STEP_NOCB_INIT(ux_display_hint_step,
                   {
                       size_t step_index = G_ux.flow_stack[stack_slot].index;
                       print_hint(&G_context.tx_info.transaction,
-                                 step_index - 3,
+                                 step_index - 2,
                                  g_hint_title,
                                  sizeof(g_hint_title),
                                  g_hint_body,
@@ -221,7 +221,6 @@ int ui_display_transaction() {
         ux_approval_tx_flow[step++] = &ux_display_blind_signing_warning_step;
     }
     ux_approval_tx_flow[step++] = &ux_display_address_step;
-    ux_approval_tx_flow[step++] = &ux_display_amount_step;
     if (G_context.tx_info.transaction.has_payload) {
         if (G_context.tx_info.transaction.is_blind) {
             ux_approval_tx_flow[step++] = &ux_display_payload_step;
@@ -231,6 +230,7 @@ int ui_display_transaction() {
             }
         }
     }
+    ux_approval_tx_flow[step++] = &ux_display_amount_step;
     ux_approval_tx_flow[step++] = &ux_display_approve_step;
     ux_approval_tx_flow[step++] = &ux_display_reject_step;
     ux_approval_tx_flow[step++] = FLOW_END_STEP;

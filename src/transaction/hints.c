@@ -3,6 +3,11 @@
 #include <string.h>
 #include "os.h"
 #include "ux.h"
+#include "../common/buffer.h"
+#include "../common/base64.h"
+#include "../common/format.h"
+#include "../constants.h"
+#include "deserialize.h"
 
 #pragma GCC diagnostic ignored "-Wformat-invalid-specifier"  // snprintf
 #pragma GCC diagnostic ignored "-Wformat-extra-args"         // snprintf
@@ -18,14 +23,34 @@ static void add_hint_text(transaction_t* tx, char* title, char* text, size_t tex
     tx->hints_count++;
 }
 
+static void add_hint_hash(transaction_t* tx, char* title, uint8_t* data) {
+    // Configure
+    tx->hints[tx->hints_count].title = title;
+    tx->hints[tx->hints_count].kind = SummaryHash;
+    memmove(tx->hints[tx->hints_count].hash, data, 32);
+
+    // Next
+    tx->hints_count++;
+}
+
+static void add_hint_amount(transaction_t* tx, char* title, uint64_t amount) {
+    // Configure
+    tx->hints[tx->hints_count].title = title;
+    tx->hints[tx->hints_count].kind = SummaryItemAmount;
+    tx->hints[tx->hints_count].u64 = amount;
+
+    // Next
+    tx->hints_count++;
+}
+
 #define SAFE(RES)     \
     if (!RES) {       \
         return false; \
     }
 
-#define CHECK_END()                 \
-    if (buf->offset != buf->size) { \
-        return false;               \
+#define CHECK_END()               \
+    if (buf.offset != buf.size) { \
+        return false;             \
     }
 
 bool process_hints(transaction_t* tx) {
@@ -48,10 +73,14 @@ bool process_hints(transaction_t* tx) {
     CellRef_t cell;
     BitString_t bits;
     bool hasCell = false;
+    bool tmp = false;
     tx->hints_count = 0;
     buffer_t buf = {.ptr = tx->hints_data, .size = tx->hints_len, .offset = 0};
 
+    //
     // Comment
+    //
+
     if (tx->hints_type == 0x0) {
         // Max size of a comment is 120 symbols
         if (tx->hints_len > 120) {
@@ -74,61 +103,123 @@ bool process_hints(transaction_t* tx) {
         add_hint_text(tx, "Comment", (char*) tx->hints_data, tx->hints_len);
     }
 
-    // Empty transactions
-    if (tx->hints_type == 0x47bbe425 || tx->hints_type == 0x7bcd1fef) {
-        if (tx->hints_len != 0) {
-            return false;
+    //
+    // Upgrade
+    //
+
+    if (tx->hints_type == 0x01) {
+        // Building cell
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0xdbfaf817, 32);
+
+        // query_id
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t query_id;
+            SAFE(buffer_read_u64(&buf, &query_id, BE));
+            BitString_storeUint(&bits, query_id, 64);
         }
 
-        // Build cell
+        // gas_limit
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t gas_limit;
+            SAFE(buffer_read_u64(&buf, &gas_limit, BE));
+            BitString_storeCoins(&bits, gas_limit);
+        }
+
+        // Code
+        CellRef_t code;
+        SAFE(buffer_read_cell_ref(&buf, &code));
+        CHECK_END();
+
+        // Complete
+        struct CellRef_t refs[1] = {code};
+        hash_Cell(&bits, refs, 1, &cell);
+        hasCell = true;
+
+        // Change title of operation
+        snprintf(tx->title, sizeof(tx->title), "Upgrade Code");
+
+        // Add code hints
+        add_hint_hash(tx, "Code", code.hash);
+    }
+
+    //
+    // Deposit
+    //
+
+    if (tx->hints_type == 0x02) {
+        // Building cell
         BitString_init(&bits);
-        BitString_storeUint(&bits, tx->hints_type, 32);
+        BitString_storeUint(&bits, 0x7bcd1fef, 32);
+
+        // query_id
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t query_id;
+            SAFE(buffer_read_u64(&buf, &query_id, BE));
+            BitString_storeUint(&bits, query_id, 64);
+        }
+
+        // gas_limit
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t gas_limit;
+            SAFE(buffer_read_u64(&buf, &gas_limit, BE));
+            BitString_storeCoins(&bits, gas_limit);
+        }
+
+        CHECK_END();
+
+        // Complete
         hash_Cell(&bits, NULL, 0, &cell);
         hasCell = true;
 
         // Change title of operation
-        if (tx->hints_type == 0x47bbe425) {
-            add_hint_text(tx, "Donate", (char*) tx->hints_data, tx->hints_len);
-        }
-        if (tx->hints_type == 0x7bcd1fef) {
-            add_hint_text(tx, "Deposit Stake", (char*) tx->hints_data, tx->hints_len);
-        }
+        snprintf(tx->title, sizeof(tx->title), "Deposit");
     }
 
-    // Upgrade
-    if (tx->hint_type == 0xdbfaf817) {
-        // Parsing
-        CellRef_t code;
-        SAFE(buffer_read_cell_ref(buf, &code));
+    //
+    // Withdraw
+    //
+
+    if (tx->hints_type == 0x03) {
+        // Building cell
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0xda803efd, 32);
+
+        // query_id
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t query_id;
+            SAFE(buffer_read_u64(&buf, &query_id, BE));
+            BitString_storeUint(&bits, query_id, 64);
+        }
+
+        // gas_limit
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t gas_limit;
+            SAFE(buffer_read_u64(&buf, &gas_limit, BE));
+            BitString_storeCoins(&bits, gas_limit);
+        }
+
+        // Amount
+        uint64_t amount;
+        SAFE(buffer_read_u64(&buf, &amount, BE));
+        BitString_storeCoins(&bits, amount);
         CHECK_END();
 
-        // Build cell
-        struct CellRef_t codeRefs[1] = {code};
-        BitString_init(&bits);
-        BitString_storeUint(&bits, 0xdbfaf817, 32);
-        hash_Cell(&bits, codeRefs, 1, &cell);
+        // Complete
+        hash_Cell(&bits, NULL, 0, &cell);
         hasCell = true;
 
         // Change title of operation
-        add_hint_text(tx, "Upgrade Code", (char*) tx->hints_data, tx->hints_len);
-    }
+        snprintf(tx->title, sizeof(tx->title), "Withdraw");
 
-    // Update
-    if (tx->hint_type == 0x023cd52c) {
-        // Parsing
-        CellRef_t data;
-        SAFE(buffer_read_cell_ref(buf, &data));
-        CHECK_END();
-
-        // Build cell
-        struct CellRef_t dataRefs[1] = {data};
-        BitString_init(&bits);
-        BitString_storeUint(&bits, 0x023cd52c, 32);
-        hash_Cell(&bits, dataRefs, 1, &cell);
-        hasCell = true;
-
-        // Change title of operation
-        add_hint_text(tx, "Update Contract", (char*) tx->hints_data, tx->hints_len);
+        // Add amount hint
+        add_hint_amount(tx, "Withdraw", amount);
     }
 
     // Check hash
@@ -186,6 +277,12 @@ void print_hint(transaction_t* tx,
     // Body
     if (hint.kind == SummaryItemString) {
         print_sized_string(&hint.string, body, body_len);
+    } else if (hint.kind == SummaryHash) {
+        base64_encode(hint.hash, 32, body, body_len);
+    } else if (hint.kind == SummaryItemAmount) {
+        char amount[30] = {0};
+        format_fpu64(amount, sizeof(amount), hint.u64, EXPONENT_SMALLEST_UNIT);
+        snprintf(body, body_len, "TON %.*s", sizeof(amount), amount);
     } else {
         print_string("<unknown>", body, body_len);
     }
