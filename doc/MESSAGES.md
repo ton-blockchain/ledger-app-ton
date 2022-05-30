@@ -5,7 +5,7 @@ This list contains a number of messages that ledger could assemble and display c
 | ID | Message | Description |
 | --- | --- | --- |
 | 0x00000000 | Message with Comment| Typical transaction with a comment|
-| 0x00000001 | Upgrade | Universal message for upgrading code of a contract |
+| 0xdbfaf817 | Upgrade | Universal message for upgrading code of a contract |
 | 0x00000002 | Update | Universal message to update parameters of a contract |
 | 0x00000003 | Donate | Universal message donating to a contract |
 | 0x00000004 | Deposit | Whales Nominators deposit command |
@@ -31,3 +31,16 @@ message#00000000 text: string = MsgBody;
 | Value | Length | Description |
 | --- | --- | --- |
 | `message` | `var` | ASCII-only message |
+
+# 0xdbfaf817: Upgrade
+Universal code upgrade message
+
+### TL-B
+```
+upgrade#dbfaf817 code: ^Cell = MsgBody;
+```
+
+### Hints
+| Value | Length | Description |
+| --- | --- | --- |
+| `code_ref` | 34 | Cell Reference of a Code hash to be shown to user in Base64 frmat |
