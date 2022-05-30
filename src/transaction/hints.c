@@ -18,6 +18,16 @@ static void add_hint_text(transaction_t* tx, char* title, char* text, size_t tex
     tx->hints_count++;
 }
 
+#define SAFE(RES)     \
+    if (!RES) {       \
+        return false; \
+    }
+
+#define CHECK_END()                 \
+    if (buf->offset != buf->size) { \
+        return false;               \
+    }
+
 bool process_hints(transaction_t* tx) {
     // Default title
     snprintf(tx->title, sizeof(tx->title), "Transaction");
@@ -39,6 +49,7 @@ bool process_hints(transaction_t* tx) {
     BitString_t bits;
     bool hasCell = false;
     tx->hints_count = 0;
+    buffer_t buf = {.ptr = tx->hints_data, .size = tx->hints_len, .offset = 0};
 
     // Comment
     if (tx->hints_type == 0x0) {
@@ -61,6 +72,63 @@ bool process_hints(transaction_t* tx) {
 
         // Change title of operation
         add_hint_text(tx, "Comment", (char*) tx->hints_data, tx->hints_len);
+    }
+
+    // Empty transactions
+    if (tx->hints_type == 0x47bbe425 || tx->hints_type == 0x7bcd1fef) {
+        if (tx->hints_len != 0) {
+            return false;
+        }
+
+        // Build cell
+        BitString_init(&bits);
+        BitString_storeUint(&bits, tx->hints_type, 32);
+        hash_Cell(&bits, NULL, 0, &cell);
+        hasCell = true;
+
+        // Change title of operation
+        if (tx->hints_type == 0x47bbe425) {
+            add_hint_text(tx, "Donate", (char*) tx->hints_data, tx->hints_len);
+        }
+        if (tx->hints_type == 0x7bcd1fef) {
+            add_hint_text(tx, "Deposit Stake", (char*) tx->hints_data, tx->hints_len);
+        }
+    }
+
+    // Upgrade
+    if (tx->hint_type == 0xdbfaf817) {
+        // Parsing
+        CellRef_t code;
+        SAFE(buffer_read_cell_ref(buf, &code));
+        CHECK_END();
+
+        // Build cell
+        struct CellRef_t codeRefs[1] = {code};
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0xdbfaf817, 32);
+        hash_Cell(&bits, codeRefs, 1, &cell);
+        hasCell = true;
+
+        // Change title of operation
+        add_hint_text(tx, "Upgrade Code", (char*) tx->hints_data, tx->hints_len);
+    }
+
+    // Update
+    if (tx->hint_type == 0x023cd52c) {
+        // Parsing
+        CellRef_t data;
+        SAFE(buffer_read_cell_ref(buf, &data));
+        CHECK_END();
+
+        // Build cell
+        struct CellRef_t dataRefs[1] = {data};
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0x023cd52c, 32);
+        hash_Cell(&bits, dataRefs, 1, &cell);
+        hasCell = true;
+
+        // Change title of operation
+        add_hint_text(tx, "Update Contract", (char*) tx->hints_data, tx->hints_len);
     }
 
     // Check hash
