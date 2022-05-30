@@ -7,7 +7,7 @@ This list contains a number of messages that ledger could assemble and display c
 | 0x00000000 | Message with Comment| Typical transaction with a comment|
 | 0x00000001 | Code Upgrade | Universal message for upgrading code of a contract |
 
-# 0 - Message with comment
+# 0x00000000: Message with comment
 
 This is just a usual transaction with a comment, but it have it's limitations:
 * Only ASCII-printable symbols are supported
