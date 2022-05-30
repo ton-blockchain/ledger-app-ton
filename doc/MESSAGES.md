@@ -88,3 +88,20 @@ withdraw#da803efd query_id:uint64 gas_limit:Coins amount:Coins = MsgBody;
 | `has_query_id` | 1 | if query id exist |
 | `gas_limit`| 8 | gas_limit |
 | `amount`| 8 | amount |
+
+# 0x04: Transfer Onwership
+
+Transfering ownership of a contract
+
+### TL-B
+```
+change_owner#295e75a9 new_owner:MsgAddress = MsgBody;
+change_owner#295e75a9 query_id:uint64 new_owner:MsgAddress = MsgBody;
+```
+
+### Hints
+| Value | Length | Description |
+| --- | --- | --- |
+| `has_query_id` | 1 | if query id exist |
+| `query_id` | 8 | query id |
+| `address`| 33 | new owner address |
