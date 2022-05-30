@@ -19,6 +19,9 @@ static void add_hint_text(transaction_t* tx, char* title, char* text, size_t tex
 }
 
 bool process_hints(transaction_t* tx) {
+    // Default title
+    snprintf(tx->title, sizeof(tx->title), "Transaction");
+
     // No payload
     if (!tx->has_payload) {
         tx->is_blind = false;
@@ -36,7 +39,6 @@ bool process_hints(transaction_t* tx) {
     BitString_t bits;
     bool hasCell = false;
     tx->hints_count = 0;
-    snprintf(tx->title, sizeof(tx->title), "Transaction");
 
     // Comment
     if (tx->hints_type == 0x0) {
