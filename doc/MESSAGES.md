@@ -45,7 +45,7 @@ upgrade#dbfaf817 code: ^Cell = MsgBody;
 | --- | --- | --- |
 | `code_ref` | 34 | Cell Reference of a Code hash to be shown to user in Base64 format |
 
-# 0x23cd52c: Update
+# 0x023cd52c: Update
 Universal contract update message
 
 ### TL-B
