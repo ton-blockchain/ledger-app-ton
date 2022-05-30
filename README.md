@@ -14,6 +14,13 @@ Right now TON app is not available through Ledger Live and have to be sideloaded
 * Start and login into environment. Run in terminal: `./env.sh`
 * Run `make load` to build and upload app to the Ledger
 
+## Documentation
+
+* [Supported TON messages](doc/MESSAGES.md)
+* [Low level ADPU](doc/APDU.md)
+* [Commands](doc/COMMANDS.md)
+* [Base Transaction](doc/TRANSACTION.md)
+
 ## Development
 
 For Mac or Windows users we recommend to use VS Code Remote with a x64 Linux laptop and do all work there and connect ledger directly to it. 
@@ -25,10 +32,6 @@ To build and run just launch Ledger App Builder environment by calling `./env.sh
 * `make scan-build` - for Clang static analyzer
 * `cmake -Bbuild -H. && make -C build && CTEST_OUTPUT_ON_FAILURE=1 make -C build test` - for unit tests in `unit-tests` directory
 * `doxygen .doxygen/Doxyfile` - to generate html and latex documentation
-
-## Documentation
-
-High level documentation such as [APDU](doc/APDU.md), [commands](doc/COMMANDS.md) and [transaction serialization](doc/TRANSACTION.md) are included in developer documentation which can be generated with [doxygen](https://www.doxygen.nl)
 
 ## Tests & Continuous Integration
 
