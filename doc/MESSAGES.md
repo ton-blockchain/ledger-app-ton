@@ -5,7 +5,17 @@ This list contains a number of messages that ledger could assemble and display c
 | ID | Message | Description |
 | --- | --- | --- |
 | 0x00000000 | Message with Comment| Typical transaction with a comment|
-| 0x00000001 | Code Upgrade | Universal message for upgrading code of a contract |
+| 0x00000001 | Upgrade | Universal message for upgrading code of a contract |
+| 0x00000002 | Update | Universal message to update parameters of a contract |
+| 0x00000003 | Donate | Universal message donating to a contract |
+| 0x00000004 | Deposit | Whales Nominators deposit command |
+| 0x00000005 | Withdraw | Whales Nominators withdraw command |
+| 0x00000006 | Create Proposal | Universal message for creating DAO proposal |
+| 0x00000007 | Vote YES | Universal message for voting YES for a proposal in DAO |
+| 0x00000008 | Vote NO | Universal message for voting NO for a proposal in DAO |
+| 0x00000009 | Vote ABSTAIN | Universal message for voting ABSTAIN for a proposal in DAO |
+| 0x0000000a | Execute proposal | Universal message for executing proposal in DAO |
+| 0x0000000b | Abort proposal | Universal message for aborting proposal in DAO |
 
 # 0x00000000: Message with comment
 
