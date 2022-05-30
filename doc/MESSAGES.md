@@ -6,8 +6,8 @@ This list contains a number of messages that ledger could assemble and display c
 | --- | --- | --- |
 | 0x00000000 | Message with Comment| Typical transaction with a comment|
 | 0xdbfaf817 | Upgrade | Universal message for upgrading code of a contract |
-| 0x23cd52c | Update | Universal message to update parameters of a contract |
-| 0x00000003 | Donate | Universal message donating to a contract |
+| 0x023cd52c | Update | Universal message to update parameters of a contract |
+| 0x47bbe425 | Donate | Universal message donating to a contract |
 | 0x00000004 | Deposit | Whales Nominators deposit command |
 | 0x00000005 | Withdraw | Whales Nominators withdraw command |
 | 0x00000006 | Create Proposal | Universal message for creating DAO proposal |
