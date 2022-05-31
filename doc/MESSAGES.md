@@ -10,9 +10,9 @@ This list contains a number of messages that ledger could assemble and display c
 | 0x03 | Withdraw | Whales Nominators withdraw command |
 | 0x04 | Transfer ownership | Universal message for transfering ownership of the contract |
 | 0x05 | Create Proposal | Universal message for creating DAO proposal |
-| *0x06 | Vote | Universal message for voting YES/NO/ABSTAIN for a proposal in DAO |
-| *0x07 | Execute proposal | Universal message for executing proposal in DAO |
-| *0x08 | Abort proposal | Universal message for aborting proposal in DAO |
+| 0x06 | Vote | Universal message for voting YES/NO/ABSTAIN for a proposal in DAO |
+| 0x07 | Execute proposal | Universal message for executing proposal in DAO |
+| 0x08 | Abort proposal | Universal message for aborting proposal in DAO |
 
 # 0x00: Message with comment
 
@@ -128,3 +128,56 @@ create_proposal#c1387443 query_id:uint64 id:uint32 proposal:^Cell metadata:^Cell
 | `id` | 4 | proposal id |
 | `proposal_ref` | 34 | Cell Reference of a proposal |
 | `metadata_ref` | 34 | Cell Reference of a proposal |
+
+# 0x06: Vote
+
+Vote for proposal in DAO
+
+### TL-B
+```
+create_proposal#b5a563c1 id:uint32 vote:(# 2) = MsgBody;
+create_proposal#b5a563c1 query_id:uint64 id:uint32 vote:(# 2) = MsgBody;
+```
+
+### Hints
+| Value | Length | Description |
+| --- | --- | --- |
+| `has_query_id` | 1 | if query id exist |
+| `query_id` | 8 | query id |
+| `id` | 4 | proposal id |
+| `vote` | 1 | vote. 0x00 - NO, 0x01 - YES, 0x02 - ABSTAIN |
+
+
+# 0x07: Execute proposal
+
+Execute approved proposal in DAO
+
+### TL-B
+```
+execute_proposal#93ff9cd3 id:uint32 = MsgBody;
+execute_proposal#93ff9cd3 query_id:uint64 id:uint32 = MsgBody;
+```
+
+### Hints
+| Value | Length | Description |
+| --- | --- | --- |
+| `has_query_id` | 1 | if query id exist |
+| `query_id` | 8 | query id |
+| `id` | 4 | proposal id |
+
+# 0x08: Execute proposal
+
+Abort approved proposal in DAO
+
+### TL-B
+```
+abort_proposal#5ce656a5 id:uint32 = MsgBody;
+abort_proposal#5ce656a5 query_id:uint64 id:uint32 = MsgBody;
+```
+
+### Hints
+| Value | Length | Description |
+| --- | --- | --- |
+| `has_query_id` | 1 | if query id exist |
+| `query_id` | 8 | query id |
+| `id` | 4 | proposal id |

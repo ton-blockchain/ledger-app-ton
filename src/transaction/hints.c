@@ -323,6 +323,112 @@ bool process_hints(transaction_t* tx) {
         add_hint_hash(tx, "Metadata Hash", metadata_ref.hash);
     }
 
+    //
+    // Vote Proposal
+    //
+
+    if (tx->hints_type == 0x06) {
+        // Building cell
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0xb5a563c1, 32);
+
+        // query_id
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t query_id;
+            SAFE(buffer_read_u64(&buf, &query_id, BE));
+            BitString_storeUint(&bits, query_id, 64);
+        }
+
+        // Proposal number
+        uint32_t id;
+        SAFE(buffer_read_u32(&buf, &id, BE));
+        BitString_storeUint(&bits, id, 32);
+        add_hint_u64(tx, "Proposal Number", id);
+
+        // Vote
+        uint8_t vote;
+        SAFE(buffer_read_u8(&buf, &vote));
+        if (vote == 0x00) {
+            BitString_storeUint(&bits, 0, 2);
+            snprintf(tx->title, sizeof(tx->title), "Vote NO");
+        } else if (vote == 0x01) {
+            BitString_storeUint(&bits, 1, 2);
+            snprintf(tx->title, sizeof(tx->title), "Vote YES");
+        } else if (vote == 0x02) {
+            BitString_storeUint(&bits, 2, 2);
+            snprintf(tx->title, sizeof(tx->title), "Vote ABSTAIN");
+        } else {
+            return false;
+        }
+
+        // Build cell
+        hash_Cell(&bits, NULL, 0, &cell);
+        hasCell = true;
+    }
+
+    //
+    // Execute Proposal
+    //
+
+    if (tx->hints_type == 0x07) {
+        // Building cell
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0x93ff9cd3, 32);
+
+        // query_id
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t query_id;
+            SAFE(buffer_read_u64(&buf, &query_id, BE));
+            BitString_storeUint(&bits, query_id, 64);
+        }
+
+        // Proposal number
+        uint32_t id;
+        SAFE(buffer_read_u32(&buf, &id, BE));
+        BitString_storeUint(&bits, id, 32);
+        add_hint_u64(tx, "Proposal Number", id);
+
+        // Build cell
+        hash_Cell(&bits, NULL, 0, &cell);
+        hasCell = true;
+
+        // Operation
+        snprintf(tx->title, sizeof(tx->title), "Execute Proposal");
+    }
+
+    //
+    // Abort Proposal
+    //
+
+    if (tx->hints_type == 0x07) {
+        // Building cell
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0x5ce656a5, 32);
+
+        // query_id
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t query_id;
+            SAFE(buffer_read_u64(&buf, &query_id, BE));
+            BitString_storeUint(&bits, query_id, 64);
+        }
+
+        // Proposal number
+        uint32_t id;
+        SAFE(buffer_read_u32(&buf, &id, BE));
+        BitString_storeUint(&bits, id, 32);
+        add_hint_u64(tx, "Proposal Number", id);
+
+        // Build cell
+        hash_Cell(&bits, NULL, 0, &cell);
+        hasCell = true;
+
+        // Operation
+        snprintf(tx->title, sizeof(tx->title), "Abort Proposal");
+    }
+
     // Check hash
     if (hasCell) {
         if (memcmp(cell.hash, tx->payload.hash, 32) != 0) {
