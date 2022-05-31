@@ -7,6 +7,7 @@
 #include "../common/base64.h"
 #include "../common/format.h"
 #include "../constants.h"
+#include "../address.h"
 #include "deserialize.h"
 
 #pragma GCC diagnostic ignored "-Wformat-invalid-specifier"  // snprintf
@@ -38,6 +39,16 @@ static void add_hint_amount(transaction_t* tx, char* title, uint64_t amount) {
     tx->hints[tx->hints_count].title = title;
     tx->hints[tx->hints_count].kind = SummaryItemAmount;
     tx->hints[tx->hints_count].u64 = amount;
+
+    // Next
+    tx->hints_count++;
+}
+
+static void add_hint_address(transaction_t* tx, char* title, address_t address) {
+    // Configure
+    tx->hints[tx->hints_count].title = title;
+    tx->hints[tx->hints_count].kind = SummaryAddress;
+    tx->hints[tx->hints_count].address = address;
 
     // Next
     tx->hints_count++;
@@ -222,6 +233,40 @@ bool process_hints(transaction_t* tx) {
         add_hint_amount(tx, "Withdraw", amount);
     }
 
+    //
+    // Transfer ownership
+    //
+
+    if (tx->hints_type == 0x04) {
+        // Building cell
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0x295e75a9, 32);
+
+        // query_id
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t query_id;
+            SAFE(buffer_read_u64(&buf, &query_id, BE));
+            BitString_storeUint(&bits, query_id, 64);
+        }
+
+        // Amount
+        address_t newOwner;
+        SAFE(buffer_read_address(&buf, &newOwner));
+        BitString_storeAddress(&bits, newOwner.chain, newOwner.hash);
+        CHECK_END();
+
+        // Complete
+        hash_Cell(&bits, NULL, 0, &cell);
+        hasCell = true;
+
+        // Change title of operation
+        snprintf(tx->title, sizeof(tx->title), "Change Owner");
+
+        // Add amount hint
+        add_hint_address(tx, "New Owner", newOwner);
+    }
+
     // Check hash
     if (hasCell) {
         if (memcmp(cell.hash, tx->payload.hash, 32) != 0) {
@@ -283,6 +328,16 @@ void print_hint(transaction_t* tx,
         char amount[30] = {0};
         format_fpu64(amount, sizeof(amount), hint.u64, EXPONENT_SMALLEST_UNIT);
         snprintf(body, body_len, "TON %.*s", sizeof(amount), amount);
+    } else if (hint.kind == SummaryAddress) {
+        uint8_t address[ADDRESS_LEN] = {0};
+        address_to_friendly(hint.address.chain,
+                            hint.address.hash,
+                            true,
+                            false,
+                            address,
+                            sizeof(address));
+        memset(body, 0, body_len);
+        base64_encode(address, sizeof(address), body, body_len);
     } else {
         print_string("<unknown>", body, body_len);
     }

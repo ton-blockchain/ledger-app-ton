@@ -34,6 +34,7 @@ enum HintKind {
     SummaryItemAmount,
     SummaryItemU64,
     SummaryItemString,
+    SummaryAddress,
     SummaryHash
 };
 
@@ -50,6 +51,7 @@ typedef struct {
         uint64_t u64;
         SizedString_t string;
         uint8_t hash[32];
+        address_t address;
     };
 } Hint_t;
 
