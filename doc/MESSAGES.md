@@ -9,7 +9,7 @@ This list contains a number of messages that ledger could assemble and display c
 | 0x02 | Deposit | Whales Nominators deposit command |
 | 0x03 | Withdraw | Whales Nominators withdraw command |
 | 0x04 | Transfer ownership | Universal message for transfering ownership of the contract |
-| *0x05 | Create Proposal | Universal message for creating DAO proposal |
+| 0x05 | Create Proposal | Universal message for creating DAO proposal |
 | *0x06 | Vote | Universal message for voting YES/NO/ABSTAIN for a proposal in DAO |
 | *0x07 | Execute proposal | Universal message for executing proposal in DAO |
 | *0x08 | Abort proposal | Universal message for aborting proposal in DAO |
@@ -105,3 +105,26 @@ transfer_ownership#295e75a9 query_id:uint64 new_owner:MsgAddress = MsgBody;
 | `has_query_id` | 1 | if query id exist |
 | `query_id` | 8 | query id |
 | `address`| 33 | new owner address |
+
+
+# 0x05: Create Proposal
+
+Create proposal in DAO
+
+### TL-B
+```
+create_proposal#c1387443 proposal:^Cell metadata:^Cell = MsgBody;
+create_proposal#c1387443 id:uint32 proposal:^Cell metadata:^Cell = MsgBody;
+create_proposal#c1387443 query_id:uint64 proposal:^Cell metadata:^Cell = MsgBody;
+create_proposal#c1387443 query_id:uint64 id:uint32 proposal:^Cell metadata:^Cell = MsgBody;
+```
+
+### Hints
+| Value | Length | Description |
+| --- | --- | --- |
+| `has_query_id` | 1 | if query id exist |
+| `query_id` | 8 | query id |
+| `has_id` | 1 | if query id exist |
+| `id` | 4 | proposal id |
+| `proposal_ref` | 34 | Cell Reference of a proposal |
+| `metadata_ref` | 34 | Cell Reference of a proposal |

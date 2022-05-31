@@ -44,6 +44,16 @@ static void add_hint_amount(transaction_t* tx, char* title, uint64_t amount) {
     tx->hints_count++;
 }
 
+static void add_hint_u64(transaction_t* tx, char* title, uint64_t value) {
+    // Configure
+    tx->hints[tx->hints_count].title = title;
+    tx->hints[tx->hints_count].kind = SummaryItemU64;
+    tx->hints[tx->hints_count].u64 = value;
+
+    // Next
+    tx->hints_count++;
+}
+
 static void add_hint_address(transaction_t* tx, char* title, address_t address) {
     // Configure
     tx->hints[tx->hints_count].title = title;
@@ -267,6 +277,52 @@ bool process_hints(transaction_t* tx) {
         add_hint_address(tx, "New Owner", newOwner);
     }
 
+    //
+    // Create Proposal
+    //
+
+    if (tx->hints_type == 0x05) {
+        // Building cell
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0xc1387443, 32);
+
+        // query_id
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t query_id;
+            SAFE(buffer_read_u64(&buf, &query_id, BE));
+            BitString_storeUint(&bits, query_id, 64);
+        }
+
+        // ID
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint32_t id;
+            SAFE(buffer_read_u32(&buf, &id, BE));
+            BitString_storeUint(&bits, id, 32);
+            add_hint_u64(tx, "Proposal Number", id);
+        }
+
+        // Refs
+        CellRef_t proposal_ref;
+        SAFE(buffer_read_cell_ref(&buf, &proposal_ref));
+        CellRef_t metadata_ref;
+        SAFE(buffer_read_cell_ref(&buf, &metadata_ref));
+        CHECK_END();
+
+        // Complete
+        struct CellRef_t refs[2] = {proposal_ref, metadata_ref};
+        hash_Cell(&bits, refs, 2, &cell);
+        hasCell = true;
+
+        // Change title of operation
+        snprintf(tx->title, sizeof(tx->title), "Create Proposal");
+
+        // Add amount hint
+        add_hint_hash(tx, "Proposal Hash", proposal_ref.hash);
+        add_hint_hash(tx, "Metadata Hash", metadata_ref.hash);
+    }
+
     // Check hash
     if (hasCell) {
         if (memcmp(cell.hash, tx->payload.hash, 32) != 0) {
@@ -308,6 +364,35 @@ int print_sized_string(const SizedString_t* string, char* out, size_t out_length
     }
 }
 
+int print_u64(uint64_t u64, char* out, size_t out_length) {
+    uint64_t dVal = u64;
+    int outlen = (int) out_length;
+    int i = 0;
+    int j = 0;
+
+    if (i < (outlen - 1)) {
+        do {
+            if (dVal > 0) {
+                out[i] = (dVal % 10) + '0';
+                dVal /= 10;
+            } else {
+                out[i] = '0';
+            }
+            i++;
+        } while (dVal > 0 && i < outlen);
+    }
+
+    out[i--] = '\0';
+
+    for (; j < i; j++, i--) {
+        int tmp = out[j];
+        out[j] = out[i];
+        out[i] = tmp;
+    }
+
+    return 0;
+}
+
 void print_hint(transaction_t* tx,
                 uint16_t index,
                 char* title,
@@ -338,6 +423,8 @@ void print_hint(transaction_t* tx,
                             sizeof(address));
         memset(body, 0, body_len);
         base64_encode(address, sizeof(address), body, body_len);
+    } else if (hint.kind == SummaryAddress) {
+        print_u64(hint.u64, body, body_len);
     } else {
         print_string("<unknown>", body, body_len);
     }
