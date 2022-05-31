@@ -423,7 +423,7 @@ void print_hint(transaction_t* tx,
                             sizeof(address));
         memset(body, 0, body_len);
         base64_encode(address, sizeof(address), body, body_len);
-    } else if (hint.kind == SummaryAddress) {
+    } else if (hint.kind == SummaryItemU64) {
         print_u64(hint.u64, body, body_len);
     } else {
         print_string("<unknown>", body, body_len);
