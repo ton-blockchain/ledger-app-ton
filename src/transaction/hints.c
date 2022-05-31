@@ -402,7 +402,7 @@ bool process_hints(transaction_t* tx) {
     // Abort Proposal
     //
 
-    if (tx->hints_type == 0x07) {
+    if (tx->hints_type == 0x08) {
         // Building cell
         BitString_init(&bits);
         BitString_storeUint(&bits, 0x5ce656a5, 32);
