@@ -72,7 +72,7 @@ typedef struct {
     uint16_t hints_len;    // hints len if exist
     uint8_t* hints_data;   // hints data if exist
     bool is_blind;         // Is transaction requires blind signing
-    Hint_t hints[16];
+    Hint_t hints[8];
     uint8_t hints_count;
     char title[128];
 } transaction_t;
