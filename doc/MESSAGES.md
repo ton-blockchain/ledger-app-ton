@@ -13,6 +13,7 @@ This list contains a number of messages that ledger could assemble and display c
 | 0x06 | Vote | Universal message for voting YES/NO/ABSTAIN for a proposal in DAO |
 | 0x07 | Execute proposal | Universal message for executing proposal in DAO |
 | 0x08 | Abort proposal | Universal message for aborting proposal in DAO |
+| 0x09 | Change address | Universal message for changing adddress in arbitrary contract |
 
 # 0x00: Message with comment
 
@@ -181,3 +182,24 @@ abort_proposal#5ce656a5 query_id:uint64 id:uint32 = MsgBody;
 | `has_query_id` | 1 | if query id exist |
 | `query_id` | 8 | query id |
 | `id` | 4 | proposal id |
+
+# 0x09: Change Address
+Change address message
+
+### TL-B
+```
+change_address#90eafae1 index:uint8 new_address:MsgAddress = MsgBody;
+change_address#90eafae1 query_id:uint64 index:uint8 new_address:MsgAddress = MsgBody;
+change_address#90eafae1 gas_limit:Coins index:uint8 new_address:MsgAddress = MsgBody;
+change_address#90eafae1 query_id:uint64 gas_limit:Coins index:uint8 new_address:MsgAddress = MsgBody;
+```
+
+### Hints
+| Value | Length | Description |
+| --- | --- | --- |
+| `has_query_id` | 1 | if query id exist |
+| `query_id` | 8 | query id if exist |
+| `has_gas_limit`| 1 | gas_limit if exist |
+| `gas_limit`| 8 | gas_limit if exist |
+| `index` | 1 | Address index |
+| `address`| 33 | new address |

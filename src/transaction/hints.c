@@ -429,6 +429,54 @@ bool process_hints(transaction_t* tx) {
         snprintf(tx->title, sizeof(tx->title), "Abort Proposal");
     }
 
+    //
+    // Transfer owner
+    //
+
+    if (tx->hints_type == 0x09) {
+        // Building cell
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0x90eafae1, 32);
+
+        // query_id
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t query_id;
+            SAFE(buffer_read_u64(&buf, &query_id, BE));
+            BitString_storeUint(&bits, query_id, 64);
+        }
+
+        // gas_limit
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t gas_limit;
+            SAFE(buffer_read_u64(&buf, &gas_limit, BE));
+            BitString_storeCoins(&bits, gas_limit);
+        }
+
+        // Address Index
+        uint8_t id;
+        SAFE(buffer_read_u8(&buf, &id));
+        BitString_storeUint(&bits, (uint64_t) id, 8);
+        add_hint_u64(tx, "Address Index", (uint64_t) id);
+
+        // Address
+        address_t newAddress;
+        SAFE(buffer_read_address(&buf, &newAddress));
+        BitString_storeAddress(&bits, newAddress.chain, newAddress.hash);
+        CHECK_END();
+
+        // Build cell
+        hash_Cell(&bits, NULL, 0, &cell);
+        hasCell = true;
+
+        // Operation
+        snprintf(tx->title, sizeof(tx->title), "Change Address");
+
+        // Add amount hint
+        add_hint_address(tx, "New Address", newAddress);
+    }
+
     // Check hash
     if (hasCell) {
         if (memcmp(cell.hash, tx->payload.hash, 32) != 0) {
