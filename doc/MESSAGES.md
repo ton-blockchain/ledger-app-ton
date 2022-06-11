@@ -165,7 +165,7 @@ execute_proposal#93ff9cd3 query_id:uint64 id:uint32 = MsgBody;
 | `query_id` | 8 | query id |
 | `id` | 4 | proposal id |
 
-# 0x08: Execute proposal
+# 0x08: Abort proposal
 
 Abort approved proposal in DAO
 
