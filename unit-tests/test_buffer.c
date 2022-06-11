@@ -88,26 +88,6 @@ static void test_buffer_read(void **state) {
     assert_int_equal(fourth, 1012478732780767239);     // 0x0E 0x0D 0x0C 0x0B 0x0A 0x09 0x08 0x07
     assert_true(buffer_seek_set(&buf, 8));             // seek at offset 8
     assert_false(buffer_read_u64(&buf, &fourth, BE));  // can't read 8 bytes
-
-    // clang-format off
-    uint8_t temp_varint[] = {
-        0xFC, // 1 byte varint
-        0xFD, 0x00, 0x01, // 2 bytes varint
-        0xFE, 0x00, 0x01, 0x02, 0x03,  // 4 bytes varint
-        0xFF, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07 // 8 bytes varint
-
-    };
-    buffer_t buf_varint = {.ptr = temp_varint, .size = sizeof(temp_varint), .offset = 0};
-    uint64_t varint = 0;
-    assert_true(buffer_read_varint(&buf_varint, &varint));
-    assert_int_equal(varint, 0xFC);
-    assert_true(buffer_read_varint(&buf_varint, &varint));
-    assert_int_equal(varint, 0x0100);
-    assert_true(buffer_read_varint(&buf_varint, &varint));
-    assert_int_equal(varint, 0x03020100);
-    assert_true(buffer_read_varint(&buf_varint, &varint));
-    assert_int_equal(varint, 0x0706050403020100);
-    assert_false(buffer_read_varint(&buf_varint, &varint));
 }
 
 static void test_buffer_copy(void **state) {
