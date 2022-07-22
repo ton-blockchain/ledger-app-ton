@@ -14,6 +14,15 @@ Right now TON app is not available through Ledger Live and have to be sideloaded
 * Start and login into environment. Run in terminal: `./env.sh`
 * Run `make load` to build and upload app to the Ledger
 
+## Web Client
+
+You can use Ledger TON App by navigating to [TonWhales's Ledger page](https://tonwhales.com/ledger), connect your ledger to the browser and make transfers.
+
+## Programmatic Usage
+
+There are some experimental (but stable) libraries:
+* [ton-ledger-ts](https://github.com/ton-foundation/ton-ledger-ts)
+
 ## Documentation
 
 * [Supported TON messages](doc/MESSAGES.md)
