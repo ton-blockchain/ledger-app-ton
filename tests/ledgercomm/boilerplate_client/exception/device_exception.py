@@ -4,6 +4,7 @@ from typing import Dict, Any, Union
 from .errors import *
 
 
+
 class DeviceException(Exception):  # pylint: disable=too-few-public-methods
     exc: Dict[int, Any] = {
         0x6985: DenyError,
@@ -16,8 +17,7 @@ class DeviceException(Exception):  # pylint: disable=too-few-public-methods
         0xB002: DisplayAddressFailError,
         0xB003: DisplayAmountFailError,
         0xB004: WrongTxLengthError,
-        0xB005: TxParsingFailError,
-        0xB006: TxHashFail,
+        0xB010: TxParsingFailError,
         0xB007: BadStateError,
         0xB008: SignatureFailError
     }

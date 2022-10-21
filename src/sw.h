@@ -29,10 +29,6 @@
  */
 #define SW_WRONG_RESPONSE_LENGTH 0xB000
 /**
- * Status word for fail to display BIP32 path.
- */
-#define SW_DISPLAY_BIP32_PATH_FAIL 0xB001
-/**
  * Status word for fail to display address.
  */
 #define SW_DISPLAY_ADDRESS_FAIL 0xB002
@@ -49,10 +45,6 @@
  */
 #define SW_TX_PARSING_FAIL 0xB010
 /**
- * Status word for fail of transaction hash.
- */
-#define SW_TX_HASH_FAIL 0xB006
-/**
  * Status word for bad state.
  */
 #define SW_BAD_STATE 0xB007
@@ -60,13 +52,3 @@
  * Status word for signature fail.
  */
 #define SW_SIGNATURE_FAIL 0xB008
-
-/**
- * Status word for transaction parse fail
- */
-#define SW_TX_PARSING_FAIL 0xB005
-
-/**
- * Status word for transaction hashing fail
- */
-#define SW_TX_HASH_FAIL 0xB006
