@@ -60,3 +60,13 @@
  * Status word for signature fail.
  */
 #define SW_SIGNATURE_FAIL 0xB008
+
+/**
+ * Status word for transaction parse fail
+ */
+#define SW_TX_PARSING_FAIL 0xB005
+
+/**
+ * Status word for transaction hashing fail
+ */
+#define SW_TX_HASH_FAIL 0xB006
