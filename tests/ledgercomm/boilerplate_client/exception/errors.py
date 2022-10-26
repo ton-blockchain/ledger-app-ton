@@ -26,10 +26,6 @@ class WrongResponseLengthError(Exception):
     pass
 
 
-class DisplayBip32PathFailError(Exception):
-    pass
-
-
 class DisplayAddressFailError(Exception):
     pass
 

@@ -34,8 +34,15 @@ There are some experimental (but stable) libraries:
 
 For Mac or Windows users we recommend to use VS Code Remote with a x64 Linux laptop and do all work there and connect ledger directly to it. 
 
+To build you need to have Nano App Builder docker image built:
+```bash
+git clone https://github.com/LedgerHQ/ledger-app-builder.git
+cd ledger-app-builder
+docker build -t ledger-app-builder:latest .
+```
+
 To build and run just launch Ledger App Builder environment by calling `./env.sh` and then:
-* `make build` - to build app
+* `make` - to build app
 * `make load` - to build and upload to a Ledger
 * `make clean` - to clean build
 * `make scan-build` - for Clang static analyzer
