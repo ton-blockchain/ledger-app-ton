@@ -77,6 +77,17 @@ typedef struct {
 } transaction_ctx_t;
 
 /**
+ * Structure for message information context.
+ */
+typedef struct {
+    uint8_t msg[MAX_COMMENT_LEN + 1];     /// raw transaction serialized
+    size_t msg_len;                       /// length of raw transaction
+    uint8_t m_hash[HASH_LEN];             /// message hash digest
+    uint8_t signature[SIG_LEN];           /// transaction signature encoded in DER
+    uint8_t signature_len;                /// length of transaction signature
+} message_ctx_t;
+
+/**
  * Structure for global context.
  */
 typedef struct {
@@ -84,6 +95,7 @@ typedef struct {
     union {
         pubkey_ctx_t pk_info;       /// public key context
         transaction_ctx_t tx_info;  /// transaction context
+        message_ctx_t msg_info;     /// message context
     };
     request_type_e req_type;              /// user request
     uint32_t bip32_path[MAX_BIP32_PATH];  /// BIP32 path

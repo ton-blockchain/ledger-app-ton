@@ -22,3 +22,11 @@ int ui_display_address(uint8_t flags);
  *
  */
 int ui_display_transaction(void);
+
+/**
+ * Display message information on the device and ask confirmation to sign.
+ *
+ * @return 0 if success, negative integer otherwise.
+ *
+ */
+int ui_display_message(void);

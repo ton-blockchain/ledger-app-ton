@@ -45,7 +45,7 @@ int crypto_init_public_key(cx_ecfp_private_key_t *private_key,
                            uint8_t raw_public_key[static 32]);
 
 /**
- * Sign message hash in global context.
+ * Sign tx hash in global context.
  *
  * @see G_context.bip32_path, G_context.tx_info.m_hash,
  * G_context.tx_info.signature.
@@ -55,4 +55,17 @@ int crypto_init_public_key(cx_ecfp_private_key_t *private_key,
  * @throw INVALID_PARAMETER
  *
  */
-int crypto_sign_message(void);
+int crypto_sign_tx(void);
+
+/**
+ * Sign message hash in global context.
+ *
+ * @see G_context.bip32_path, G_context.msg_info.m_hash,
+ * G_context.msg_info.signature.
+ *
+ * @return 0 if success, -1 otherwise.
+ *
+ * @throw INVALID_PARAMETER
+ *
+ */
+int crypto_sign_msg(void);

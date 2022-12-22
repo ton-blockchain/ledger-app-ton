@@ -241,3 +241,38 @@ int ui_display_transaction() {
 
     return 0;
 }
+
+// Step for message signing
+UX_STEP_NOCB(ux_display_sign_msg_step,
+             pb,
+             {
+                 &C_icon_eye,
+                 "Sign Message"
+             });
+UX_STEP_NOCB(ux_display_msg_step,
+             bnnn_paging,
+             {
+                 .title = "Message",
+                 .text = g_hint_body,
+             });
+UX_FLOW(ux_sign_msg_flow,
+        &ux_display_sign_msg_step,
+        &ux_display_approve_step,
+        &ux_display_reject_step);
+
+int ui_display_message() {
+    if (G_context.req_type != CONFIRM_MESSAGE || G_context.state != STATE_PARSED) {
+        G_context.state = STATE_NONE;
+        return io_send_sw(SW_BAD_STATE);
+    }
+
+    // Message
+    // explicit_bzero(g_hint_body, sizeof(g_hint_body));
+    // memmove(g_hint_body, G_context.msg_info.msg, G_context.msg_info.msg_len);
+
+     // Start flow
+    g_validate_callback = &ui_action_validate_message;
+    ux_flow_init(0, ux_sign_msg_flow, NULL);
+
+    return 0;
+}

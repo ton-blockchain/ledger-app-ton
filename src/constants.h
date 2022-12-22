@@ -26,6 +26,11 @@
 #define MAX_TRANSACTION_LEN 510
 
 /**
+ * Maximum comment length (bytes).
+ */
+#define MAX_COMMENT_LEN 510
+
+/**
  * Signature length (bytes).
  */
 #define SIG_LEN 64

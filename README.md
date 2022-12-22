@@ -16,12 +16,12 @@ Right now TON app is not available through Ledger Live and have to be sideloaded
 
 ## Web Client
 
-You can use Ledger TON App by navigating to [TonWhales's Ledger page](https://tonwhales.com/ledger), connect your ledger to the browser and make transfers.
+You can use Ledger TON App by navigating to [Tonblack Web App page](https://tonblack.com), connect your ledger to the browser and make transfers.
 
 ## Programmatic Usage
 
 There are some experimental (but stable) libraries:
-* [ton-ledger-ts](https://github.com/ton-foundation/ton-ledger-ts)
+* [ton-ledger-ts](https://github.com/ton-community/ton-ledger-ts)
 
 ## Documentation
 

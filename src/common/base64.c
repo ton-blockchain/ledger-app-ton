@@ -1,7 +1,7 @@
 #include "base64.h"
 
 static const char base64_alphabet[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 static const size_t base64_mod_table[] = {0, 2, 1};
 
 size_t base64_encode(const uint8_t *data, size_t data_length, char *out, size_t out_len) {

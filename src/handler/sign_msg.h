@@ -9,8 +9,8 @@
  * Handler for SIGN_MSG command. If successfully parse BIP32 path
  * and transaction, sign message and send APDU response.
  *
- * @see G_context.bip32_path, G_context.tx_info.raw_transaction,
- * G_context.tx_info.signature and G_context.tx_info.v.
+ * @see G_context.bip32_path, G_context.msg_info.msg,
+ * G_context.msg_info.signature and G_context.msg_info.hash
  *
  * @param[in,out] cdata
  *   Command data with BIP32 path and raw transaction serialized.
