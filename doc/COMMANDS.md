@@ -8,6 +8,7 @@
 | `GET_APP_NAME` | 0x04 | Get ASCII encoded application name |
 | `GET_PUBLIC_KEY` | 0x05 | Get public key given BIP32 path |
 | `SIGN_TX` | 0x06 | Sign transaction given BIP32 path and raw transaction |
+| `SIGN_MSG` | 0x07 | Sign message given BIP32 path and text string |
 
 ## GET_VERSION
 
@@ -78,6 +79,28 @@ Then up to 3 chunks sent with transaction data:
 | --- | --- | --- |
 | var | 0x9000 | `len(signature) (1)` \|\| <br> `signature (64)` \|\| <br> `len(hash) (1)` \|\| <br> `hash (32)` \|\||
 
+
+## SIGN_MSG
+
+### Command
+
+Sent as series of packages. First one contains bip32 path:
+
+| CLA | INS | P1 | P2 | Lc | CData |
+| --- | --- | --- | --- | --- | --- |
+| 0xE0 | 0x07 | 0x00 | 0x00 | 1 + 4n | `len(bip32_path) (1)` \|\|<br> `bip32_path{1} (4)` \|\|<br>`...` \|\|<br>`bip32_path{n} (4)` |
+
+Then up to 3 chunks sent with transaction data:
+
+| CLA | INS | P1 | P2 | Lc | CData |
+| --- | --- | --- | --- | --- | --- |
+| 0xE0 | 0x07 | 0x01-0x03 (chunk index) | 0x00 (more) <br> 0x80 (last) | `len(chunk)` | `chunk` |
+
+### Response
+
+| Response length (bytes) | SW | RData |
+| --- | --- | --- |
+| var | 0x9000 | `len(signature) (1)` \|\| <br> `signature (64)` \|\| <br> `len(hash) (1)` \|\| <br> `hash (32)` \|\||
 
 ## Status Words
 
