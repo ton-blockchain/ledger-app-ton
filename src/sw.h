@@ -52,3 +52,11 @@
  * Status word for signature fail.
  */
 #define SW_SIGNATURE_FAIL 0xB008
+/**
+ * Status word for wrong message length.
+ */
+#define SW_WRONG_MSG_LENGTH 0xB009
+/**
+ * Status word for fail of transaction parsing.
+ */
+#define SW_MSG_PARSING_FAIL 0xB00A

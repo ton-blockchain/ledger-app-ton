@@ -126,8 +126,8 @@ int crypto_sign_msg() {
             sig_len = cx_eddsa_sign(&private_key,
                                     CX_LAST,
                                     CX_SHA512,
-                                    G_context.msg_info.m_hash,
-                                    sizeof(G_context.msg_info.m_hash),
+                                    G_context.msg_info.hash,
+                                    sizeof(G_context.msg_info.hash),
                                     NULL,
                                     0,
                                     G_context.msg_info.signature,
@@ -148,7 +148,7 @@ int crypto_sign_msg() {
         return -1;
     }
 
-    G_context.tx_info.signature_len = sig_len;
+    G_context.msg_info.signature_len = sig_len;
 
     return 0;
 }

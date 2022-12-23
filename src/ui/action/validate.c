@@ -61,7 +61,7 @@ void ui_action_validate_message(bool choice) {
             G_context.state = STATE_NONE;
             io_send_sw(SW_SIGNATURE_FAIL);
         } else {
-            helper_send_response_sig();
+            helper_send_response_sig_msg();
         }
     } else {
         G_context.state = STATE_NONE;

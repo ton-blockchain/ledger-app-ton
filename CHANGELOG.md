@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Signing text messages
 
+### Fixed
+
+- Using `base64url` encoding for address instead of a default one
+
 ## [1.1.0] - 2022-10-21
 
 ### Added

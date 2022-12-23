@@ -20,14 +20,24 @@
 int helper_send_response_pubkey(void);
 
 /**
- * Helper to send APDU response with signature and v (parity of
- * y-coordinate of R).
+ * Helper to send APDU response with signature or a tx
  *
  * response = G_context.tx_info.signature_len (1) ||
- *            G_context.tx_info.signature (G_context.tx_info.signature_len) ||
- *            G_context.tx_info.v (1)
+ *            G_context.tx_info.signature (G_context.tx_info.signature_len)
  *
  * @return zero or positive integer if success, -1 otherwise.
  *
  */
 int helper_send_response_sig(void);
+
+
+/**
+ * Helper to send APDU response with signature of a message
+ *
+ * response = G_context.msg_info.signature_len (1) ||
+ *            G_context.msg_info.signature (G_context.msg_info.signature_len)
+ *
+ * @return zero or positive integer if success, -1 otherwise.
+ *
+ */
+int helper_send_response_sig_msg(void);

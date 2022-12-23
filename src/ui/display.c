@@ -257,6 +257,7 @@ UX_STEP_NOCB(ux_display_msg_step,
              });
 UX_FLOW(ux_sign_msg_flow,
         &ux_display_sign_msg_step,
+        &ux_display_msg_step,
         &ux_display_approve_step,
         &ux_display_reject_step);
 
@@ -267,8 +268,8 @@ int ui_display_message() {
     }
 
     // Message
-    // explicit_bzero(g_hint_body, sizeof(g_hint_body));
-    // memmove(g_hint_body, G_context.msg_info.msg, G_context.msg_info.msg_len);
+    explicit_bzero(g_hint_body, sizeof(g_hint_body));
+    memmove(g_hint_body, G_context.msg_info.msg, G_context.msg_info.msg_len);
 
      // Start flow
     g_validate_callback = &ui_action_validate_message;

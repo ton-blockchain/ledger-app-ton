@@ -30,6 +30,7 @@
 #include "../ui/display.h"
 #include "../common/buffer.h"
 #include "../msg/hash_msg.h"
+#include "../transaction/utils.h"
 
 int handler_sign_msg(buffer_t *cdata, uint8_t chunk, bool more) {
     if (chunk == 0) {  // first APDU, parse BIP32 path
@@ -55,7 +56,7 @@ int handler_sign_msg(buffer_t *cdata, uint8_t chunk, bool more) {
                 !buffer_move(cdata,
                              G_context.msg_info.msg + G_context.msg_info.msg_len,
                              cdata->size)) {
-                return io_send_sw(SW_WRONG_TX_LENGTH);
+                return io_send_sw(SW_WRONG_MSG_LENGTH);
             }
 
             G_context.msg_info.msg_len += cdata->size;
@@ -67,14 +68,18 @@ int handler_sign_msg(buffer_t *cdata, uint8_t chunk, bool more) {
                 !buffer_move(cdata,
                              G_context.msg_info.msg + G_context.msg_info.msg_len,
                              cdata->size)) {
-                return io_send_sw(SW_WRONG_TX_LENGTH);
+                return io_send_sw(SW_WRONG_MSG_LENGTH);
             }
-
             G_context.msg_info.msg_len += cdata->size;
+
+            // Check encoding
+            if (!transaction_utils_check_encoding(G_context.msg_info.msg, G_context.msg_info.msg_len)) {
+                return io_send_sw(SW_MSG_PARSING_FAIL);
+            }
 
             // Hash
             if (!hash_msg(&G_context.msg_info)) {
-                return io_send_sw(SW_TX_PARSING_FAIL);
+                return io_send_sw(SW_MSG_PARSING_FAIL);
             }
 
             G_context.state = STATE_PARSED;

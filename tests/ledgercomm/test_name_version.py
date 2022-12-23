@@ -4,4 +4,4 @@ def test_get_app_and_version(cmd, hid):
         app_name, version = cmd.get_app_and_version()
 
         assert app_name == "TON"
-        assert version == "1.1.0"
+        assert version == "1.2.0"
