@@ -80,11 +80,11 @@ typedef struct {
  * Structure for message information context.
  */
 typedef struct {
-    uint8_t msg[MAX_COMMENT_LEN + 1];     /// raw transaction serialized
-    size_t msg_len;                       /// length of raw transaction
-    uint8_t hash[MSG_HASH_LEN];             /// message hash digest
-    uint8_t signature[SIG_LEN];           /// transaction signature encoded in DER
-    uint8_t signature_len;                /// length of transaction signature
+    uint8_t msg[MAX_COMMENT_LEN + 1];  /// raw transaction serialized
+    size_t msg_len;                    /// length of raw transaction
+    uint8_t hash[MSG_HASH_LEN];        /// message hash digest
+    uint8_t signature[SIG_LEN];        /// transaction signature encoded in DER
+    uint8_t signature_len;             /// length of transaction signature
 } message_ctx_t;
 
 /**

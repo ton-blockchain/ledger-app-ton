@@ -243,7 +243,7 @@ int ui_display_transaction() {
 }
 
 // Step for message signing
-UX_STEP_NOCB(ux_display_sign_msg_step, pb, { &C_icon_eye, "Sign Message" });
+UX_STEP_NOCB(ux_display_sign_msg_step, pb, {&C_icon_eye, "Sign Message"});
 UX_STEP_NOCB(ux_display_msg_step,
              bnnn_paging,
              {

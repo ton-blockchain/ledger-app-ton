@@ -73,7 +73,7 @@ int handler_sign_msg(buffer_t *cdata, uint8_t chunk, bool more) {
             G_context.msg_info.msg_len += cdata->size;
 
             // Check encoding
-            if (!transaction_utils_check_encoding(G_context.msg_info.msg, 
+            if (!transaction_utils_check_encoding(G_context.msg_info.msg,
                                                   G_context.msg_info.msg_len)) {
                 return io_send_sw(SW_MSG_PARSING_FAIL);
             }
