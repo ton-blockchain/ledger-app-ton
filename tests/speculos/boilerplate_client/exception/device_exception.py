@@ -17,7 +17,9 @@ class DeviceException(Exception):  # pylint: disable=too-few-public-methods
         0xB004: WrongTxLengthError,
         0xB010: TxParsingFailError,
         0xB007: BadStateError,
-        0xB008: SignatureFailError
+        0xB008: SignatureFailError,
+        0xB009: WrongMessageLengthError,
+        0xB00A: MessageParseError
     }
 
     def __new__(cls,

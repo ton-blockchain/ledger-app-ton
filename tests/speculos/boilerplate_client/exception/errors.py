@@ -52,3 +52,12 @@ class BadStateError(Exception):
 
 class SignatureFailError(Exception):
     pass
+
+class SignatureFailError(Exception):
+    pass
+
+class WrongMessageLengthError(Exception):
+    pass
+
+class MessageParseError(Exception):
+    pass
