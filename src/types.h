@@ -52,9 +52,9 @@ typedef enum {
  * Enumeration with user request type.
  */
 typedef enum {
-    CONFIRM_ADDRESS,     /// confirm address derived from public key
-    CONFIRM_TRANSACTION, /// confirm transaction information
-    CONFIRM_MESSAGE      /// confirm message information
+    CONFIRM_ADDRESS,      /// confirm address derived from public key
+    CONFIRM_TRANSACTION,  /// confirm transaction information
+    CONFIRM_MESSAGE       /// confirm message information
 } request_type_e;
 
 /**

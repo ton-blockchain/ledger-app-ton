@@ -243,12 +243,7 @@ int ui_display_transaction() {
 }
 
 // Step for message signing
-UX_STEP_NOCB(ux_display_sign_msg_step,
-             pb,
-             {
-                 &C_icon_eye,
-                 "Sign Message"
-             });
+UX_STEP_NOCB(ux_display_sign_msg_step, pb, { &C_icon_eye, "Sign Message" });
 UX_STEP_NOCB(ux_display_msg_step,
              bnnn_paging,
              {
@@ -271,7 +266,7 @@ int ui_display_message() {
     explicit_bzero(g_hint_body, sizeof(g_hint_body));
     memmove(g_hint_body, G_context.msg_info.msg, G_context.msg_info.msg_len);
 
-     // Start flow
+    // Start flow
     g_validate_callback = &ui_action_validate_message;
     ux_flow_init(0, ux_sign_msg_flow, NULL);
 
