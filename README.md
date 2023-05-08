@@ -6,6 +6,8 @@ This is a Nano App for Ledger S/X/S+ for TON blockchain.
 * 🔎 Absolutely minimal footprint and very straight forward code that easy to audit and contribute
 * 📱 Compatible with TON wallet apps
 
+Developed by [Whales Corp.](https://whalescorp.com)
+
 ## Installation
 
 Right now TON app is not available through Ledger Live and have to be sideloaded to Ledger Nano S+. We support Ledger Nano S, but we generally recommend a new one. Everything have to be done on Linux on x64 CPU with docker installed.
