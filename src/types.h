@@ -20,12 +20,11 @@ typedef enum {
  * Enumeration with expected INS of APDU commands.
  */
 typedef enum {
-    GET_VERSION = 0x03,     /// version of the application
-    GET_APP_NAME = 0x04,    /// name of the application
-    GET_PUBLIC_KEY = 0x05,  /// public key of corresponding BIP32 path
-    SIGN_TX = 0x06,         /// sign transaction with BIP32 path
-    SIGN_MSG = 0x07,        /// sign message with BIP32 path
-    GET_ADDRESS_PROOF = 0x08,
+    GET_VERSION = 0x03,       /// version of the application
+    GET_APP_NAME = 0x04,      /// name of the application
+    GET_PUBLIC_KEY = 0x05,    /// public key of corresponding BIP32 path
+    SIGN_TX = 0x06,           /// sign transaction with BIP32 path
+    GET_ADDRESS_PROOF = 0x08, /// get an address proof in TON Connect format
 } command_e;
 
 /**
@@ -55,8 +54,7 @@ typedef enum {
 typedef enum {
     CONFIRM_ADDRESS,      /// confirm address derived from public key
     CONFIRM_TRANSACTION,  /// confirm transaction information
-    CONFIRM_MESSAGE,      /// confirm message information
-    GET_PROOF
+    GET_PROOF             /// confirm address proof information
 } request_type_e;
 
 /**
@@ -79,17 +77,6 @@ typedef struct {
 } transaction_ctx_t;
 
 /**
- * Structure for message information context.
- */
-typedef struct {
-    uint8_t msg[MAX_COMMENT_LEN + 1];  /// raw transaction serialized
-    size_t msg_len;                    /// length of raw transaction
-    uint8_t hash[MSG_HASH_LEN];        /// message hash digest
-    uint8_t signature[SIG_LEN];        /// transaction signature encoded in DER
-    uint8_t signature_len;             /// length of transaction signature
-} message_ctx_t;
-
-/**
  * Structure for address proof information context.
  */
 typedef struct {
@@ -109,7 +96,6 @@ typedef struct {
     union {
         pubkey_ctx_t pk_info;       /// public key context
         transaction_ctx_t tx_info;  /// transaction context
-        message_ctx_t msg_info;     /// message context
         proof_ctx_t proof_info;
     };
     request_type_e req_type;              /// user request

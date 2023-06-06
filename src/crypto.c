@@ -114,45 +114,6 @@ int crypto_sign_tx() {
     return 0;
 }
 
-int crypto_sign_msg() {
-    cx_ecfp_private_key_t private_key = {0};
-    int sig_len = 0;
-
-    // derive private key according to BIP32 path
-    crypto_derive_private_key(&private_key, G_context.bip32_path, G_context.bip32_path_len);
-
-    BEGIN_TRY {
-        TRY {
-            sig_len = cx_eddsa_sign(&private_key,
-                                    CX_LAST,
-                                    CX_SHA512,
-                                    G_context.msg_info.hash,
-                                    sizeof(G_context.msg_info.hash),
-                                    NULL,
-                                    0,
-                                    G_context.msg_info.signature,
-                                    sizeof(G_context.msg_info.signature),
-                                    NULL);
-            PRINTF("Signature: %.*H\n", sig_len, G_context.msg_info.signature);
-        }
-        CATCH_OTHER(e) {
-            THROW(e);
-        }
-        FINALLY {
-            explicit_bzero(&private_key, sizeof(private_key));
-        }
-    }
-    END_TRY;
-
-    if (sig_len < 0) {
-        return -1;
-    }
-
-    G_context.msg_info.signature_len = sig_len;
-
-    return 0;
-}
-
 int crypto_sign_proof() {
     cx_ecfp_private_key_t private_key = {0};
     int sig_len = 0;

@@ -28,12 +28,3 @@ void ui_action_validate_transaction(bool choice);
  *
  */
 void ui_action_validate_proof(bool choice);
-
-/**
- * Action for message validation.
- *
- * @param[in] choice
- *   User choice (either approved or rejectd).
- *
- */
-void ui_action_validate_message(bool choice);

@@ -26,11 +26,6 @@
 #define MAX_TRANSACTION_LEN 510
 
 /**
- * Maximum comment length (bytes).
- */
-#define MAX_COMMENT_LEN 510
-
-/**
  * Signature length (bytes).
  */
 #define SIG_LEN 64
@@ -39,11 +34,6 @@
  * Cell Hash length (bytes).
  */
 #define HASH_LEN 32
-
-/**
- * Msg Hash length (bytes).
- */
-#define MSG_HASH_LEN 36
 
 /**
  * Exponent used to convert mBOL to BOL unit (N BOL = N * 10^3 mBOL).

@@ -33,19 +33,6 @@ int helper_send_response_pubkey(void);
 int helper_send_response_sig(void);
 
 /**
- * Helper to send APDU response with signature of a message
- *
- * response = SIG_LEN (1) ||
- *            G_context.msg_info.signature (SIG_LEN) ||
- *            MSG_HASH_LEN (1) ||
- *            G_context.msg_info.hash (MSG_HASH_LEN)
- *
- * @return zero or positive integer if success, -1 otherwise.
- *
- */
-int helper_send_response_sig_msg(void);
-
-/**
  * Helper to send APDU response with signature of a proof
  *
  * response = G_context.proof_info.signature (SIG_LEN)
