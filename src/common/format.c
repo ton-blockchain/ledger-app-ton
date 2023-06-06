@@ -19,7 +19,9 @@
 #include <string.h>   // strncpy, memmove
 #include <stdbool.h>  // bool
 
+#include "int256.h"
 #include "format.h"
+#include "../constants.h"
 
 bool format_i64(char *dst, size_t dst_len, const int64_t value) {
     char temp[] = "-9223372036854775808";

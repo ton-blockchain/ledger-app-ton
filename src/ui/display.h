@@ -30,3 +30,11 @@ int ui_display_transaction(void);
  *
  */
 int ui_display_message(void);
+
+/**
+ * Display address proof information on the device and ask confirmation to sign.
+ *
+ * @return 0 if success, negative integer otherwise.
+ *
+ */
+int ui_display_proof(uint8_t flags);

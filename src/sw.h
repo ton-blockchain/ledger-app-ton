@@ -60,3 +60,7 @@
  * Status word for fail of transaction parsing.
  */
 #define SW_MSG_PARSING_FAIL 0xB00A
+/**
+ * Status word for a request that is too long.
+ */
+#define SW_REQUEST_TOO_LONG 0xB00B

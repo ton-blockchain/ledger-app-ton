@@ -13,7 +13,7 @@ on:
 
 jobs:
   nano_build:
-    name: Build TON application for NanoS, X and S+
+    name: Build TON application for Nano S, X, S+, and Stax
     strategy:
       matrix:
         include:
@@ -23,6 +23,8 @@ jobs:
             artifact: ton-app-nanoX
           - SDK: "$NANOSP_SDK"
             artifact: ton-app-nanoSP
+          - SDK: "$STAX_SDK"
+            model: stax
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest

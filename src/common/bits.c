@@ -1,6 +1,4 @@
-#include <stddef.h>   // size_t
 #include <stdint.h>   // uint*_t
-#include <stdbool.h>  // bool
 #include <string.h>   // explicit_bzero
 
 #include "bits.h"
@@ -47,6 +45,16 @@ void BitString_storeCoins(BitString_t* self, uint64_t v) {
     // Write remaining
     for (int i = 0; i < len; i++) {
         BitString_storeUint(self, v >> ((len - i - 1) * 8), 8);
+    }
+}
+
+void BitString_storeCoinsBuf(BitString_t* self, uint8_t *v, uint8_t len) {
+    // Write length
+    BitString_storeUint(self, len, 4);
+
+    // Write remaining
+    for (int i = 0; i < len; i++) {
+        BitString_storeUint(self, v[i], 8);
     }
 }
 

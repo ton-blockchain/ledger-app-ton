@@ -25,6 +25,7 @@
 #include "../io.h"
 #include "../sw.h"
 #include "../common/buffer.h"
+#include "../handler/get_address_proof.h"
 #include "../handler/get_version.h"
 #include "../handler/get_app_name.h"
 #include "../handler/get_public_key.h"
@@ -100,6 +101,23 @@ int apdu_dispatcher(const command_t *cmd) {
             buf.offset = 0;
 
             return handler_sign_msg(&buf, cmd->p1, (bool) (cmd->p2 & P2_MORE));
+        case GET_ADDRESS_PROOF:
+            if (cmd->p1 > 1 || cmd->p2 > 7) {
+                return io_send_sw(SW_WRONG_P1P2);
+            }
+            if (cmd->p1 == 0 && cmd->p2 > 0) {
+                return io_send_sw(SW_WRONG_P1P2);
+            }
+
+            if (!cmd->data) {
+                return io_send_sw(SW_WRONG_DATA_LENGTH);
+            }
+
+            buf.ptr = cmd->data;
+            buf.size = cmd->lc;
+            buf.offset = 0;
+
+            return handler_get_address_proof(cmd->p2, &buf, (bool) cmd->p1);
         default:
             return io_send_sw(SW_INS_NOT_SUPPORTED);
     }

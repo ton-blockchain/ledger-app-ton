@@ -24,7 +24,8 @@ typedef enum {
     GET_APP_NAME = 0x04,    /// name of the application
     GET_PUBLIC_KEY = 0x05,  /// public key of corresponding BIP32 path
     SIGN_TX = 0x06,         /// sign transaction with BIP32 path
-    SIGN_MSG = 0x07         /// sign message with BIP32 path
+    SIGN_MSG = 0x07,        /// sign message with BIP32 path
+    GET_ADDRESS_PROOF = 0x08,
 } command_e;
 
 /**
@@ -54,7 +55,8 @@ typedef enum {
 typedef enum {
     CONFIRM_ADDRESS,      /// confirm address derived from public key
     CONFIRM_TRANSACTION,  /// confirm transaction information
-    CONFIRM_MESSAGE       /// confirm message information
+    CONFIRM_MESSAGE,      /// confirm message information
+    GET_PROOF
 } request_type_e;
 
 /**
@@ -88,6 +90,18 @@ typedef struct {
 } message_ctx_t;
 
 /**
+ * Structure for address proof information context.
+ */
+typedef struct {
+    uint8_t raw_public_key[32];
+    int32_t workchain;
+    uint8_t domain[128];
+    uint8_t domain_len;
+    uint8_t hash[HASH_LEN];
+    uint8_t signature[SIG_LEN];
+} proof_ctx_t;
+
+/**
  * Structure for global context.
  */
 typedef struct {
@@ -96,6 +110,7 @@ typedef struct {
         pubkey_ctx_t pk_info;       /// public key context
         transaction_ctx_t tx_info;  /// transaction context
         message_ctx_t msg_info;     /// message context
+        proof_ctx_t proof_info;
     };
     request_type_e req_type;              /// user request
     uint32_t bip32_path[MAX_BIP32_PATH];  /// BIP32 path

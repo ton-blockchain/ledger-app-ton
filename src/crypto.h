@@ -69,3 +69,16 @@ int crypto_sign_tx(void);
  *
  */
 int crypto_sign_msg(void);
+
+/**
+ * Sign proof hash in global context.
+ *
+ * @see G_context.bip32_path, G_context.proof_info.hash,
+ * G_context.proof_info.signature.
+ *
+ * @return 0 if success, -1 otherwise.
+ *
+ * @throw INVALID_PARAMETER
+ *
+ */
+int crypto_sign_proof(void);

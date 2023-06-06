@@ -62,7 +62,13 @@ parser_status_e transaction_deserialize(buffer_t *buf, transaction_t *tx) {
     // Basic Transaction parameters
     SAFE(buffer_read_u32(buf, &tx->seqno, BE), SEQ_PARSING_ERROR);
     SAFE(buffer_read_u32(buf, &tx->timeout, BE), TIMEOUT_PARSING_ERROR);
-    SAFE(buffer_read_u64(buf, &tx->value, BE), VALUE_PARSING_ERROR);
+    SAFE(buffer_read_varuint(buf, &tx->value_len, tx->value_buf, MAX_VALUE_BYTES_LEN), VALUE_PARSING_ERROR);
+    // SAFE(buffer_read_u8(buf, &tx->value_len), VALUE_PARSING_ERROR);
+    // if (tx->value_len > MAX_VALUE_BYTES_LEN) {
+    //     return VALUE_PARSING_ERROR;
+    // }
+    // SAFE(buffer_read_buffer(buf, tx->value_buf, tx->value_len), VALUE_PARSING_ERROR);
+    // SAFE(buffer_read_u64(buf, &tx->value, BE), VALUE_PARSING_ERROR);
     SAFE(buffer_read_address(buf, &tx->to), TO_PARSING_ERROR);
     SAFE(buffer_read_u8(buf, &tx->bounce), BOUNCE_PARSING_ERROR);
     SAFE(buffer_read_u8(buf, &tx->send_mode), SEND_MODE_PARSING_ERROR);

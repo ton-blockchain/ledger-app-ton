@@ -40,9 +40,9 @@ int helper_send_response_sig() {
     size_t offset = 0;
 
     // Signature
-    resp[offset++] = G_context.tx_info.signature_len;
-    memmove(resp + offset, G_context.tx_info.signature, G_context.tx_info.signature_len);
-    offset += G_context.tx_info.signature_len;
+    resp[offset++] = SIG_LEN;
+    memmove(resp + offset, G_context.tx_info.signature, SIG_LEN);
+    offset += SIG_LEN;
 
     // Hash
     resp[offset++] = HASH_LEN;
@@ -57,9 +57,9 @@ int helper_send_response_sig_msg() {
     size_t offset = 0;
 
     // Signature
-    resp[offset++] = G_context.msg_info.signature_len;
-    memmove(resp + offset, G_context.msg_info.signature, G_context.msg_info.signature_len);
-    offset += G_context.msg_info.signature_len;
+    resp[offset++] = SIG_LEN;
+    memmove(resp + offset, G_context.msg_info.signature, SIG_LEN);
+    offset += SIG_LEN;
 
     // Hash
     resp[offset++] = MSG_HASH_LEN;
@@ -67,4 +67,13 @@ int helper_send_response_sig_msg() {
     offset += MSG_HASH_LEN;
 
     return io_send_response(&(const buffer_t){.ptr = resp, .size = offset, .offset = 0}, SW_OK);
+}
+
+int helper_send_response_sig_proof() {
+    uint8_t resp[SIG_LEN] = {0};
+
+    // Signature
+    memmove(resp, G_context.proof_info.signature, SIG_LEN);
+
+    return io_send_response(&(const buffer_t){.ptr = resp, .size = sizeof(resp), .offset = 0}, SW_OK);
 }

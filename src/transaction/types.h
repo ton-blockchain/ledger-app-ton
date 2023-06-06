@@ -4,10 +4,12 @@
 #include <stdint.h>   // uint*_t
 #include <stdbool.h>  // bool
 #include "cell.h"     // CellRef_t
+#include "../constants.h"
 
 #define MAX_TX_LEN   510
 #define ADDRESS_LEN  36
 #define MAX_MEMO_LEN 465  // 510 - ADDRESS_LEN - 2*SIZE(U64) - SIZE(MAX_VARINT)
+#define MAX_STORED_STRING_SIZE 64
 
 typedef enum {
     PARSING_OK = 0,
@@ -44,10 +46,17 @@ typedef struct {
 } SizedString_t;
 
 typedef struct {
+    char ticker[MAX_TICKER_LEN+1];
+    uint8_t value[MAX_VALUE_BYTES_LEN];
+    uint8_t value_len;
+    uint8_t decimals;
+} Amount_t;
+
+typedef struct {
     const char* title;
     enum HintKind kind;
     union {
-        uint64_t amount;
+        Amount_t amount;
         uint64_t u64;
         SizedString_t string;
         uint8_t hash[32];
@@ -60,6 +69,8 @@ typedef struct {
     uint32_t seqno;        // seqno (4 bytes)
     uint32_t timeout;      // timeout (4 bytes)
     uint64_t value;        // amount value (8 bytes)
+    uint8_t value_buf[MAX_VALUE_BYTES_LEN];
+    uint8_t value_len;
     uint8_t bounce;        // bounce (1 byte)
     uint8_t send_mode;     // send_mode (1 byte)
     address_t to;          // target

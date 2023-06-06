@@ -15,6 +15,8 @@
  *  limitations under the License.
  *****************************************************************************/
 
+#ifdef HAVE_BAGL
+
 #pragma GCC diagnostic ignored "-Wformat-invalid-specifier"  // snprintf
 #pragma GCC diagnostic ignored "-Wformat-extra-args"         // snprintf
 
@@ -33,9 +35,11 @@
 #include "../address.h"
 #include "action/validate.h"
 #include "../transaction/types.h"
+#include "../transaction/utils.h"
 #include "../common/bip32.h"
 #include "../common/format.h"
 #include "../common/base64.h"
+#include "../common/format_bigint.h"
 #include "../transaction/hints.h"
 
 static action_validate_cb g_validate_callback;
@@ -44,7 +48,8 @@ static char g_amount[30];
 static char g_address[49];
 static char g_payload[64];
 static char g_hint_title[32];
-static char g_hint_body[512];
+static char g_hint_body[256];
+static char g_domain[sizeof(G_context.proof_info.domain)+1];
 
 // Step with icon and text
 UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Address"});
@@ -74,9 +79,9 @@ UX_STEP_CB(ux_display_reject_step,
 
 // FLOW to display address and BIP32 path:
 // #1 screen: eye icon + "Confirm Address"
-// #3 screen: display address
-// #4 screen: approve button
-// #5 screen: reject button
+// #2 screen: display address
+// #3 screen: approve button
+// #4 screen: reject button
 UX_FLOW(ux_display_pubkey_flow,
         &ux_display_confirm_addr_step,
         &ux_display_address_step,
@@ -118,6 +123,71 @@ int ui_display_address(uint8_t flags) {
     // Launch
     g_validate_callback = &ui_action_validate_pubkey;
     ux_flow_init(0, ux_display_pubkey_flow, NULL);
+
+    return 0;
+}
+
+// Step with icon and text
+UX_STEP_NOCB(ux_display_verify_addr_step, pn, {&C_icon_eye, "Verify Address"});
+// Step with title/text for address
+UX_STEP_NOCB(ux_display_domain_step,
+             bnnn_paging,
+             {
+                 .title = "App domain",
+                 .text = g_domain,
+             });
+
+// FLOW to display address and BIP32 path:
+// #1 screen: eye icon + "Verify Address"
+// #2 screen: display app domain
+// #3 screen: display address
+// #4 screen: approve button
+// #5 screen: reject button
+UX_FLOW(ux_display_proof_flow,
+        &ux_display_verify_addr_step,
+        &ux_display_domain_step,
+        &ux_display_address_step,
+        &ux_display_approve_step,
+        &ux_display_reject_step);
+
+int ui_display_proof(uint8_t flags) {
+    // Check state
+    if (G_context.req_type != GET_PROOF || G_context.state != STATE_NONE) {
+        G_context.state = STATE_NONE;
+        return io_send_sw(SW_BAD_STATE);
+    }
+
+    // Format address
+    memset(g_address, 0, sizeof(g_address));
+    uint8_t address[ADDRESS_LEN] = {0};
+    bool bounceable = true;
+    bool testnet = false;
+    if (flags & 0x01) {
+        bounceable = false;
+    }
+    if (flags & 0x02) {
+        testnet = true;
+    }
+    if (!address_from_pubkey(G_context.proof_info.raw_public_key,
+                             G_context.proof_info.workchain == -1 ? 0xff : 0,
+                             bounceable,
+                             testnet,
+                             address,
+                             sizeof(address))) {
+        return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
+    }
+    base64_encode(address, sizeof(address), g_address, sizeof(g_address));
+
+    if (transaction_utils_check_encoding(G_context.proof_info.domain, G_context.proof_info.domain_len)) {
+        memmove(g_domain, G_context.proof_info.domain, G_context.proof_info.domain_len);
+        g_domain[G_context.proof_info.domain_len] = '\0';
+    } else {
+        snprintf(g_domain, sizeof(g_domain), "<cannot display>");
+    }
+
+    // Launch
+    g_validate_callback = &ui_action_validate_proof;
+    ux_flow_init(0, ux_display_proof_flow, NULL);
 
     return 0;
 }
@@ -177,23 +247,23 @@ int ui_display_transaction() {
     }
 
     // Operation
+    memset(g_operation, 0, sizeof(g_operation));
     snprintf(g_operation, sizeof(g_operation), "%s", G_context.tx_info.transaction.title);
 
     // Amount
+    memset(g_amount, 0, sizeof(g_amount));
     if ((G_context.tx_info.transaction.send_mode & 128) != 0) {
         snprintf(g_amount, sizeof(g_amount), "ALL YOUR TONs");
     } else {
-        memset(g_amount, 0, sizeof(g_amount));
-        char amount[30] = {0};
-        if (!format_fpu64(amount,
-                          sizeof(amount),
-                          G_context.tx_info.transaction.value,
-                          EXPONENT_SMALLEST_UNIT)) {
+        if (!amountToString(G_context.tx_info.transaction.value_buf,
+                    G_context.tx_info.transaction.value_len,
+                    EXPONENT_SMALLEST_UNIT,
+                    "TON",
+                    g_amount,
+                    sizeof(g_amount))) {
             return io_send_sw(SW_DISPLAY_AMOUNT_FAIL);
         }
-        snprintf(g_amount, sizeof(g_amount), "TON %.*s", sizeof(amount), amount);
     }
-    PRINTF("Amount: %s\n", g_amount);
 
     // Address
     uint8_t address[ADDRESS_LEN] = {0};
@@ -207,8 +277,8 @@ int ui_display_transaction() {
     base64_encode(address, sizeof(address), g_address, sizeof(g_address));
 
     // Payload
+    memset(g_payload, 0, sizeof(g_payload));
     if (G_context.tx_info.transaction.has_payload) {
-        memset(g_payload, 0, sizeof(g_payload));
         base64_encode(G_context.tx_info.transaction.payload.hash, 32, g_payload, sizeof(g_payload));
     } else {
         snprintf(g_payload, sizeof(g_payload), "Nothing");
@@ -272,3 +342,5 @@ int ui_display_message() {
 
     return 0;
 }
+
+#endif

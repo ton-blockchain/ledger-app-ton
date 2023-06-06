@@ -49,3 +49,13 @@
  * Exponent used to convert mBOL to BOL unit (N BOL = N * 10^3 mBOL).
  */
 #define EXPONENT_SMALLEST_UNIT 9
+
+/**
+ * Max bytes allowed in TON's conventional encoding for big numbers.
+ */
+#define MAX_VALUE_BYTES_LEN 15
+
+/**
+ * Max ticker string length.
+ */
+#define MAX_TICKER_LEN 16

@@ -11,6 +11,21 @@ typedef struct Uint256_t {
     uint8_t length;
 } Uint256_t;
 
+/**
+ * Convert big endian number into its decimal representation.
+ *
+ * @param[in] value
+ *   Pointer to number buffer.
+ * @param[in] value_len
+ *   Length of number buffer.
+ * @param[out] out
+ *   Output string.
+ * @param[in] out_len
+ *   Output string buffer size.
+ *
+ * @return true if success, false otherwise.
+ *
+ */
 bool uint256_to_decimal(const uint8_t *value, size_t value_len, char *out, size_t out_len);
 
 static __attribute__((no_instrument_function)) inline int allzeroes(void *buf, size_t n) {

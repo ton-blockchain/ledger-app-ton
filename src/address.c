@@ -122,19 +122,13 @@ bool address_to_friendly(const uint8_t chain,
     return true;
 }
 
-bool address_from_pubkey(const uint8_t public_key[static 32],
-                         const uint8_t chain,
-                         const bool bounceable,
-                         const bool testOnly,
-                         uint8_t *out,
-                         size_t out_len) {
-    uint8_t hash[32] = {0};
-    uint8_t inner[32] = {0};
-    cx_sha256_t state;
-
-    if (out_len < ADDRESS_LEN) {
+bool pubkey_to_hash(const uint8_t public_key[static 32], uint8_t *out, size_t out_len) {
+    if (out_len != HASH_LEN) {
         return false;
     }
+
+    uint8_t inner[32] = {0};
+    cx_sha256_t state;
 
     // Hash init data cell bits
     cx_sha256_init(&state);
@@ -145,7 +139,26 @@ bool address_from_pubkey(const uint8_t public_key[static 32],
     // Hash root
     cx_sha256_init(&state);
     cx_hash((cx_hash_t *) &state, 0, root_header, sizeof(root_header), NULL, 0);
-    cx_hash((cx_hash_t *) &state, CX_LAST, inner, sizeof(inner), hash, sizeof(hash));
+    cx_hash((cx_hash_t *) &state, CX_LAST, inner, sizeof(inner), out, out_len);
+
+    return true;
+}
+
+bool address_from_pubkey(const uint8_t public_key[static 32],
+                         const uint8_t chain,
+                         const bool bounceable,
+                         const bool testOnly,
+                         uint8_t *out,
+                         size_t out_len) {
+    if (out_len < ADDRESS_LEN) {
+        return false;
+    }
+
+    uint8_t hash[32] = {0};
+
+    if (!pubkey_to_hash(public_key, hash, sizeof(hash))) {
+        return false;
+    }
 
     // Convert to friendly
     address_to_friendly(chain, hash, bounceable, testOnly, out, out_len);
