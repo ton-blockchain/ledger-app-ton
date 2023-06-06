@@ -50,16 +50,6 @@ static void add_hint_amount(transaction_t* tx, const char* title, const char* ti
     tx->hints_count++;
 }
 
-static void add_hint_u64(transaction_t* tx, const char* title, uint64_t value) {
-    // Configure
-    tx->hints[tx->hints_count].title = title;
-    tx->hints[tx->hints_count].kind = SummaryItemU64;
-    tx->hints[tx->hints_count].u64 = value;
-
-    // Next
-    tx->hints_count++;
-}
-
 static void add_hint_address(transaction_t* tx, const char* title, address_t address) {
     // Configure
     tx->hints[tx->hints_count].title = title;
@@ -268,35 +258,6 @@ int print_sized_string(const SizedString_t* string, char* out, size_t out_length
     }
 }
 
-int print_u64(uint64_t u64, char* out, size_t out_length) {
-    uint64_t dVal = u64;
-    int outlen = (int) out_length;
-    int i = 0;
-    int j = 0;
-
-    if (i < (outlen - 1)) {
-        do {
-            if (dVal > 0) {
-                out[i] = (dVal % 10) + '0';
-                dVal /= 10;
-            } else {
-                out[i] = '0';
-            }
-            i++;
-        } while (dVal > 0 && i < outlen);
-    }
-
-    out[i--] = '\0';
-
-    for (; j < i; j++, i--) {
-        int tmp = out[j];
-        out[j] = out[i];
-        out[i] = tmp;
-    }
-
-    return 0;
-}
-
 void print_hint(transaction_t* tx,
                 uint16_t index,
                 char* title,
@@ -325,8 +286,6 @@ void print_hint(transaction_t* tx,
                             sizeof(address));
         memset(body, 0, body_len);
         base64_encode(address, sizeof(address), body, body_len);
-    } else if (hint.kind == SummaryItemU64) {
-        print_u64(hint.u64, body, body_len);
     } else {
         print_string("<unknown>", body, body_len);
     }

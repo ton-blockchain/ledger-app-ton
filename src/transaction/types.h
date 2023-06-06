@@ -34,7 +34,6 @@ typedef struct {
 enum HintKind {
     SummaryItemNone = 0,  // SummaryItemNone always zero
     SummaryItemAmount,
-    SummaryItemU64,
     SummaryItemString,
     SummaryAddress,
     SummaryHash
