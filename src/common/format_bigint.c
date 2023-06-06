@@ -5,6 +5,7 @@
 #include <stdbool.h>  // bool
 #include <string.h>   // strncpy, memmove
 
+#include "../constants.h"
 #include "int256.h"
 
 bool adjustDecimals(const char *src,
