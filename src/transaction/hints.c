@@ -109,7 +109,7 @@ bool process_hints(transaction_t* tx) {
     // Comment
     //
 
-    if (tx->hints_type == 0x0) {
+    if (tx->hints_type == TRANSACTION_COMMENT) {
         // Max size of a comment is 120 symbols
         if (tx->hints_len > 120) {
             return false;
@@ -134,365 +134,12 @@ bool process_hints(transaction_t* tx) {
         add_hint_text(tx, "Comment", (char*) tx->hints_data, tx->hints_len);
     }
 
-    //
-    // Upgrade
-    //
-
-    if (tx->hints_type == 0x01) {
-        // Building cell
-        BitString_init(&bits);
-        BitString_storeUint(&bits, 0xdbfaf817, 32);
-
-        // query_id
-        SAFE(buffer_read_bool(&buf, &tmp));
-        if (tmp) {
-            uint64_t query_id;
-            SAFE(buffer_read_u64(&buf, &query_id, BE));
-            BitString_storeUint(&bits, query_id, 64);
-        }
-
-        // gas_limit
-        SAFE(buffer_read_bool(&buf, &tmp));
-        if (tmp) {
-            uint64_t gas_limit;
-            SAFE(buffer_read_u64(&buf, &gas_limit, BE));
-            BitString_storeCoins(&bits, gas_limit);
-        }
-
-        // Code
-        CellRef_t code;
-        SAFE(buffer_read_cell_ref(&buf, &code));
-        CHECK_END();
-
-        // Complete
-        struct CellRef_t refs[1] = {code};
-        hash_Cell(&bits, refs, 1, &cell);
-        hasCell = true;
-
-        // Change title of operation
-        snprintf(tx->title, sizeof(tx->title), "Upgrade Code");
-
-        // Add code hints
-        add_hint_hash(tx, "Code", code.hash);
-    }
-
-    //
-    // Deposit
-    //
-
-    if (tx->hints_type == 0x02) {
-        // Building cell
-        BitString_init(&bits);
-        BitString_storeUint(&bits, 0x7bcd1fef, 32);
-
-        // query_id
-        SAFE(buffer_read_bool(&buf, &tmp));
-        if (tmp) {
-            uint64_t query_id;
-            SAFE(buffer_read_u64(&buf, &query_id, BE));
-            BitString_storeUint(&bits, query_id, 64);
-        }
-
-        // gas_limit
-        SAFE(buffer_read_bool(&buf, &tmp));
-        if (tmp) {
-            uint64_t gas_limit;
-            SAFE(buffer_read_u64(&buf, &gas_limit, BE));
-            BitString_storeCoins(&bits, gas_limit);
-        }
-
-        CHECK_END();
-
-        // Complete
-        hash_Cell(&bits, NULL, 0, &cell);
-        hasCell = true;
-
-        // Change title of operation
-        snprintf(tx->title, sizeof(tx->title), "Deposit");
-    }
-
-    //
-    // Withdraw
-    //
-
-    if (tx->hints_type == 0x03) {
-        // Building cell
-        BitString_init(&bits);
-        BitString_storeUint(&bits, 0xda803efd, 32);
-
-        // query_id
-        SAFE(buffer_read_bool(&buf, &tmp));
-        if (tmp) {
-            uint64_t query_id;
-            SAFE(buffer_read_u64(&buf, &query_id, BE));
-            BitString_storeUint(&bits, query_id, 64);
-        }
-
-        // gas_limit
-        SAFE(buffer_read_bool(&buf, &tmp));
-        if (tmp) {
-            uint64_t gas_limit;
-            SAFE(buffer_read_u64(&buf, &gas_limit, BE));
-            BitString_storeCoins(&bits, gas_limit);
-        }
-
-        // Amount
-        uint64_t amount;
-        SAFE(buffer_read_u64(&buf, &amount, BE));
-        BitString_storeCoins(&bits, amount);
-        CHECK_END();
-
-        // Complete
-        hash_Cell(&bits, NULL, 0, &cell);
-        hasCell = true;
-
-        // Change title of operation
-        snprintf(tx->title, sizeof(tx->title), "Withdraw");
-
-        // Add amount hint
-        // add_hint_amount(tx, "Withdraw", amount);
-    }
-
-    //
-    // Transfer ownership
-    //
-
-    if (tx->hints_type == 0x04) {
-        // Building cell
-        BitString_init(&bits);
-        BitString_storeUint(&bits, 0x295e75a9, 32);
-
-        // query_id
-        SAFE(buffer_read_bool(&buf, &tmp));
-        if (tmp) {
-            uint64_t query_id;
-            SAFE(buffer_read_u64(&buf, &query_id, BE));
-            BitString_storeUint(&bits, query_id, 64);
-        }
-
-        // Amount
-        address_t newOwner;
-        SAFE(buffer_read_address(&buf, &newOwner));
-        BitString_storeAddress(&bits, newOwner.chain, newOwner.hash);
-        CHECK_END();
-
-        // Complete
-        hash_Cell(&bits, NULL, 0, &cell);
-        hasCell = true;
-
-        // Change title of operation
-        snprintf(tx->title, sizeof(tx->title), "Change Owner");
-
-        // Add amount hint
-        add_hint_address(tx, "New Owner", newOwner);
-    }
-
-    //
-    // Create Proposal
-    //
-
-    if (tx->hints_type == 0x05) {
-        // Building cell
-        BitString_init(&bits);
-        BitString_storeUint(&bits, 0xc1387443, 32);
-
-        // query_id
-        SAFE(buffer_read_bool(&buf, &tmp));
-        if (tmp) {
-            uint64_t query_id;
-            SAFE(buffer_read_u64(&buf, &query_id, BE));
-            BitString_storeUint(&bits, query_id, 64);
-        }
-
-        // ID
-        SAFE(buffer_read_bool(&buf, &tmp));
-        if (tmp) {
-            uint32_t id;
-            SAFE(buffer_read_u32(&buf, &id, BE));
-            BitString_storeUint(&bits, id, 32);
-            add_hint_u64(tx, "Proposal Number", id);
-        }
-
-        // Refs
-        CellRef_t proposal_ref;
-        SAFE(buffer_read_cell_ref(&buf, &proposal_ref));
-        CellRef_t metadata_ref;
-        SAFE(buffer_read_cell_ref(&buf, &metadata_ref));
-        CHECK_END();
-
-        // Complete
-        struct CellRef_t refs[2] = {proposal_ref, metadata_ref};
-        hash_Cell(&bits, refs, 2, &cell);
-        hasCell = true;
-
-        // Change title of operation
-        snprintf(tx->title, sizeof(tx->title), "Create Proposal");
-
-        // Add amount hint
-        add_hint_hash(tx, "Proposal Hash", proposal_ref.hash);
-        add_hint_hash(tx, "Metadata Hash", metadata_ref.hash);
-    }
-
-    //
-    // Vote Proposal
-    //
-
-    if (tx->hints_type == 0x06) {
-        // Building cell
-        BitString_init(&bits);
-        BitString_storeUint(&bits, 0xb5a563c1, 32);
-
-        // query_id
-        SAFE(buffer_read_bool(&buf, &tmp));
-        if (tmp) {
-            uint64_t query_id;
-            SAFE(buffer_read_u64(&buf, &query_id, BE));
-            BitString_storeUint(&bits, query_id, 64);
-        }
-
-        // Proposal number
-        uint32_t id;
-        SAFE(buffer_read_u32(&buf, &id, BE));
-        BitString_storeUint(&bits, id, 32);
-        add_hint_u64(tx, "Proposal Number", id);
-
-        // Vote
-        uint8_t vote;
-        SAFE(buffer_read_u8(&buf, &vote));
-        if (vote == 0x00) {
-            BitString_storeUint(&bits, 0, 2);
-            snprintf(tx->title, sizeof(tx->title), "Vote NO");
-        } else if (vote == 0x01) {
-            BitString_storeUint(&bits, 1, 2);
-            snprintf(tx->title, sizeof(tx->title), "Vote YES");
-        } else if (vote == 0x02) {
-            BitString_storeUint(&bits, 2, 2);
-            snprintf(tx->title, sizeof(tx->title), "Vote ABSTAIN");
-        } else {
-            return false;
-        }
-
-        // Build cell
-        hash_Cell(&bits, NULL, 0, &cell);
-        hasCell = true;
-    }
-
-    //
-    // Execute Proposal
-    //
-
-    if (tx->hints_type == 0x07) {
-        // Building cell
-        BitString_init(&bits);
-        BitString_storeUint(&bits, 0x93ff9cd3, 32);
-
-        // query_id
-        SAFE(buffer_read_bool(&buf, &tmp));
-        if (tmp) {
-            uint64_t query_id;
-            SAFE(buffer_read_u64(&buf, &query_id, BE));
-            BitString_storeUint(&bits, query_id, 64);
-        }
-
-        // Proposal number
-        uint32_t id;
-        SAFE(buffer_read_u32(&buf, &id, BE));
-        BitString_storeUint(&bits, id, 32);
-        add_hint_u64(tx, "Proposal Number", id);
-
-        // Build cell
-        hash_Cell(&bits, NULL, 0, &cell);
-        hasCell = true;
-
-        // Operation
-        snprintf(tx->title, sizeof(tx->title), "Execute Proposal");
-    }
-
-    //
-    // Abort Proposal
-    //
-
-    if (tx->hints_type == 0x08) {
-        // Building cell
-        BitString_init(&bits);
-        BitString_storeUint(&bits, 0x5ce656a5, 32);
-
-        // query_id
-        SAFE(buffer_read_bool(&buf, &tmp));
-        if (tmp) {
-            uint64_t query_id;
-            SAFE(buffer_read_u64(&buf, &query_id, BE));
-            BitString_storeUint(&bits, query_id, 64);
-        }
-
-        // Proposal number
-        uint32_t id;
-        SAFE(buffer_read_u32(&buf, &id, BE));
-        BitString_storeUint(&bits, id, 32);
-        add_hint_u64(tx, "Proposal Number", id);
-
-        // Build cell
-        hash_Cell(&bits, NULL, 0, &cell);
-        hasCell = true;
-
-        // Operation
-        snprintf(tx->title, sizeof(tx->title), "Abort Proposal");
-    }
-
-    //
-    // Transfer owner
-    //
-
-    if (tx->hints_type == 0x09) {
-        // Building cell
-        BitString_init(&bits);
-        BitString_storeUint(&bits, 0x90eafae1, 32);
-
-        // query_id
-        SAFE(buffer_read_bool(&buf, &tmp));
-        if (tmp) {
-            uint64_t query_id;
-            SAFE(buffer_read_u64(&buf, &query_id, BE));
-            BitString_storeUint(&bits, query_id, 64);
-        }
-
-        // gas_limit
-        SAFE(buffer_read_bool(&buf, &tmp));
-        if (tmp) {
-            uint64_t gas_limit;
-            SAFE(buffer_read_u64(&buf, &gas_limit, BE));
-            BitString_storeCoins(&bits, gas_limit);
-        }
-
-        // Address Index
-        uint8_t id;
-        SAFE(buffer_read_u8(&buf, &id));
-        BitString_storeUint(&bits, (uint64_t) id, 8);
-        add_hint_u64(tx, "Address Index", (uint64_t) id);
-
-        // Address
-        address_t newAddress;
-        SAFE(buffer_read_address(&buf, &newAddress));
-        BitString_storeAddress(&bits, newAddress.chain, newAddress.hash);
-        CHECK_END();
-
-        // Build cell
-        hash_Cell(&bits, NULL, 0, &cell);
-        hasCell = true;
-
-        // Operation
-        snprintf(tx->title, sizeof(tx->title), "Change Address");
-
-        // Add amount hint
-        add_hint_address(tx, "New Address", newAddress);
-    }
-
-    if (tx->hints_type == 0x10 || tx->hints_type == 0x11) {
+    if (tx->hints_type == TRANSACTION_TRANSFER_JETTON || tx->hints_type == TRANSACTION_TRANSFER_NFT) {
         int ref_count = 0;
         CellRef_t refs[2] = { 0 };
 
         BitString_init(&bits);
-        BitString_storeUint(&bits, tx->hints_type == 0x10 ? 0x0f8a7ea5 : 0x5fcc3d14, 32);
+        BitString_storeUint(&bits, tx->hints_type == TRANSACTION_TRANSFER_JETTON ? 0x0f8a7ea5 : 0x5fcc3d14, 32);
 
         SAFE(buffer_read_bool(&buf, &tmp));
         if (tmp) {
@@ -503,7 +150,7 @@ bool process_hints(transaction_t* tx) {
             BitString_storeUint(&bits, 0, 64);
         }
 
-        if (tx->hints_type == 0x10) {
+        if (tx->hints_type == TRANSACTION_TRANSFER_JETTON) {
             uint8_t amount_size;
             uint8_t amount_buf[MAX_VALUE_BYTES_LEN];
             SAFE(buffer_read_varuint(&buf, &amount_size, amount_buf, MAX_VALUE_BYTES_LEN));
@@ -529,7 +176,7 @@ bool process_hints(transaction_t* tx) {
         SAFE(buffer_read_address(&buf, &destination));
         BitString_storeAddress(&bits, destination.chain, destination.hash);
 
-        add_hint_address(tx, tx->hints_type == 0x10 ? "Send jetton to" : "New owner", destination);
+        add_hint_address(tx, tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "Send jetton to" : "New owner", destination);
 
         address_t response;
         SAFE(buffer_read_address(&buf, &response));
@@ -577,7 +224,7 @@ bool process_hints(transaction_t* tx) {
         hasCell = true;
 
         // Operation
-        snprintf(tx->title, sizeof(tx->title), tx->hints_type == 0x10 ? "Transfer jetton" : "Transfer NFT");
+        snprintf(tx->title, sizeof(tx->title), tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "Transfer jetton" : "Transfer NFT");
     }
 
     // Check hash
