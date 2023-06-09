@@ -15,7 +15,7 @@
  * @param[out] out
  *   Pointer to output byte buffer for address.
  * @param[in]  out_len
- *   Lenght of output byte buffer.
+ *   Length of output byte buffer.
  *
  * @return true if success, false otherwise.
  *
@@ -37,7 +37,7 @@ bool pubkey_to_hash(const uint8_t public_key[static PUBKEY_LEN], uint8_t *out, s
  * @param[out] out
  *   Pointer to output byte buffer for address.
  * @param[in]  out_len
- *   Lenght of output byte buffer.
+ *   Length of output byte buffer.
  *
  * @return true if success, false otherwise.
  *

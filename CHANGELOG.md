@@ -29,4 +29,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Inital version of a TON App that allows simple transfers without comments or payloads
+- Initial version of a TON App that allows simple transfers without comments or payloads

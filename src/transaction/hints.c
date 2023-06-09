@@ -107,7 +107,7 @@ bool process_hints(transaction_t* tx) {
             return false;
         }
 
-        // Buld cell
+        // Build cell
         BitString_init(&bits);
         BitString_storeUint(&bits, 0, 32);
         BitString_storeBuffer(&bits, tx->hints_data, tx->hints_len);

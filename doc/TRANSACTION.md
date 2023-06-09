@@ -2,7 +2,7 @@
 
 ## Overview
 
-TON Ledger App requires custom format for transactions since it have to be assembed in ledger for security.
+TON Ledger App requires custom format for transactions since it have to be assembled in ledger for security.
 
 ## Amount units
 
@@ -14,7 +14,7 @@ TON Ledger App works only with Wallet V4 (R2) contract and doesn't support legac
 
 ## Address format
 
-Address is serialized by appending a single byte of chain - 0x00 or 0xff and then 32 bytes of address hash part (that is not jsut the hash of an address - in TON, the hash part of an address if the hash of the initial state of the contract), 33 bytes in total. We shall name this format `address`.
+Address is serialized by appending a single byte of chain - 0x00 or 0xff and then 32 bytes of address hash part (that is not just the hash of an address - in TON, the hash part of an address if the hash of the initial state of the contract), 33 bytes in total. We shall name this format `address`.
 
 ## Cells
 
