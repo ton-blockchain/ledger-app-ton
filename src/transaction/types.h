@@ -81,7 +81,7 @@ typedef struct {
     uint16_t hints_len;                      // hints len if exists
     uint8_t* hints_data;                     // hints data if exists
     bool is_blind;                           // eoes transaction require blind signing
-    Hint_t hints[8];
+    Hint_t hints[MAX_HINTS];
     uint8_t hints_count;
     char title[128];
 } transaction_t;

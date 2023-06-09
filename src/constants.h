@@ -69,3 +69,8 @@
  * Raw private key length.
  */
 #define PRIVKEY_LEN 64
+
+/**
+ * Max hints in one transaction.
+ */
+#define MAX_HINTS 8

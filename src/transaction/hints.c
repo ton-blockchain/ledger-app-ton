@@ -294,7 +294,7 @@ void print_hint(transaction_t* tx,
     if (hint.kind == SummaryItemString) {
         print_sized_string(&hint.string, body, body_len);
     } else if (hint.kind == SummaryHash) {
-        base64_encode(hint.hash, MAX_MEMO_LEN, body, body_len);
+        base64_encode(hint.hash, HASH_LEN, body, body_len);
     } else if (hint.kind == SummaryItemAmount) {
         amountToString(hint.amount.value,
                        hint.amount.value_len,
