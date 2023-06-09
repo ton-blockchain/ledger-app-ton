@@ -36,7 +36,7 @@ def build_ton_proof_message(workchain: int,
                             timestamp: int,
                             payload: bytes) -> bytes:
     # we don't have private_key but the lib is buggy and requires it anyway
-    wallet = WalletV4ContractR2(public_key=pubkey, wc=workchain, private_key=bytes()) 
+    wallet = WalletV4ContractR2(public_key=pubkey, wc=workchain, private_key=bytes())
 
     addr = wallet.address
     domain_b = bytes(domain, "utf8")
