@@ -96,7 +96,10 @@ class BoilerplateCommandSender:
 
 
     @contextmanager
-    def get_public_key_with_confirmation(self, path: str, display_flags: AddressDisplayFlags) -> Generator[None, None, None]:
+    def get_public_key_with_confirmation(self,
+                                         path: str,
+                                         display_flags: AddressDisplayFlags
+                                        ) -> Generator[None, None, None]:
         with self.backend.exchange_async(cla=CLA,
                                          ins=InsType.GET_PUBLIC_KEY,
                                          p1=P1.P1_CONFIRM,
@@ -105,7 +108,12 @@ class BoilerplateCommandSender:
             yield response
 
     @contextmanager
-    def get_address_proof(self, path: str, display_flags: AddressDisplayFlags, domain: str, timestamp: int, payload: bytes) -> Generator[None, None, None]:
+    def get_address_proof(self,
+                          path: str,
+                          display_flags: AddressDisplayFlags,
+                          domain: str,
+                          timestamp: int,
+                          payload: bytes) -> Generator[None, None, None]:
         domain_b = bytes(domain, "utf8")
         req_bytes = b"".join([
             pack_derivation_path(path),

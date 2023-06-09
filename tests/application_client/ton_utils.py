@@ -1,8 +1,9 @@
 from math import ceil
+from hashlib import sha256
+
 from tonsdk.utils import Address
 from tonsdk.boc import Cell
 from tonsdk.contract.wallet import WalletV4ContractR2
-from hashlib import sha256
 
 
 TON_PROOF_PREFIX   = b"ton-proof-item-v2/"
@@ -29,8 +30,14 @@ def write_cell(cell: Cell) -> bytes:
     ])
 
 
-def build_ton_proof_message(workchain: int, pubkey: bytes, domain: str, timestamp: int, payload: bytes) -> bytes:
-    wallet = WalletV4ContractR2(public_key=pubkey, wc=workchain, private_key=bytes()) # we don't have private_key but the lib is buggy and requires it anyway
+def build_ton_proof_message(workchain: int,
+                            pubkey: bytes,
+                            domain: str,
+                            timestamp: int,
+                            payload: bytes) -> bytes:
+    # we don't have private_key but the lib is buggy and requires it anyway
+    wallet = WalletV4ContractR2(public_key=pubkey, wc=workchain, private_key=bytes()) 
+
     addr = wallet.address
     domain_b = bytes(domain, "utf8")
     inner = b"".join([

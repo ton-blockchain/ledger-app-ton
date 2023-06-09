@@ -1,8 +1,10 @@
-from tonsdk.utils import Address
-from tonsdk.boc import Cell, Builder
+from dataclasses import dataclass
 from enum import IntFlag, IntEnum
 from typing import Optional
 from abc import ABC, abstractmethod
+
+from tonsdk.utils import Address
+from tonsdk.boc import Cell, Builder
 
 from .ton_utils import write_varuint, write_address, write_cell
 
@@ -31,13 +33,20 @@ class SendMode(IntFlag):
     NONE = 0
 
 
+@dataclass
 class StateInit:
-    def __init__(self, code: Cell, data: Cell):
-        self.code: Cell = code
-        self.data: Cell = data
+    code: Cell
+    data: Cell
 
     def to_cell(self) -> Cell:
-        return begin_cell().store_uint(0, 2).store_maybe_ref(self.code).store_maybe_ref(self.data).store_uint(0, 1)
+        return (
+            begin_cell()
+            .store_uint(0, 2)
+            .store_maybe_ref(self.code)
+            .store_maybe_ref(self.data)
+            .store_uint(0, 1)
+            .end_cell()
+        )
 
 
 class Payload(ABC):
@@ -68,7 +77,8 @@ class PayloadID(IntEnum):
 class CommentPayload(Payload):
     def __init__(self, comment: str) -> None:
         if not is_string_ascii_printable(comment) or len(comment) > 120:
-            raise Exception("Comment string must be a printable ASCII string and must be 120 chars or less")
+            raise ValueError("Comment string must be a printable ASCII string"
+                             "and must be 120 chars or less")
         self.comment: str = comment
 
     def to_request_bytes(self) -> bytes:
@@ -82,16 +92,29 @@ class CommentPayload(Payload):
         return begin_cell().store_uint(0, 32).store_bytes(bytes(self.comment, "utf8")).end_cell()
 
 
+# pylint: disable-next=too-many-instance-attributes
 class JettonTransferPayload(Payload):
-    def __init__(self, amount: int, to: Address, ticker: str = "", decimals: int = 0, response_destination: Optional[Address] = None, query_id: Optional[int] = None, custom_payload: Optional[Cell] = None, forward_amount: int = 0, forward_payload: Optional[Cell] = None) -> None:
+    def __init__(self,
+                 amount: int,
+                 to: Address,
+                 ticker: str = "",
+                 decimals: int = 0,
+                 response_destination: Optional[Address] = None,
+                 query_id: Optional[int] = None,
+                 custom_payload: Optional[Cell] = None,
+                 forward_amount: int = 0,
+                 forward_payload: Optional[Cell] = None) -> None:
         if not is_string_ascii_printable(ticker) or len(ticker) > 16:
-            raise Exception("Ticker string must be a printable ASCII string and must be 16 chars or less")
+            raise ValueError("Ticker string must be a printable ASCII string"
+                             "and must be 16 chars or less")
         self.query_id: int = query_id if query_id is not None else 0
         self.amount: int = amount
         self.decimals: int = decimals
         self.ticker: str = ticker
         self.destination: Address = to
-        self.response_destionation: Address = response_destination if response_destination is not None else to
+        self.response_destionation: Address = (
+            response_destination if response_destination is not None else to
+        )
         self.custom_payload: Optional[Cell] = custom_payload
         self.forward_amount: int = forward_amount
         self.forward_payload: Optional[Cell] = forward_payload
@@ -124,7 +147,18 @@ class JettonTransferPayload(Payload):
         ])
 
     def to_message_body_cell(self) -> Cell:
-        return begin_cell().store_uint(0x0f8a7ea5, 32).store_uint(self.query_id, 64).store_coins(self.amount).store_address(self.destination).store_address(self.response_destionation).store_maybe_ref(self.custom_payload).store_coins(self.forward_amount).store_maybe_ref(self.forward_payload).end_cell()
+        return (
+            begin_cell()
+            .store_uint(0x0f8a7ea5, 32)
+            .store_uint(self.query_id, 64)
+            .store_coins(self.amount)
+            .store_address(self.destination)
+            .store_address(self.response_destionation)
+            .store_maybe_ref(self.custom_payload)
+            .store_coins(self.forward_amount)
+            .store_maybe_ref(self.forward_payload)
+            .end_cell()
+        )
 
 
 class CustomUnsafePayload(Payload):
@@ -139,10 +173,18 @@ class CustomUnsafePayload(Payload):
 
 
 class NFTTransferPayload(Payload):
-    def __init__(self, to: Address, response_destination: Optional[Address] = None, query_id: Optional[int] = None, custom_payload: Optional[Cell] = None, forward_amount: int = 0, forward_payload: Optional[Cell] = None) -> None:
+    def __init__(self,
+                 to: Address,
+                 response_destination: Optional[Address] = None,
+                 query_id: Optional[int] = None,
+                 custom_payload: Optional[Cell] = None,
+                 forward_amount: int = 0,
+                 forward_payload: Optional[Cell] = None) -> None:
         self.query_id: int = query_id if query_id is not None else 0
         self.new_owner: Address = to
-        self.response_destionation: Address = response_destination if response_destination is not None else to
+        self.response_destionation: Address = (
+            response_destination if response_destination is not None else to
+        )
         self.custom_payload: Optional[Cell] = custom_payload
         self.forward_amount: int = forward_amount
         self.forward_payload: Optional[Cell] = forward_payload
@@ -172,9 +214,20 @@ class NFTTransferPayload(Payload):
         ])
 
     def to_message_body_cell(self) -> Cell:
-        return begin_cell().store_uint(0x5fcc3d14, 32).store_uint(self.query_id, 64).store_address(self.new_owner).store_address(self.response_destionation).store_maybe_ref(self.custom_payload).store_coins(self.forward_amount).store_maybe_ref(self.forward_payload).end_cell()
+        return (
+            begin_cell()
+            .store_uint(0x5fcc3d14, 32)
+            .store_uint(self.query_id, 64)
+            .store_address(self.new_owner)
+            .store_address(self.response_destionation)
+            .store_maybe_ref(self.custom_payload)
+            .store_coins(self.forward_amount)
+            .store_maybe_ref(self.forward_payload)
+            .end_cell()
+        )
 
 
+# pylint: disable-next=too-many-instance-attributes
 class Transaction:
     def __init__(self,
                  to: Address,
@@ -185,12 +238,6 @@ class Transaction:
                  amount: int,
                  state_init: Optional[StateInit] = None,
                  payload: Optional[Payload] = None) -> None:
-                 #
-                #  nonce: int,
-                #  to: Union[str, bytes],
-                #  value: int,
-                #  memo: str,
-                #  do_check: bool = True) -> None:
         self.to: Address = to
         self.send_mode: SendMode = send_mode
         self.seqno: int = seqno
@@ -216,30 +263,38 @@ class Transaction:
     def state_init_part_bytes(self) -> bytes:
         if self.state_init is None:
             return bytes([0])
-        else:
-            si_cell = self.state_init.to_cell()
-            return b"".join([
-                bytes([1]),
-                write_cell(si_cell)
-            ])
+
+        si_cell = self.state_init.to_cell()
+        return b"".join([
+            bytes([1]),
+            write_cell(si_cell)
+        ])
 
     def payload_part_bytes(self) -> bytes:
         if self.payload is None:
             return bytes([0, 0])
-        else:
-            payload_bytes = self.payload.to_request_bytes()
-            payload_cell = self.payload.to_message_body_cell()
-            return b"".join([
+
+        payload_bytes = self.payload.to_request_bytes()
+        payload_cell = self.payload.to_message_body_cell()
+        return b"".join([
+            bytes([1]),
+            write_cell(payload_cell),
+            (b"".join([
                 bytes([1]),
-                write_cell(payload_cell),
-                (b"".join([
-                    bytes([1]),
-                    payload_bytes
-                ]) if payload_bytes is not None else bytes([0]))
-            ])
+                payload_bytes
+            ]) if payload_bytes is not None else bytes([0]))
+        ])
 
     def order_cell(self) -> Cell:
-        b = begin_cell().store_uint(1, 2).store_bit(self.bounce).store_uint(0, 3).store_address(self.to).store_coins(self.amount).store_uint(0, 1 + 4 + 4 + 64 + 32)
+        b = (
+            begin_cell()
+            .store_uint(1, 2)
+            .store_bit(self.bounce)
+            .store_uint(0, 3)
+            .store_address(self.to)
+            .store_coins(self.amount)
+            .store_uint(0, 1 + 4 + 4 + 64 + 32)
+        )
         if self.state_init is None:
             b = b.store_bit(0)
         else:
@@ -248,4 +303,13 @@ class Transaction:
         return b.end_cell()
 
     def transfer_cell(self) -> Cell:
-        return begin_cell().store_uint(698983191, 32).store_uint(self.timeout, 32).store_uint(self.seqno, 32).store_uint(0, 8).store_uint(self.send_mode, 8).store_ref(self.order_cell()).end_cell()
+        return (
+            begin_cell()
+            .store_uint(698983191, 32)
+            .store_uint(self.timeout, 32)
+            .store_uint(self.seqno, 32)
+            .store_uint(0, 8)
+            .store_uint(self.send_mode, 8)
+            .store_ref(self.order_cell())
+            .end_cell()
+        )
