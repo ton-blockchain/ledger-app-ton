@@ -31,7 +31,7 @@ static char g_payload[G_PAYLOAD_LEN];
 static char g_hint_title_buffer[32 * MAX_HINTS];
 static char g_hint_buffer[64 * MAX_HINTS];
 
-static nbgl_layoutTagValue_t pairs[3+MAX_HINTS];
+static nbgl_layoutTagValue_t pairs[3 + MAX_HINTS];
 static nbgl_layoutTagValueList_t pairList;
 
 static nbgl_pageInfoLongPress_t infoLongPress;
@@ -89,8 +89,13 @@ static void start_regular_review(void) {
         pairs[pairIndex].item = &g_hint_title_buffer[hint_title_buffer_offset];
         pairs[pairIndex].value = &g_hint_buffer[hint_buffer_offset];
         pairIndex++;
-        hint_title_buffer_offset += strnlen(&g_hint_title_buffer[hint_title_buffer_offset], sizeof(g_hint_title_buffer) - hint_title_buffer_offset) + 1;
-        hint_buffer_offset += strnlen(&g_hint_buffer[hint_buffer_offset], sizeof(g_hint_buffer) - hint_buffer_offset) + 1;
+        hint_title_buffer_offset +=
+            strnlen(&g_hint_title_buffer[hint_title_buffer_offset],
+                    sizeof(g_hint_title_buffer) - hint_title_buffer_offset) +
+            1;
+        hint_buffer_offset += strnlen(&g_hint_buffer[hint_buffer_offset],
+                                      sizeof(g_hint_buffer) - hint_buffer_offset) +
+                              1;
     }
 
     pairList.pairs = pairs;
