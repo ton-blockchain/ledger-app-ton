@@ -6,9 +6,9 @@
 #include "cell.h"     // CellRef_t
 #include "../constants.h"
 
-#define MAX_TX_LEN   510
-#define ADDRESS_LEN  36
-#define MAX_MEMO_LEN 120
+#define MAX_TX_LEN             510
+#define ADDRESS_LEN            36
+#define MAX_MEMO_LEN           120
 #define MAX_STORED_STRING_SIZE 64
 
 typedef enum {
@@ -45,7 +45,7 @@ typedef struct {
 } SizedString_t;
 
 typedef struct {
-    char ticker[MAX_TICKER_LEN+1];
+    char ticker[MAX_TICKER_LEN + 1];
     uint8_t value[MAX_VALUE_BYTES_LEN];
     uint8_t value_len;
     uint8_t decimals;
@@ -64,23 +64,23 @@ typedef struct {
 } Hint_t;
 
 typedef struct {
-    uint8_t tag;           // tag (1 byte)
-    uint32_t seqno;        // seqno (4 bytes)
-    uint32_t timeout;      // timeout (4 bytes)
-    uint8_t value_buf[MAX_VALUE_BYTES_LEN]; // big endian transaction value
-    uint8_t value_len;                      // length of transaction value
-    uint8_t bounce;        // bounce (1 byte)
-    uint8_t send_mode;     // send_mode (1 byte)
-    address_t to;          // receiver
-    bool has_state_init;   // true if state_init exists
-    CellRef_t state_init;  // state_init if exists
-    bool has_payload;      // true if payload exists
-    CellRef_t payload;     // payload if exists
-    bool has_hints;        // true if payload exists
-    uint32_t hints_type;   // hints type if exists
-    uint16_t hints_len;    // hints len if exists
-    uint8_t* hints_data;   // hints data if exists
-    bool is_blind;         // eoes transaction require blind signing
+    uint8_t tag;                             // tag (1 byte)
+    uint32_t seqno;                          // seqno (4 bytes)
+    uint32_t timeout;                        // timeout (4 bytes)
+    uint8_t value_buf[MAX_VALUE_BYTES_LEN];  // big endian transaction value
+    uint8_t value_len;                       // length of transaction value
+    uint8_t bounce;                          // bounce (1 byte)
+    uint8_t send_mode;                       // send_mode (1 byte)
+    address_t to;                            // receiver
+    bool has_state_init;                     // true if state_init exists
+    CellRef_t state_init;                    // state_init if exists
+    bool has_payload;                        // true if payload exists
+    CellRef_t payload;                       // payload if exists
+    bool has_hints;                          // true if payload exists
+    uint32_t hints_type;                     // hints type if exists
+    uint16_t hints_len;                      // hints len if exists
+    uint8_t* hints_data;                     // hints data if exists
+    bool is_blind;                           // eoes transaction require blind signing
     Hint_t hints[8];
     uint8_t hints_count;
     char title[128];

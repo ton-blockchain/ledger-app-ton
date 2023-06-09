@@ -32,7 +32,12 @@ static void add_hint_hash(transaction_t* tx, const char* title, uint8_t* data) {
     tx->hints_count++;
 }
 
-static void add_hint_amount(transaction_t* tx, const char* title, const char* ticker, uint8_t* value, uint8_t value_len, uint8_t decimals) {
+static void add_hint_amount(transaction_t* tx,
+                            const char* title,
+                            const char* ticker,
+                            uint8_t* value,
+                            uint8_t value_len,
+                            uint8_t decimals) {
     // Configure
     tx->hints[tx->hints_count].title = title;
     tx->hints[tx->hints_count].kind = SummaryItemAmount;
@@ -121,12 +126,15 @@ bool process_hints(transaction_t* tx) {
         add_hint_text(tx, "Comment", (char*) tx->hints_data, tx->hints_len);
     }
 
-    if (tx->hints_type == TRANSACTION_TRANSFER_JETTON || tx->hints_type == TRANSACTION_TRANSFER_NFT) {
+    if (tx->hints_type == TRANSACTION_TRANSFER_JETTON ||
+        tx->hints_type == TRANSACTION_TRANSFER_NFT) {
         int ref_count = 0;
-        CellRef_t refs[2] = { 0 };
+        CellRef_t refs[2] = {0};
 
         BitString_init(&bits);
-        BitString_storeUint(&bits, tx->hints_type == TRANSACTION_TRANSFER_JETTON ? 0x0f8a7ea5 : 0x5fcc3d14, 32);
+        BitString_storeUint(&bits,
+                            tx->hints_type == TRANSACTION_TRANSFER_JETTON ? 0x0f8a7ea5 : 0x5fcc3d14,
+                            32);
 
         SAFE(buffer_read_bool(&buf, &tmp));
         if (tmp) {
@@ -149,21 +157,29 @@ bool process_hints(transaction_t* tx) {
             if (ticker_size > MAX_TICKER_LEN) {
                 return false;
             }
-            uint8_t ticker[MAX_TICKER_LEN+1];
+            uint8_t ticker[MAX_TICKER_LEN + 1];
             SAFE(buffer_read_buffer(&buf, ticker, ticker_size));
             ticker[ticker_size] = 0;
             if (!check_ascii(ticker, ticker_size)) {
                 return false;
             }
 
-            add_hint_amount(tx, "Jetton amount", (char*) ticker, amount_buf, amount_size, amount_decimals);
+            add_hint_amount(tx,
+                            "Jetton amount",
+                            (char*) ticker,
+                            amount_buf,
+                            amount_size,
+                            amount_decimals);
         }
 
         address_t destination;
         SAFE(buffer_read_address(&buf, &destination));
         BitString_storeAddress(&bits, destination.chain, destination.hash);
 
-        add_hint_address(tx, tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "Send jetton to" : "New owner", destination);
+        add_hint_address(
+            tx,
+            tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "Send jetton to" : "New owner",
+            destination);
 
         address_t response;
         SAFE(buffer_read_address(&buf, &response));
@@ -189,7 +205,12 @@ bool process_hints(transaction_t* tx) {
         SAFE(buffer_read_varuint(&buf, &fwd_amount_size, fwd_amount_buf, MAX_VALUE_BYTES_LEN));
         BitString_storeCoinsBuf(&bits, fwd_amount_buf, fwd_amount_size);
 
-        add_hint_amount(tx, "Forward amount", "TON", fwd_amount_buf, fwd_amount_size, EXPONENT_SMALLEST_UNIT);
+        add_hint_amount(tx,
+                        "Forward amount",
+                        "TON",
+                        fwd_amount_buf,
+                        fwd_amount_size,
+                        EXPONENT_SMALLEST_UNIT);
 
         // forward payload
         SAFE(buffer_read_bool(&buf, &tmp));
@@ -211,7 +232,10 @@ bool process_hints(transaction_t* tx) {
         hasCell = true;
 
         // Operation
-        snprintf(tx->title, sizeof(tx->title), tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "Transfer jetton" : "Transfer NFT");
+        snprintf(
+            tx->title,
+            sizeof(tx->title),
+            tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "Transfer jetton" : "Transfer NFT");
     }
 
     // Check hash
@@ -272,7 +296,12 @@ void print_hint(transaction_t* tx,
     } else if (hint.kind == SummaryHash) {
         base64_encode(hint.hash, MAX_MEMO_LEN, body, body_len);
     } else if (hint.kind == SummaryItemAmount) {
-        amountToString(hint.amount.value, hint.amount.value_len, hint.amount.decimals, hint.amount.ticker, body, body_len);
+        amountToString(hint.amount.value,
+                       hint.amount.value_len,
+                       hint.amount.decimals,
+                       hint.amount.ticker,
+                       body,
+                       body_len);
     } else if (hint.kind == SummaryAddress) {
         uint8_t address[ADDRESS_LEN] = {0};
         address_to_friendly(hint.address.chain,

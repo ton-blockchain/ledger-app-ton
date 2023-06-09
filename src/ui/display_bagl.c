@@ -49,7 +49,7 @@ static char g_address[G_ADDRESS_LEN];
 static char g_payload[G_PAYLOAD_LEN];
 static char g_hint_title[HINT_TITLE_SIZE];
 static char g_hint_body[HINT_BODY_SIZE];
-static char g_domain[MAX_DOMAIN_LEN+1];
+static char g_domain[MAX_DOMAIN_LEN + 1];
 
 // Step with icon and text
 UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Address"});
@@ -202,7 +202,14 @@ int ui_display_transaction() {
         return io_send_sw(SW_BAD_STATE);
     }
 
-    if (!display_transaction(g_operation, sizeof(g_operation), g_amount, sizeof(g_amount), g_address, sizeof(g_address), g_payload, sizeof(g_payload))) {
+    if (!display_transaction(g_operation,
+                             sizeof(g_operation),
+                             g_amount,
+                             sizeof(g_amount),
+                             g_address,
+                             sizeof(g_address),
+                             g_payload,
+                             sizeof(g_payload))) {
         return -1;
     }
 

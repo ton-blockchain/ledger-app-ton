@@ -5,7 +5,8 @@
 #include <stdbool.h>  // bool
 
 /**
- * Convert big endian number into its decimal representation, prepending a ticker and adding a decimal point.
+ * Convert big endian number into its decimal representation, prepending a ticker and adding a
+ * decimal point.
  *
  * @param[in] amount
  *   Pointer to number buffer.

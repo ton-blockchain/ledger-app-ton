@@ -26,7 +26,8 @@ bool hash_tx(transaction_ctx_t *ctx) {
     BitString_storeBit(&bits, 0);                        // bounced
     BitString_storeAddressNull(&bits);                   // from
     BitString_storeAddress(&bits, ctx->transaction.to.chain, ctx->transaction.to.hash);  // to
-    // BitString_storeCoins(&bits, ctx->transaction.value);                                 // amount
+    // BitString_storeCoins(&bits, ctx->transaction.value);                                 //
+    // amount
     BitString_storeCoinsBuf(&bits, ctx->transaction.value_buf, ctx->transaction.value_len);
     BitString_storeBit(&bits, 0);       // Currency collection (not supported)
     BitString_storeCoins(&bits, 0);     // ihr_fees

@@ -25,7 +25,7 @@
 static nbgl_layoutTagValue_t pair;
 static nbgl_layoutTagValueList_t pairList;
 static char g_address[G_ADDRESS_LEN];
-static char g_domain[MAX_DOMAIN_LEN+1];
+static char g_domain[MAX_DOMAIN_LEN + 1];
 
 static void confirm_address_rejection(void) {
     // display a status page and go back to main

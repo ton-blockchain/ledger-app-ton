@@ -9,7 +9,8 @@
 #include "int256.h"
 
 /**
- * Place a decimal point into the target buffer according to the decimals number by copying the ASCII encoded number from source buffer.
+ * Place a decimal point into the target buffer according to the decimals number by copying the
+ * ASCII encoded number from source buffer.
  *
  * @param[in] src
  *   Pointer to source byte buffer.
@@ -26,10 +27,10 @@
  *
  */
 static bool adjustDecimals(const char *src,
-                    size_t srcLength,
-                    char *target,
-                    size_t targetLength,
-                    uint8_t decimals) {
+                           size_t srcLength,
+                           char *target,
+                           size_t targetLength,
+                           uint8_t decimals) {
     uint32_t startOffset;
     uint32_t lastZeroOffset = 0;
     uint32_t offset = 0;

@@ -74,7 +74,7 @@ static bool display_review_page(uint8_t page, nbgl_pageContent_t *content) {
         pairs[2].value = g_address;
         content->type = TAG_VALUE_LIST;
         content->tagValueList.nbPairs = 3;
-        content->tagValueList.pairs = (nbgl_layoutTagValue_t *)pairs;
+        content->tagValueList.pairs = (nbgl_layoutTagValue_t *) pairs;
         content->tagValueList.smallCaseForValue = false;
     } else if (page < g_pages - 1) {
         if (!G_context.tx_info.transaction.has_payload) {
@@ -85,28 +85,33 @@ static bool display_review_page(uint8_t page, nbgl_pageContent_t *content) {
             pairs[0].value = g_payload;
             content->type = TAG_VALUE_LIST;
             content->tagValueList.nbPairs = 1;
-            content->tagValueList.pairs = (nbgl_layoutTagValue_t *)pairs;
+            content->tagValueList.pairs = (nbgl_layoutTagValue_t *) pairs;
             content->tagValueList.smallCaseForValue = false;
         } else {
-            uint16_t startHintIndex = (page - 1) * MAX_PAIRS_PER_PAGE; // 1st page is general params
+            uint16_t startHintIndex =
+                (page - 1) * MAX_PAIRS_PER_PAGE;  // 1st page is general params
             uint16_t nextHintIndex = startHintIndex + MAX_PAIRS_PER_PAGE;
             if (nextHintIndex > G_context.tx_info.transaction.hints_count) {
                 nextHintIndex = G_context.tx_info.transaction.hints_count;
             }
             for (uint16_t hintIndex = startHintIndex; hintIndex < nextHintIndex; hintIndex++) {
                 uint16_t hintCharIndex = hintIndex - startHintIndex;
-                print_hint(&G_context.tx_info.transaction, hintIndex, g_hint_titles[hintCharIndex], HINT_TITLE_SIZE, g_hint_bodies[hintCharIndex], HINT_BODY_SIZE);
+                print_hint(&G_context.tx_info.transaction,
+                           hintIndex,
+                           g_hint_titles[hintCharIndex],
+                           HINT_TITLE_SIZE,
+                           g_hint_bodies[hintCharIndex],
+                           HINT_BODY_SIZE);
                 pairs[hintCharIndex].item = g_hint_titles[hintCharIndex];
                 pairs[hintCharIndex].value = g_hint_bodies[hintCharIndex];
             }
             content->type = TAG_VALUE_LIST;
             content->tagValueList.nbPairs = nextHintIndex - startHintIndex;
-            content->tagValueList.pairs = (nbgl_layoutTagValue_t *)pairs;
+            content->tagValueList.pairs = (nbgl_layoutTagValue_t *) pairs;
             content->tagValueList.smallCaseForValue = false;
         }
     } else if (page == g_pages - 1) {
-        content->type = INFO_LONG_PRESS,
-        content->infoLongPress.icon = &C_ledger_stax_ton_64;
+        content->type = INFO_LONG_PRESS, content->infoLongPress.icon = &C_ledger_stax_ton_64;
         content->infoLongPress.text = "Sign transaction\nto send TON";
         content->infoLongPress.longPressText = "Hold to sign";
         content->infoLongPress.longPressToken = 0;
@@ -118,29 +123,34 @@ static bool display_review_page(uint8_t page, nbgl_pageContent_t *content) {
 }
 
 static void start_regular_review(void) {
-    g_pages = 2; // 1st page is general params, last page is final confirmation
+    g_pages = 2;  // 1st page is general params, last page is final confirmation
     if (G_context.tx_info.transaction.has_payload) {
         if (G_context.tx_info.transaction.is_blind) {
-            g_pages++; // display payload hash
+            g_pages++;  // display payload hash
         } else {
-            g_pages += (G_context.tx_info.transaction.hints_count + MAX_PAIRS_PER_PAGE - 1) / MAX_PAIRS_PER_PAGE; // 1 page per 3 hints
+            g_pages += (G_context.tx_info.transaction.hints_count + MAX_PAIRS_PER_PAGE - 1) /
+                       MAX_PAIRS_PER_PAGE;  // 1 page per 3 hints
         }
     }
 
-    nbgl_useCaseRegularReview(0, g_pages, "Reject transaction",
-                            NULL, // no buttons because no value is too long to fit
-                            display_review_page, on_review_choice);
+    nbgl_useCaseRegularReview(0,
+                              g_pages,
+                              "Reject transaction",
+                              NULL,  // no buttons because no value is too long to fit
+                              display_review_page,
+                              on_review_choice);
 }
 
 static void show_blind_warning_if_needed(void) {
     if (G_context.tx_info.transaction.is_blind) {
-        nbgl_useCaseReviewStart(&C_round_warning_64px,
-                            "Blind Signing",
-                            "This transaction cannot be\nsecurely interpreted by Ledger\nStax. It might put "
-                            "your assets\nat risk.",
-                            "Reject transaction",
-                            start_regular_review,
-                            ask_rejection_confirmation);
+        nbgl_useCaseReviewStart(
+            &C_round_warning_64px,
+            "Blind Signing",
+            "This transaction cannot be\nsecurely interpreted by Ledger\nStax. It might put "
+            "your assets\nat risk.",
+            "Reject transaction",
+            start_regular_review,
+            ask_rejection_confirmation);
     } else {
         start_regular_review();
     }
@@ -156,7 +166,14 @@ int ui_display_transaction() {
         return io_send_sw(SW_BAD_STATE);
     }
 
-    if (!display_transaction(g_operation, sizeof(g_operation), g_amount, sizeof(g_amount), g_address, sizeof(g_address), g_payload, sizeof(g_payload))) {
+    if (!display_transaction(g_operation,
+                             sizeof(g_operation),
+                             g_amount,
+                             sizeof(g_amount),
+                             g_address,
+                             sizeof(g_address),
+                             g_payload,
+                             sizeof(g_payload))) {
         return -1;
     }
 

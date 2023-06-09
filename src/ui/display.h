@@ -3,13 +3,13 @@
 #include <stdbool.h>  // bool
 #include <stdint.h>
 
-#define G_ADDRESS_LEN 49
+#define G_ADDRESS_LEN   49
 #define G_OPERATION_LEN 64
-#define G_AMOUNT_LEN 40
-#define G_PAYLOAD_LEN 64
+#define G_AMOUNT_LEN    40
+#define G_PAYLOAD_LEN   64
 
 #define HINT_TITLE_SIZE 32
-#define HINT_BODY_SIZE 256
+#define HINT_BODY_SIZE  256
 
 /**
  * Callback to reuse action with approve/reject in step FLOW.

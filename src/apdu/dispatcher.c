@@ -53,7 +53,8 @@ int apdu_dispatcher(const command_t *cmd) {
 
             return handler_get_app_name();
         case GET_PUBLIC_KEY:
-            if (!(cmd->p1 == P1_NON_CONFIRM || cmd->p1 == P1_CONFIRM) || cmd->p2 > P2_ADDR_FLAGS_MAX) {
+            if (!(cmd->p1 == P1_NON_CONFIRM || cmd->p1 == P1_CONFIRM) ||
+                cmd->p2 > P2_ADDR_FLAGS_MAX) {
                 return io_send_sw(SW_WRONG_P1P2);
             }
             if (cmd->p1 == P1_NON_CONFIRM && cmd->p2 != P2_NONE) {

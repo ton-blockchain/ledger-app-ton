@@ -14,7 +14,11 @@
 #include "../../common/base64.h"
 #include "../../apdu/params.h"
 
-bool display_proof(uint8_t flags, char *g_address, size_t g_address_len, char *g_domain, size_t g_domain_len) {
+bool display_proof(uint8_t flags,
+                   char *g_address,
+                   size_t g_address_len,
+                   char *g_domain,
+                   size_t g_domain_len) {
     memset(g_address, 0, g_address_len);
     uint8_t address[ADDRESS_LEN] = {0};
     bool bounceable = true;
@@ -27,10 +31,10 @@ bool display_proof(uint8_t flags, char *g_address, size_t g_address_len, char *g
     }
     if (!address_to_friendly(G_context.proof_info.workchain == -1 ? 0xff : 0,
                              G_context.proof_info.address_hash,
-                            bounceable,
-                            testnet,
-                            address,
-                            sizeof(address))) {
+                             bounceable,
+                             testnet,
+                             address,
+                             sizeof(address))) {
         io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
         return false;
     }

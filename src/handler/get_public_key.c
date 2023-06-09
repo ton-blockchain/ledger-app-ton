@@ -42,7 +42,9 @@ int handler_get_public_key(uint8_t flags, buffer_t *cdata, bool display) {
         return io_send_sw(SW_WRONG_DATA_LENGTH);
     }
 
-    if (crypto_derive_public_key(G_context.bip32_path, G_context.bip32_path_len, G_context.pk_info.raw_public_key) < 0) {
+    if (crypto_derive_public_key(G_context.bip32_path,
+                                 G_context.bip32_path_len,
+                                 G_context.pk_info.raw_public_key) < 0) {
         return io_send_sw(SW_BAD_STATE);
     }
 

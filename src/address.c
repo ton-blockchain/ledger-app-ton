@@ -29,7 +29,7 @@
 #include "common/format_address.h"
 #include "constants.h"
 
-#define SAFE(RES) \
+#define SAFE(RES)         \
     if ((RES) != CX_OK) { \
         return false;     \
     }
@@ -106,7 +106,12 @@ bool pubkey_to_hash(const uint8_t public_key[static PUBKEY_LEN], uint8_t *out, s
     SAFE(cx_sha256_init_no_throw(&state));
     SAFE(cx_hash_no_throw((cx_hash_t *) &state, 0, data_header, sizeof(data_header), NULL, 0));
     SAFE(cx_hash_no_throw((cx_hash_t *) &state, 0, public_key, PUBKEY_LEN, NULL, 0));
-    SAFE(cx_hash_no_throw((cx_hash_t *) &state, CX_LAST, data_tail, sizeof(data_tail), inner, sizeof(inner)));
+    SAFE(cx_hash_no_throw((cx_hash_t *) &state,
+                          CX_LAST,
+                          data_tail,
+                          sizeof(data_tail),
+                          inner,
+                          sizeof(inner)));
 
     // Hash root
     SAFE(cx_sha256_init_no_throw(&state));

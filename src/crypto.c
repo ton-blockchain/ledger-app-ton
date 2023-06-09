@@ -34,7 +34,7 @@ static int crypto_sign(const uint32_t *bip32_path,
                        size_t data_len,
                        uint8_t *sig,
                        size_t sig_len) {
-    cx_ecfp_private_key_t private_key = { 0 };
+    cx_ecfp_private_key_t private_key = {0};
     uint8_t raw_private_key[PRIVKEY_LEN] = {0};
 
     if (os_derive_bip32_with_seed_no_throw(HDW_ED25519_SLIP10,
@@ -49,10 +49,8 @@ static int crypto_sign(const uint32_t *bip32_path,
         return -1;
     }
 
-    if (cx_ecfp_init_private_key_no_throw(CX_CURVE_Ed25519,
-                                          raw_private_key,
-                                          32,
-                                          &private_key) != CX_OK) {
+    if (cx_ecfp_init_private_key_no_throw(CX_CURVE_Ed25519, raw_private_key, 32, &private_key) !=
+        CX_OK) {
         explicit_bzero(&private_key, sizeof(private_key));
         explicit_bzero(&raw_private_key, sizeof(raw_private_key));
         return -1;
@@ -60,12 +58,7 @@ static int crypto_sign(const uint32_t *bip32_path,
 
     explicit_bzero(&raw_private_key, sizeof(raw_private_key));
 
-    if (cx_eddsa_sign_no_throw(&private_key,
-                                CX_SHA512,
-                                data,
-                                data_len,
-                                sig,
-                                sig_len) != CX_OK) {
+    if (cx_eddsa_sign_no_throw(&private_key, CX_SHA512, data, data_len, sig, sig_len) != CX_OK) {
         explicit_bzero(&private_key, sizeof(private_key));
         return -1;
     }
@@ -78,9 +71,9 @@ static int crypto_sign(const uint32_t *bip32_path,
 int crypto_derive_public_key(const uint32_t *bip32_path,
                              uint8_t bip32_path_len,
                              uint8_t raw_public_key[static PUBKEY_LEN]) {
-    cx_ecfp_private_key_t private_key = { 0 };
+    cx_ecfp_private_key_t private_key = {0};
     uint8_t raw_private_key[PRIVKEY_LEN] = {0};
-    cx_ecfp_public_key_t public_key = { 0 };
+    cx_ecfp_public_key_t public_key = {0};
 
     if (os_derive_bip32_with_seed_no_throw(HDW_ED25519_SLIP10,
                                            CX_CURVE_Ed25519,
@@ -94,10 +87,8 @@ int crypto_derive_public_key(const uint32_t *bip32_path,
         return -1;
     }
 
-    if (cx_ecfp_init_private_key_no_throw(CX_CURVE_Ed25519,
-                                          raw_private_key,
-                                          32,
-                                          &private_key) != CX_OK) {
+    if (cx_ecfp_init_private_key_no_throw(CX_CURVE_Ed25519, raw_private_key, 32, &private_key) !=
+        CX_OK) {
         explicit_bzero(&private_key, sizeof(private_key));
         explicit_bzero(&raw_private_key, sizeof(raw_private_key));
         return -1;

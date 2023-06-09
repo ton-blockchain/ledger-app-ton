@@ -18,10 +18,10 @@
 static const uint8_t TON_PROOF_ITEM_STR[] = "ton-proof-item-v2/";
 static const uint8_t TON_CONNECT_STR[] = "\xff\xffton-connect";
 
-#define SAFE(RES) \
-    if ((RES) != CX_OK) { \
-        io_send_sw(SW_BAD_STATE);     \
-        return false;     \
+#define SAFE(RES)                 \
+    if ((RES) != CX_OK) {         \
+        io_send_sw(SW_BAD_STATE); \
+        return false;             \
     }
 
 bool deserialize_proof(buffer_t *cdata, uint8_t flags) {
@@ -31,12 +31,16 @@ bool deserialize_proof(buffer_t *cdata, uint8_t flags) {
         return false;
     }
 
-    if (crypto_derive_public_key(G_context.bip32_path, G_context.bip32_path_len, G_context.proof_info.raw_public_key) < 0) {
+    if (crypto_derive_public_key(G_context.bip32_path,
+                                 G_context.bip32_path_len,
+                                 G_context.proof_info.raw_public_key) < 0) {
         io_send_sw(SW_BAD_STATE);
         return false;
     }
 
-    if (!pubkey_to_hash(G_context.proof_info.raw_public_key, G_context.proof_info.address_hash, sizeof(G_context.proof_info.address_hash))) {
+    if (!pubkey_to_hash(G_context.proof_info.raw_public_key,
+                        G_context.proof_info.address_hash,
+                        sizeof(G_context.proof_info.address_hash))) {
         io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
         return false;
     }
@@ -83,19 +87,34 @@ bool deserialize_proof(buffer_t *cdata, uint8_t flags) {
     SAFE(cx_sha256_init_no_throw(&state));
 
     // sizeof - 1 because const strings are null terminated
-    SAFE(cx_hash_no_throw((cx_hash_t *) &state, 0, TON_PROOF_ITEM_STR, sizeof(TON_PROOF_ITEM_STR) - 1, NULL, 0));
+    SAFE(cx_hash_no_throw((cx_hash_t *) &state,
+                          0,
+                          TON_PROOF_ITEM_STR,
+                          sizeof(TON_PROOF_ITEM_STR) - 1,
+                          NULL,
+                          0));
 
     for (int i = 3; i >= 0; i--) {
         uint8_t wc_part = (G_context.proof_info.workchain >> (i * 8)) & 0xff;
         SAFE(cx_hash_no_throw((cx_hash_t *) &state, 0, &wc_part, 1, NULL, 0));
     }
-    SAFE(cx_hash_no_throw((cx_hash_t *) &state, 0, G_context.proof_info.address_hash, sizeof(G_context.proof_info.address_hash), NULL, 0));
+    SAFE(cx_hash_no_throw((cx_hash_t *) &state,
+                          0,
+                          G_context.proof_info.address_hash,
+                          sizeof(G_context.proof_info.address_hash),
+                          NULL,
+                          0));
 
     for (int i = 0; i < 4; i++) {
         uint8_t domain_len_part = (G_context.proof_info.domain_len >> (i * 8)) & 0xff;
         SAFE(cx_hash_no_throw((cx_hash_t *) &state, 0, &domain_len_part, 1, NULL, 0));
     }
-    SAFE(cx_hash_no_throw((cx_hash_t *) &state, 0, G_context.proof_info.domain, G_context.proof_info.domain_len, NULL, 0));
+    SAFE(cx_hash_no_throw((cx_hash_t *) &state,
+                          0,
+                          G_context.proof_info.domain,
+                          G_context.proof_info.domain_len,
+                          NULL,
+                          0));
 
     for (int i = 0; i < 8; i++) {
         uint8_t ts_part = (timestamp >> (i * 8)) & 0xff;
@@ -104,14 +123,29 @@ bool deserialize_proof(buffer_t *cdata, uint8_t flags) {
 
     uint8_t inner[HASH_LEN];
 
-    SAFE(cx_hash_no_throw((cx_hash_t *) &state, CX_LAST, payload, payload_len, inner, sizeof(inner)));
+    SAFE(cx_hash_no_throw((cx_hash_t *) &state,
+                          CX_LAST,
+                          payload,
+                          payload_len,
+                          inner,
+                          sizeof(inner)));
 
     SAFE(cx_sha256_init_no_throw(&state));
 
     // sizeof - 1 because const strings are null terminated
-    SAFE(cx_hash_no_throw((cx_hash_t *) &state, 0, TON_CONNECT_STR, sizeof(TON_CONNECT_STR) - 1, NULL, 0));
+    SAFE(cx_hash_no_throw((cx_hash_t *) &state,
+                          0,
+                          TON_CONNECT_STR,
+                          sizeof(TON_CONNECT_STR) - 1,
+                          NULL,
+                          0));
 
-    SAFE(cx_hash_no_throw((cx_hash_t *) &state, CX_LAST, inner, sizeof(inner), G_context.proof_info.hash, sizeof(G_context.proof_info.hash)));
+    SAFE(cx_hash_no_throw((cx_hash_t *) &state,
+                          CX_LAST,
+                          inner,
+                          sizeof(inner),
+                          G_context.proof_info.hash,
+                          sizeof(G_context.proof_info.hash)));
 
     return true;
 }

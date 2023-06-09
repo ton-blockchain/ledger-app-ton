@@ -33,11 +33,7 @@ UX_STEP_VALID(ux_menu_exit_step, pb, os_sched_exit(-1), {&C_icon_dashboard_x, "Q
 // #2 screen: version of the app
 // #3 screen: about submenu
 // #4 screen: quit
-UX_FLOW(ux_menu_main_flow,
-        &ux_menu_ready_step,
-        &ux_menu_about_step,
-        &ux_menu_exit_step,
-        FLOW_LOOP);
+UX_FLOW(ux_menu_main_flow, &ux_menu_ready_step, &ux_menu_about_step, &ux_menu_exit_step, FLOW_LOOP);
 
 void ui_menu_main() {
     if (G_ux.stack_count == 0) {
@@ -54,7 +50,11 @@ UX_STEP_CB(ux_menu_back_step, pb, ui_menu_main(), {&C_icon_back, "Back"});
 // FLOW for the about submenu:
 // #1 screen: app info
 // #2 screen: back button to main menu
-UX_FLOW(ux_menu_about_flow, &ux_menu_info_step_version, &ux_menu_info_step_developer, &ux_menu_back_step, FLOW_LOOP);
+UX_FLOW(ux_menu_about_flow,
+        &ux_menu_info_step_version,
+        &ux_menu_info_step_developer,
+        &ux_menu_back_step,
+        FLOW_LOOP);
 
 void ui_menu_about() {
     ux_flow_init(0, ux_menu_about_flow, NULL);

@@ -1,5 +1,5 @@
-#include <stdint.h>   // uint*_t
-#include <string.h>   // explicit_bzero
+#include <stdint.h>  // uint*_t
+#include <string.h>  // explicit_bzero
 
 #include "bits.h"
 #include "../constants.h"
@@ -49,7 +49,7 @@ void BitString_storeCoins(BitString_t* self, uint64_t v) {
     }
 }
 
-void BitString_storeCoinsBuf(BitString_t* self, uint8_t *v, uint8_t len) {
+void BitString_storeCoinsBuf(BitString_t* self, uint8_t* v, uint8_t len) {
     // Write length
     BitString_storeUint(self, len, 4);
 

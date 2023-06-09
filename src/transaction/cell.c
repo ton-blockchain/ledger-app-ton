@@ -8,7 +8,7 @@
 #include "../common/bits.h"
 #include "../constants.h"
 
-#define SAFE(RES) \
+#define SAFE(RES)         \
     if ((RES) != CX_OK) { \
         return false;     \
     }
