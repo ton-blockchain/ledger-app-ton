@@ -1,14 +1,31 @@
-#include "format_bigint.h"
-
 #include <stddef.h>   // size_t
 #include <stdint.h>   // int*_t, uint*_t
 #include <stdbool.h>  // bool
 #include <string.h>   // strncpy, memmove
 
+#include "format_bigint.h"
+
 #include "../constants.h"
 #include "int256.h"
 
-bool adjustDecimals(const char *src,
+/**
+ * Place a decimal point into the target buffer according to the decimals number by copying the ASCII encoded number from source buffer.
+ *
+ * @param[in] src
+ *   Pointer to source byte buffer.
+ * @param[in] srcLength
+ *   Length of source byte buffer.
+ * @param[out] target
+ *   Pointer to output byte buffer.
+ * @param[in] targetLength
+ *   Length of output byte buffer.
+ * @param[in] decimals
+ *   Number of digits after the decimal point.
+ *
+ * @return true if success, false otherwise.
+ *
+ */
+static bool adjustDecimals(const char *src,
                     size_t srcLength,
                     char *target,
                     size_t targetLength,
@@ -98,7 +115,7 @@ bool amountToString(const uint8_t *amount,
     if (adjustDecimals(tmp_buffer,
                        amount_len,
                        out_buffer + ticker_len,
-                       out_buffer_size - ticker_len - 1,
+                       out_buffer_size - ticker_len,
                        decimals) == false) {
         return false;
     }

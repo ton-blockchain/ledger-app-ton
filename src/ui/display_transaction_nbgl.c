@@ -1,8 +1,5 @@
 #ifdef HAVE_NBGL
 
-#pragma GCC diagnostic ignored "-Wformat-invalid-specifier"  // snprintf
-#pragma GCC diagnostic ignored "-Wformat-extra-args"         // snprintf
-
 #include <stdbool.h>  // bool
 #include <string.h>   // memset
 
@@ -16,23 +13,21 @@
 #include "../globals.h"
 #include "../io.h"
 #include "../sw.h"
-#include "../address.h"
 #include "action/validate.h"
 #include "../transaction/types.h"
 #include "../transaction/hints.h"
 #include "../common/bip32.h"
-#include "../common/format.h"
 #include "../common/base64.h"
 #include "../common/format_bigint.h"
-#include "../menu.h"
+#include "../common/format_address.h"
+#include "menu.h"
+#include "helpers/display_transaction.h"
 
-static char g_operation[64];
-static char g_amount[30];
-static char g_address[49];
-static char g_payload[64];
+static char g_operation[G_OPERATION_LEN];
+static char g_amount[G_AMOUNT_LEN];
+static char g_address[G_ADDRESS_LEN];
+static char g_payload[G_PAYLOAD_LEN];
 
-#define HINT_TITLE_SIZE 32
-#define HINT_BODY_SIZE 256
 #define MAX_PAIRS_PER_PAGE 3
 
 static char g_hint_titles[MAX_PAIRS_PER_PAGE][HINT_TITLE_SIZE];
@@ -161,42 +156,8 @@ int ui_display_transaction() {
         return io_send_sw(SW_BAD_STATE);
     }
 
-    // Operation
-    memset(g_operation, 0, sizeof(g_operation));
-    snprintf(g_operation, sizeof(g_operation), "%s", G_context.tx_info.transaction.title);
-
-    // Amount
-    memset(g_amount, 0, sizeof(g_amount));
-    if ((G_context.tx_info.transaction.send_mode & 128) != 0) {
-        snprintf(g_amount, sizeof(g_amount), "ALL YOUR TONs");
-    } else {
-        if (!amountToString(G_context.tx_info.transaction.value_buf,
-                    G_context.tx_info.transaction.value_len,
-                    EXPONENT_SMALLEST_UNIT,
-                    "TON",
-                    g_amount,
-                    sizeof(g_amount))) {
-            return io_send_sw(SW_DISPLAY_AMOUNT_FAIL);
-        }
-    }
-
-    // Address
-    uint8_t address[ADDRESS_LEN] = {0};
-    address_to_friendly(G_context.tx_info.transaction.to.chain,
-                        G_context.tx_info.transaction.to.hash,
-                        true,
-                        false,
-                        address,
-                        sizeof(address));
-    memset(g_address, 0, sizeof(g_address));
-    base64_encode(address, sizeof(address), g_address, sizeof(g_address));
-
-    // Payload
-    memset(g_payload, 0, sizeof(g_payload));
-    if (G_context.tx_info.transaction.has_payload) {
-        base64_encode(G_context.tx_info.transaction.payload.hash, 32, g_payload, sizeof(g_payload));
-    } else {
-        snprintf(g_payload, sizeof(g_payload), "Nothing");
+    if (!display_transaction(g_operation, sizeof(g_operation), g_amount, sizeof(g_amount), g_address, sizeof(g_address), g_payload, sizeof(g_payload))) {
+        return -1;
     }
 
     // Start review

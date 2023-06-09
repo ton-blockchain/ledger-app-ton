@@ -1,48 +1,25 @@
-
 #pragma once
 
 #include <stdint.h>  // uint*_t
 
-#include "os.h"
-#include "cx.h"
+#include "constants.h"
 
 /**
- * Derive private key given BIP32 path.
+ * Initialize public key given bip32 path.
  *
- * @param[out] private_key
- *   Pointer to private key.
  * @param[in]  bip32_path
  *   Pointer to buffer with BIP32 path.
  * @param[in]  bip32_path_len
  *   Number of path in BIP32 path.
- *
- * @return 0 if success, -1 otherwise.
- *
- * @throw INVALID_PARAMETER
- *
- */
-int crypto_derive_private_key(cx_ecfp_private_key_t *private_key,
-                              const uint32_t *bip32_path,
-                              uint8_t bip32_path_len);
-
-/**
- * Initialize public key given private key.
- *
- * @param[in]  private_key
- *   Pointer to private key.
- * @param[out] public_key
- *   Pointer to public key.
  * @param[out] raw_public_key
  *   Pointer to raw public key.
  *
  * @return 0 if success, -1 otherwise.
  *
- * @throw INVALID_PARAMETER
- *
  */
-int crypto_init_public_key(cx_ecfp_private_key_t *private_key,
-                           cx_ecfp_public_key_t *public_key,
-                           uint8_t raw_public_key[static 32]);
+int crypto_derive_public_key(const uint32_t *bip32_path,
+                             uint8_t bip32_path_len,
+                             uint8_t raw_public_key[static PUBKEY_LEN]);
 
 /**
  * Sign tx hash in global context.
@@ -51,8 +28,6 @@ int crypto_init_public_key(cx_ecfp_private_key_t *private_key,
  * G_context.tx_info.signature.
  *
  * @return 0 if success, -1 otherwise.
- *
- * @throw INVALID_PARAMETER
  *
  */
 int crypto_sign_tx(void);
@@ -64,8 +39,6 @@ int crypto_sign_tx(void);
  * G_context.proof_info.signature.
  *
  * @return 0 if success, -1 otherwise.
- *
- * @throw INVALID_PARAMETER
  *
  */
 int crypto_sign_proof(void);

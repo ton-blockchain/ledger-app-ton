@@ -1,6 +1,6 @@
 {
     "env": {
-        "BOLOS_SDK": "/opt/nanos-secure-sdk",
+        "BOLOS_SDK": "/home/krigga/dev/ledger-secure-sdk",
         "BOLOS_ENV": "/opt/bolos-devenv"
     },
     "configurations": [
@@ -50,7 +50,12 @@
                 "/usr/include",
                 "${workspaceFolder}/src",
                 "${env:BOLOS_SDK}/include/*",
-                "${env:BOLOS_SDK}/lib_ux/include/*"
+                "${env:BOLOS_SDK}/target/stax/include/*",
+                "${env:BOLOS_SDK}/lib_cxng/include/*",
+                "${env:BOLOS_SDK}/lib_ux_stax/*",
+                "${env:BOLOS_SDK}/lib_standard_app/*",
+                "${env:BOLOS_SDK}/lib_nbgl/include/*",
+                "${workspaceFolder}/build/stax/gen_src/*"
             ],
             "defines": [
                 "TARGET_STAX",
@@ -73,7 +78,13 @@
                 "HAVE_UX_FLOW",
                 "DEBUG=1",
                 "HAVE_PRINTF",
-                "PRINTF=screen_printf"
+                "PRINTF=screen_printf",
+                "HAVE_ECC",
+                "HAVE_ECC_TWISTED_EDWARDS",
+                "HAVE_ED25519_CURVE",
+                "HAVE_HASH",
+                "HAVE_SHA256",
+                "HAVE_EDDSA"
             ],
             "compilerPath": "${env:BOLOS_ENV}/gcc-arm-none-eabi-5_3-2016q1/bin/arm-none-eabi-gcc",
             "cStandard": "c11",

@@ -1,8 +1,13 @@
-#include "hash.h"
+#include <stdbool.h>
+#include <string.h>  // memmove
+
 #include "cx.h"
+
+#include "hash.h"
+
 #include "cell.h"
 #include "../common/bits.h"
-#include <string.h>  // memmove
+#include "../constants.h"
 
 bool hash_tx(transaction_ctx_t *ctx) {
     BitString_t bits;
@@ -37,24 +42,28 @@ bool hash_tx(transaction_ctx_t *ctx) {
 
         // Create refs
         payload_ref.max_depth = ctx->transaction.payload.max_depth;
-        memmove(payload_ref.hash, ctx->transaction.payload.hash, 32);
+        memmove(payload_ref.hash, ctx->transaction.payload.hash, HASH_LEN);
         state_init_ref.max_depth = ctx->transaction.state_init.max_depth;
-        memmove(state_init_ref.hash, ctx->transaction.state_init.hash, 32);
+        memmove(state_init_ref.hash, ctx->transaction.state_init.hash, HASH_LEN);
 
         // Hash cell
         struct CellRef_t internalMessageRefs[2] = {state_init_ref, payload_ref};
-        hash_Cell(&bits, internalMessageRefs, 2, &internalMessageRef);
+        if (!hash_Cell(&bits, internalMessageRefs, 2, &internalMessageRef)) {
+            return false;
+        }
     } else if (ctx->transaction.has_payload) {
         BitString_storeBit(&bits, 0);  // no state-init
         BitString_storeBit(&bits, 1);  // body in ref
 
         // Create ref
         payload_ref.max_depth = ctx->transaction.payload.max_depth;
-        memmove(payload_ref.hash, ctx->transaction.payload.hash, 32);
+        memmove(payload_ref.hash, ctx->transaction.payload.hash, HASH_LEN);
 
         // Hash cell
         struct CellRef_t internalMessageRefs[1] = {payload_ref};
-        hash_Cell(&bits, internalMessageRefs, 1, &internalMessageRef);
+        if (!hash_Cell(&bits, internalMessageRefs, 1, &internalMessageRef)) {
+            return false;
+        }
     } else if (ctx->transaction.has_state_init) {
         BitString_storeBit(&bits, 1);  // no state-init
         BitString_storeBit(&bits, 1);  // state-init ref
@@ -62,17 +71,21 @@ bool hash_tx(transaction_ctx_t *ctx) {
 
         // Create ref
         state_init_ref.max_depth = ctx->transaction.state_init.max_depth;
-        memmove(state_init_ref.hash, ctx->transaction.state_init.hash, 32);
+        memmove(state_init_ref.hash, ctx->transaction.state_init.hash, HASH_LEN);
 
         // Hash cell
         struct CellRef_t internalMessageRefs[1] = {state_init_ref};
-        hash_Cell(&bits, internalMessageRefs, 1, &internalMessageRef);
+        if (!hash_Cell(&bits, internalMessageRefs, 1, &internalMessageRef)) {
+            return false;
+        }
     } else {
         BitString_storeBit(&bits, 0);  // no state-init
         BitString_storeBit(&bits, 0);  // body inline
 
         // Hash cell
-        hash_Cell(&bits, NULL, 0, &internalMessageRef);
+        if (!hash_Cell(&bits, NULL, 0, &internalMessageRef)) {
+            return false;
+        }
     }
 
     //
@@ -87,10 +100,12 @@ bool hash_tx(transaction_ctx_t *ctx) {
     BitString_storeUint(&bits, 0, 8);                           // Simple order
     BitString_storeUint(&bits, ctx->transaction.send_mode, 8);  // Send Mode
     struct CellRef_t orderRefs[1] = {internalMessageRef};
-    hash_Cell(&bits, orderRefs, 1, &orderRef);
+    if (!hash_Cell(&bits, orderRefs, 1, &orderRef)) {
+        return false;
+    }
 
     // Result
-    memmove(ctx->m_hash, orderRef.hash, 32);
+    memmove(ctx->m_hash, orderRef.hash, HASH_LEN);
 
     return true;
 }

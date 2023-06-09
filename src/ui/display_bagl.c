@@ -17,9 +17,6 @@
 
 #ifdef HAVE_BAGL
 
-#pragma GCC diagnostic ignored "-Wformat-invalid-specifier"  // snprintf
-#pragma GCC diagnostic ignored "-Wformat-extra-args"         // snprintf
-
 #include <stdbool.h>  // bool
 #include <string.h>   // memset
 
@@ -28,28 +25,31 @@
 #include "glyphs.h"
 
 #include "display.h"
-#include "constants.h"
+#include "../constants.h"
 #include "../globals.h"
 #include "../io.h"
 #include "../sw.h"
 #include "../address.h"
 #include "action/validate.h"
 #include "../transaction/types.h"
-#include "../transaction/utils.h"
 #include "../common/bip32.h"
-#include "../common/format.h"
 #include "../common/base64.h"
 #include "../common/format_bigint.h"
+#include "../common/format_address.h"
+#include "../common/encoding.h"
 #include "../transaction/hints.h"
+#include "helpers/display_address.h"
+#include "helpers/display_proof.h"
+#include "helpers/display_transaction.h"
 
 static action_validate_cb g_validate_callback;
-static char g_operation[64];
-static char g_amount[30];
-static char g_address[49];
-static char g_payload[64];
-static char g_hint_title[32];
-static char g_hint_body[256];
-static char g_domain[sizeof(G_context.proof_info.domain)+1];
+static char g_operation[G_OPERATION_LEN];
+static char g_amount[G_AMOUNT_LEN];
+static char g_address[G_ADDRESS_LEN];
+static char g_payload[G_PAYLOAD_LEN];
+static char g_hint_title[HINT_TITLE_SIZE];
+static char g_hint_body[HINT_BODY_SIZE];
+static char g_domain[MAX_DOMAIN_LEN+1];
 
 // Step with icon and text
 UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Address"});
@@ -96,29 +96,9 @@ int ui_display_address(uint8_t flags) {
     }
 
     // Format address
-    memset(g_address, 0, sizeof(g_address));
-    uint8_t address[ADDRESS_LEN] = {0};
-    bool bounceable = true;
-    bool testnet = false;
-    uint8_t chain = 0;
-    if (flags & 0x01) {
-        bounceable = false;
+    if (!display_address(flags, g_address, sizeof(g_address))) {
+        return -1;
     }
-    if (flags & 0x02) {
-        testnet = true;
-    }
-    if (flags & 0x04) {
-        chain = 0xff;
-    }
-    if (!address_from_pubkey(G_context.pk_info.raw_public_key,
-                             chain,
-                             bounceable,
-                             testnet,
-                             address,
-                             sizeof(address))) {
-        return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
-    }
-    base64_encode(address, sizeof(address), g_address, sizeof(g_address));
 
     // Launch
     g_validate_callback = &ui_action_validate_pubkey;
@@ -157,32 +137,8 @@ int ui_display_proof(uint8_t flags) {
         return io_send_sw(SW_BAD_STATE);
     }
 
-    // Format address
-    memset(g_address, 0, sizeof(g_address));
-    uint8_t address[ADDRESS_LEN] = {0};
-    bool bounceable = true;
-    bool testnet = false;
-    if (flags & 0x01) {
-        bounceable = false;
-    }
-    if (flags & 0x02) {
-        testnet = true;
-    }
-    if (!address_from_pubkey(G_context.proof_info.raw_public_key,
-                             G_context.proof_info.workchain == -1 ? 0xff : 0,
-                             bounceable,
-                             testnet,
-                             address,
-                             sizeof(address))) {
-        return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
-    }
-    base64_encode(address, sizeof(address), g_address, sizeof(g_address));
-
-    if (transaction_utils_check_encoding(G_context.proof_info.domain, G_context.proof_info.domain_len)) {
-        memmove(g_domain, G_context.proof_info.domain, G_context.proof_info.domain_len);
-        g_domain[G_context.proof_info.domain_len] = '\0';
-    } else {
-        snprintf(g_domain, sizeof(g_domain), "<cannot display>");
+    if (!display_proof(flags, g_address, sizeof(g_address), g_domain, sizeof(g_domain))) {
+        return -1;
     }
 
     // Launch
@@ -246,42 +202,8 @@ int ui_display_transaction() {
         return io_send_sw(SW_BAD_STATE);
     }
 
-    // Operation
-    memset(g_operation, 0, sizeof(g_operation));
-    snprintf(g_operation, sizeof(g_operation), "%s", G_context.tx_info.transaction.title);
-
-    // Amount
-    memset(g_amount, 0, sizeof(g_amount));
-    if ((G_context.tx_info.transaction.send_mode & 128) != 0) {
-        snprintf(g_amount, sizeof(g_amount), "ALL YOUR TONs");
-    } else {
-        if (!amountToString(G_context.tx_info.transaction.value_buf,
-                    G_context.tx_info.transaction.value_len,
-                    EXPONENT_SMALLEST_UNIT,
-                    "TON",
-                    g_amount,
-                    sizeof(g_amount))) {
-            return io_send_sw(SW_DISPLAY_AMOUNT_FAIL);
-        }
-    }
-
-    // Address
-    uint8_t address[ADDRESS_LEN] = {0};
-    address_to_friendly(G_context.tx_info.transaction.to.chain,
-                        G_context.tx_info.transaction.to.hash,
-                        true,
-                        false,
-                        address,
-                        sizeof(address));
-    memset(g_address, 0, sizeof(g_address));
-    base64_encode(address, sizeof(address), g_address, sizeof(g_address));
-
-    // Payload
-    memset(g_payload, 0, sizeof(g_payload));
-    if (G_context.tx_info.transaction.has_payload) {
-        base64_encode(G_context.tx_info.transaction.payload.hash, 32, g_payload, sizeof(g_payload));
-    } else {
-        snprintf(g_payload, sizeof(g_payload), "Nothing");
+    if (!display_transaction(g_operation, sizeof(g_operation), g_amount, sizeof(g_amount), g_address, sizeof(g_address), g_payload, sizeof(g_payload))) {
+        return -1;
     }
 
     // Configure Flow

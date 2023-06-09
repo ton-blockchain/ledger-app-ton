@@ -1,18 +1,15 @@
-#include "hints.h"
-#include "utils.h"
 #include <string.h>
-#include "os.h"
-#include "ux.h"
+#include <stdio.h>
+
+#include "hints.h"
+
 #include "../common/buffer.h"
 #include "../common/base64.h"
-#include "../common/format.h"
 #include "../common/format_bigint.h"
+#include "../common/format_address.h"
+#include "../common/encoding.h"
 #include "../constants.h"
-#include "../address.h"
 #include "deserialize.h"
-
-#pragma GCC diagnostic ignored "-Wformat-invalid-specifier"  // snprintf
-#pragma GCC diagnostic ignored "-Wformat-extra-args"         // snprintf
 
 static void add_hint_text(transaction_t* tx, const char* title, char* text, size_t text_len) {
     // Configure
@@ -29,7 +26,7 @@ static void add_hint_hash(transaction_t* tx, const char* title, uint8_t* data) {
     // Configure
     tx->hints[tx->hints_count].title = title;
     tx->hints[tx->hints_count].kind = SummaryHash;
-    memmove(tx->hints[tx->hints_count].hash, data, 32);
+    memmove(tx->hints[tx->hints_count].hash, data, HASH_LEN);
 
     // Next
     tx->hints_count++;
@@ -101,20 +98,20 @@ bool process_hints(transaction_t* tx) {
 
     if (tx->hints_type == TRANSACTION_COMMENT) {
         // Max size of a comment is 120 symbols
-        if (tx->hints_len > 120) {
+        if (tx->hints_len > MAX_MEMO_LEN) {
             return false;
         }
 
         // Check ASCII
-        if (!transaction_utils_check_encoding(tx->hints_data, tx->hints_len)) {
-            return true;
+        if (!check_ascii(tx->hints_data, tx->hints_len)) {
+            return false;
         }
 
         // Buld cell
         BitString_init(&bits);
         BitString_storeUint(&bits, 0, 32);
         BitString_storeBuffer(&bits, tx->hints_data, tx->hints_len);
-        hash_Cell(&bits, NULL, 0, &cell);
+        SAFE(hash_Cell(&bits, NULL, 0, &cell));
         hasCell = true;
 
         // Change title of operation
@@ -155,7 +152,7 @@ bool process_hints(transaction_t* tx) {
             uint8_t ticker[MAX_TICKER_LEN+1];
             SAFE(buffer_read_buffer(&buf, ticker, ticker_size));
             ticker[ticker_size] = 0;
-            if (!transaction_utils_check_encoding(ticker, ticker_size)) {
+            if (!check_ascii(ticker, ticker_size)) {
                 return false;
             }
 
@@ -210,7 +207,7 @@ bool process_hints(transaction_t* tx) {
         CHECK_END();
 
         // Build cell
-        hash_Cell(&bits, refs, ref_count, &cell);
+        SAFE(hash_Cell(&bits, refs, ref_count, &cell));
         hasCell = true;
 
         // Operation
@@ -219,7 +216,7 @@ bool process_hints(transaction_t* tx) {
 
     // Check hash
     if (hasCell) {
-        if (memcmp(cell.hash, tx->payload.hash, 32) != 0) {
+        if (memcmp(cell.hash, tx->payload.hash, HASH_LEN) != 0) {
             return false;
         }
         tx->is_blind = false;
@@ -243,7 +240,7 @@ int print_string(const char* in, char* out, size_t out_length) {
 }
 
 int print_sized_string(const SizedString_t* string, char* out, size_t out_length) {
-    size_t len = MIN(out_length, string->length);
+    size_t len = out_length < string->length ? out_length : string->length;
     strncpy(out, string->string, len);
     if (string->length < out_length) {
         out[string->length] = '\0';
@@ -273,7 +270,7 @@ void print_hint(transaction_t* tx,
     if (hint.kind == SummaryItemString) {
         print_sized_string(&hint.string, body, body_len);
     } else if (hint.kind == SummaryHash) {
-        base64_encode(hint.hash, 32, body, body_len);
+        base64_encode(hint.hash, MAX_MEMO_LEN, body, body_len);
     } else if (hint.kind == SummaryItemAmount) {
         amountToString(hint.amount.value, hint.amount.value_len, hint.amount.decimals, hint.amount.ticker, body, body_len);
     } else if (hint.kind == SummaryAddress) {

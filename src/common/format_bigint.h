@@ -5,29 +5,6 @@
 #include <stdbool.h>  // bool
 
 /**
- * Place a decimal point into the target buffer according to the decimals number by copying the ASCII encoded number from source buffer.
- *
- * @param[in] src
- *   Pointer to source byte buffer.
- * @param[in] srcLength
- *   Length of source byte buffer.
- * @param[out] target
- *   Pointer to output byte buffer.
- * @param[in] targetLength
- *   Length of output byte buffer.
- * @param[in] decimals
- *   Number of digits after the decimal point.
- *
- * @return true if success, false otherwise.
- *
- */
-bool adjustDecimals(const char *src,
-                    size_t srcLength,
-                    char *target,
-                    size_t targetLength,
-                    uint8_t decimals);
-
-/**
  * Convert big endian number into its decimal representation, prepending a ticker and adding a decimal point.
  *
  * @param[in] amount

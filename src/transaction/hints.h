@@ -2,6 +2,8 @@
 
 #include <stdint.h>   // uint*_t
 #include <stdbool.h>  // bool
+#include <stddef.h>
+
 #include "types.h"
 
 typedef enum {

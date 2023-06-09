@@ -61,7 +61,7 @@ typedef enum {
  * Structure for public key context information.
  */
 typedef struct {
-    uint8_t raw_public_key[32];
+    uint8_t raw_public_key[PUBKEY_LEN];
 } pubkey_ctx_t;
 
 /**
@@ -72,20 +72,20 @@ typedef struct {
     size_t raw_tx_len;                    /// length of raw transaction
     transaction_t transaction;            /// structured transaction
     uint8_t m_hash[HASH_LEN];             /// message hash digest
-    uint8_t signature[SIG_LEN];           /// transaction signature encoded in DER
-    uint8_t signature_len;                /// length of transaction signature
+    uint8_t signature[SIG_LEN];           /// transaction signature
 } transaction_ctx_t;
 
 /**
  * Structure for address proof information context.
  */
 typedef struct {
-    uint8_t raw_public_key[32];
+    uint8_t raw_public_key[PUBKEY_LEN];
     int32_t workchain;
-    uint8_t domain[128];
+    uint8_t domain[MAX_DOMAIN_LEN];
     uint8_t domain_len;
     uint8_t hash[HASH_LEN];
     uint8_t signature[SIG_LEN];
+    uint8_t address_hash[HASH_LEN];
 } proof_ctx_t;
 
 /**

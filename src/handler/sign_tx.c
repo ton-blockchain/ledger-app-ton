@@ -33,8 +33,8 @@
 #include "../transaction/deserialize.h"
 #include "../transaction/hash.h"
 
-int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
-    if (chunk == 0) {  // first APDU, parse BIP32 path
+int handler_sign_tx(buffer_t *cdata, bool first, bool more) {
+    if (first) {  // first APDU, parse BIP32 path
         explicit_bzero(&G_context, sizeof(G_context));
         G_context.req_type = CONFIRM_TRANSACTION;
         G_context.state = STATE_NONE;
@@ -81,7 +81,7 @@ int handler_sign_tx(buffer_t *cdata, uint8_t chunk, bool more) {
             parser_status_e status = transaction_deserialize(&buf, &G_context.tx_info.transaction);
             PRINTF("Parsing status: %d.\n", status);
             if (status != PARSING_OK) {
-                return io_send_sw(SW_TX_PARSING_FAIL - status);
+                return io_send_sw(SW_TX_PARSING_FAIL);
             }
 
             // Hash

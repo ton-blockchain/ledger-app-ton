@@ -1,0 +1,8 @@
+pytest
+ragger[speculos]>=1.6.0
+ragger[ledgerwallet]>=1.6.0
+Jinja2==3.1.2
+Flask==2.1.2
+ecdsa==0.18.0
+ledgercomm>=1.2.0
+tonsdk==1.0.13

@@ -1,8 +1,5 @@
 #ifdef HAVE_NBGL
 
-#pragma GCC diagnostic ignored "-Wformat-invalid-specifier"  // snprintf
-#pragma GCC diagnostic ignored "-Wformat-extra-args"         // snprintf
-
 #include <stdbool.h>  // bool
 #include <string.h>   // memset
 
@@ -19,11 +16,11 @@
 #include "action/validate.h"
 #include "../transaction/types.h"
 #include "../common/bip32.h"
-#include "../common/format.h"
 #include "../common/base64.h"
-#include "../menu.h"
+#include "menu.h"
+#include "helpers/display_address.h"
 
-static char g_address[49];
+static char g_address[G_ADDRESS_LEN];
 
 static void confirm_address_rejection(void) {
     // display a status page and go back to main
@@ -56,29 +53,9 @@ int ui_display_address(uint8_t flags) {
     }
 
     // Format address
-    memset(g_address, 0, sizeof(g_address));
-    uint8_t address[ADDRESS_LEN] = {0};
-    bool bounceable = true;
-    bool testnet = false;
-    uint8_t chain = 0;
-    if (flags & 0x01) {
-        bounceable = false;
+    if (!display_address(flags, g_address, sizeof(g_address))) {
+        return -1;
     }
-    if (flags & 0x02) {
-        testnet = true;
-    }
-    if (flags & 0x04) {
-        chain = 0xff;
-    }
-    if (!address_from_pubkey(G_context.pk_info.raw_public_key,
-                             chain,
-                             bounceable,
-                             testnet,
-                             address,
-                             sizeof(address))) {
-        return io_send_sw(SW_DISPLAY_ADDRESS_FAIL);
-    }
-    base64_encode(address, sizeof(address), g_address, sizeof(g_address));
 
     nbgl_useCaseReviewStart(&C_ledger_stax_ton_64,
                             "Verify TON address",

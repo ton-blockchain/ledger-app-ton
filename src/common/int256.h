@@ -6,11 +6,6 @@
 
 #define INT256_LENGTH 32
 
-typedef struct Uint256_t {
-    uint8_t value[INT256_LENGTH];
-    uint8_t length;
-} Uint256_t;
-
 /**
  * Convert big endian number into its decimal representation.
  *

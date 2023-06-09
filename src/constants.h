@@ -36,7 +36,12 @@
 #define HASH_LEN 32
 
 /**
- * Exponent used to convert mBOL to BOL unit (N BOL = N * 10^3 mBOL).
+ * Workchain ID length (bytes).
+ */
+#define CHAIN_LEN 1
+
+/**
+ * Exponent used to convert nanoTON to TON unit (N TON = N * 10^9 nanoTON).
  */
 #define EXPONENT_SMALLEST_UNIT 9
 
@@ -49,3 +54,18 @@
  * Max ticker string length.
  */
 #define MAX_TICKER_LEN 16
+
+/**
+ * Max domain string length.
+ */
+#define MAX_DOMAIN_LEN 128
+
+/**
+ * Raw public key length.
+ */
+#define PUBKEY_LEN 32
+
+/**
+ * Raw private key length.
+ */
+#define PRIVKEY_LEN 64

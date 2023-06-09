@@ -53,10 +53,18 @@ int helper_send_response_sig() {
 }
 
 int helper_send_response_sig_proof() {
-    uint8_t resp[SIG_LEN] = {0};
+    uint8_t resp[1 + SIG_LEN + 1 + HASH_LEN] = {0};
+    size_t offset = 0;
 
     // Signature
-    memmove(resp, G_context.proof_info.signature, SIG_LEN);
+    resp[offset++] = SIG_LEN;
+    memmove(resp + offset, G_context.proof_info.signature, SIG_LEN);
+    offset += SIG_LEN;
 
-    return io_send_response(&(const buffer_t){.ptr = resp, .size = sizeof(resp), .offset = 0}, SW_OK);
+    // Hash
+    resp[offset++] = HASH_LEN;
+    memmove(resp + offset, G_context.proof_info.hash, HASH_LEN);
+    offset += HASH_LEN;
+
+    return io_send_response(&(const buffer_t){.ptr = resp, .size = offset, .offset = 0}, SW_OK);
 }

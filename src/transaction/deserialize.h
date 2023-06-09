@@ -2,6 +2,7 @@
 
 #include "types.h"
 #include "../common/buffer.h"
+#include "cell.h"
 
 bool buffer_read_address(buffer_t *buf, address_t *out);
 
