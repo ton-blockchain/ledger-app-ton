@@ -65,7 +65,7 @@ parser_status_e transaction_deserialize(buffer_t *buf, transaction_t *tx) {
     SAFE(buffer_read_varuint(buf, &tx->value_len, tx->value_buf, MAX_VALUE_BYTES_LEN),
          VALUE_PARSING_ERROR);
     SAFE(buffer_read_address(buf, &tx->to), TO_PARSING_ERROR);
-    SAFE(buffer_read_u8(buf, &tx->bounce), BOUNCE_PARSING_ERROR);
+    SAFE(buffer_read_bool(buf, &tx->bounce), BOUNCE_PARSING_ERROR);
     SAFE(buffer_read_u8(buf, &tx->send_mode), SEND_MODE_PARSING_ERROR);
 
     // state-init

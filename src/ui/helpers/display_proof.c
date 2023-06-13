@@ -21,17 +21,13 @@ bool display_proof(uint8_t flags,
                    size_t g_domain_len) {
     memset(g_address, 0, g_address_len);
     uint8_t address[ADDRESS_LEN] = {0};
-    bool bounceable = true;
     bool testnet = false;
-    if (flags & P2_ADDR_FLAG_UNBOUNCEABLE) {
-        bounceable = false;
-    }
     if (flags & P2_ADDR_FLAG_TESTNET) {
         testnet = true;
     }
     if (!address_to_friendly(G_context.proof_info.workchain == -1 ? 0xff : 0,
                              G_context.proof_info.address_hash,
-                             bounceable,
+                             false,
                              testnet,
                              address,
                              sizeof(address))) {

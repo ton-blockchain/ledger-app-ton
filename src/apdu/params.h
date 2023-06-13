@@ -31,22 +31,16 @@
 #define P2_MORE 0x02
 
 /**
- * P2 bit indicating that address should be displayed as unbounceable.
- */
-#define P2_ADDR_FLAG_UNBOUNCEABLE 0x01
-
-/**
  * P2 bit indicating that address should be displayed as testnet only.
  */
-#define P2_ADDR_FLAG_TESTNET 0x02
+#define P2_ADDR_FLAG_TESTNET 0x01
 
 /**
  * P2 bit indicating that masterchain address must be generated.
  */
-#define P2_ADDR_FLAG_MASTERCHAIN 0x04
+#define P2_ADDR_FLAG_MASTERCHAIN 0x02
 
 /**
  * P2 containing all address display bits.
  */
-#define P2_ADDR_FLAGS_MAX \
-    (P2_ADDR_FLAG_UNBOUNCEABLE | P2_ADDR_FLAG_TESTNET | P2_ADDR_FLAG_MASTERCHAIN)
+#define P2_ADDR_FLAGS_MAX (P2_ADDR_FLAG_TESTNET | P2_ADDR_FLAG_MASTERCHAIN)

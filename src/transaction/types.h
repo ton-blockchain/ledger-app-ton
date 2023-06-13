@@ -69,7 +69,7 @@ typedef struct {
     uint32_t timeout;                        // timeout (4 bytes)
     uint8_t value_buf[MAX_VALUE_BYTES_LEN];  // big endian transaction value
     uint8_t value_len;                       // length of transaction value
-    uint8_t bounce;                          // bounce (1 byte)
+    bool bounce;                             // bounce
     uint8_t send_mode;                       // send_mode (1 byte)
     address_t to;                            // receiver
     bool has_state_init;                     // true if state_init exists

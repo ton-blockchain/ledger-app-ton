@@ -22,11 +22,10 @@ bool hash_tx(transaction_ctx_t *ctx) {
     BitString_init(&bits);
     BitString_storeBit(&bits, 0);                        // tag
     BitString_storeBit(&bits, 1);                        // ihr_disabled
-    BitString_storeBit(&bits, ctx->transaction.bounce);  // bounce
+    BitString_storeBit(&bits, ctx->transaction.bounce ? 1 : 0);  // bounce
     BitString_storeBit(&bits, 0);                        // bounced
     BitString_storeAddressNull(&bits);                   // from
     BitString_storeAddress(&bits, ctx->transaction.to.chain, ctx->transaction.to.hash);  // to
-    // BitString_storeCoins(&bits, ctx->transaction.value);                                 //
     // amount
     BitString_storeCoinsBuf(&bits, ctx->transaction.value_buf, ctx->transaction.value_len);
     BitString_storeBit(&bits, 0);       // Currency collection (not supported)

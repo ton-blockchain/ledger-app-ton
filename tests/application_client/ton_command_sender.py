@@ -50,9 +50,8 @@ class Errors(IntEnum):
 
 class AddressDisplayFlags(IntFlag):
     NONE = 0
-    BOUNCEABLE = 1
-    TESTNET = 2
-    MASTERCHAIN = 4
+    TESTNET = 1
+    MASTERCHAIN = 2
 
 def split_message(message: bytes, max_size: int) -> List[bytes]:
     return [message[x:x + max_size] for x in range(0, len(message), max_size)]

@@ -306,7 +306,7 @@ void print_hint(transaction_t* tx,
         uint8_t address[ADDRESS_LEN] = {0};
         address_to_friendly(hint.address.chain,
                             hint.address.hash,
-                            true,
+                            false,
                             false,
                             address,
                             sizeof(address));

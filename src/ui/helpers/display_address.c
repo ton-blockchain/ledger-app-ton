@@ -16,12 +16,8 @@
 bool display_address(uint8_t flags, char *g_address, size_t g_address_len) {
     memset(g_address, 0, g_address_len);
     uint8_t address[ADDRESS_LEN] = {0};
-    bool bounceable = true;
     bool testnet = false;
     uint8_t chain = 0;
-    if (flags & P2_ADDR_FLAG_UNBOUNCEABLE) {
-        bounceable = false;
-    }
     if (flags & P2_ADDR_FLAG_TESTNET) {
         testnet = true;
     }
@@ -30,7 +26,7 @@ bool display_address(uint8_t flags, char *g_address, size_t g_address_len) {
     }
     if (!address_from_pubkey(G_context.pk_info.raw_public_key,
                              chain,
-                             bounceable,
+                             false,
                              testnet,
                              address,
                              sizeof(address))) {

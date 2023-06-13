@@ -46,7 +46,7 @@ bool display_transaction(char *g_operation,
     uint8_t address[ADDRESS_LEN] = {0};
     if (!address_to_friendly(G_context.tx_info.transaction.to.chain,
                              G_context.tx_info.transaction.to.hash,
-                             true,
+                             G_context.tx_info.transaction.bounce,
                              false,
                              address,
                              sizeof(address))) {
