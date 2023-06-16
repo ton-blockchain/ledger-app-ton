@@ -144,7 +144,7 @@ int crypto_sign_proof() {
 }
 
 int crypto_sign_sign_data() {
-    uint8_t data[4 + 8 + HASH_LEN] = { 0 };
+    uint8_t data[4 + 8 + HASH_LEN] = {0};
     write_u32_be(data, 0, G_context.sign_data_info.schema_crc);
     write_u64_be(data, 4, G_context.sign_data_info.timestamp);
     memmove(&data[4 + 8], G_context.sign_data_info.cell_hash, HASH_LEN);

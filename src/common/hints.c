@@ -32,11 +32,11 @@ void add_hint_hash(HintHolder_t* hints, const char* title, uint8_t* data) {
 }
 
 void add_hint_amount(HintHolder_t* hints,
-                            const char* title,
-                            const char* ticker,
-                            uint8_t* value,
-                            uint8_t value_len,
-                            uint8_t decimals) {
+                     const char* title,
+                     const char* ticker,
+                     uint8_t* value,
+                     uint8_t value_len,
+                     uint8_t decimals) {
     // Configure
     hints->hints[hints->hints_count].title = title;
     hints->hints[hints->hints_count].kind = SummaryItemAmount;

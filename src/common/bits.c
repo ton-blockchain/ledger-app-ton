@@ -88,7 +88,11 @@ void BitString_finalize(BitString_t* self) {
     }
 }
 
-void BitString_storeText(BitString_t* self, uint8_t* data, size_t data_len, CellRef_t *out_ref, bool *out_has_ref) {
+void BitString_storeText(BitString_t* self,
+                         uint8_t* data,
+                         size_t data_len,
+                         CellRef_t* out_ref,
+                         bool* out_has_ref) {
     uint8_t storeMax = (1023 - self->data_cursor) / 8;
     if (data_len > storeMax) {
         BitString_t inner;

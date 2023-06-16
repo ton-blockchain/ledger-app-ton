@@ -56,8 +56,8 @@ int handler_sign_data(buffer_t *cdata, bool first, bool more) {
     }
 
     if (!buffer_move(cdata,
-                        &G_context.sign_data_info.raw_data[G_context.sign_data_info.raw_data_len],
-                        cdata->size)) {
+                     &G_context.sign_data_info.raw_data[G_context.sign_data_info.raw_data_len],
+                     cdata->size)) {
         return io_send_sw(SW_WRONG_SIGN_DATA_LENGTH);
     }
 

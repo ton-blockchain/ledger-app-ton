@@ -57,9 +57,7 @@ int handler_sign_tx(buffer_t *cdata, bool first, bool more) {
         return io_send_sw(SW_WRONG_TX_LENGTH);
     }
 
-    if (!buffer_move(cdata,
-                     &G_context.tx_info.raw_tx[G_context.tx_info.raw_tx_len],
-                     cdata->size)) {
+    if (!buffer_move(cdata, &G_context.tx_info.raw_tx[G_context.tx_info.raw_tx_len], cdata->size)) {
         return io_send_sw(SW_WRONG_TX_LENGTH);
     }
 

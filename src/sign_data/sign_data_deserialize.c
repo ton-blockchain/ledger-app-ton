@@ -11,10 +11,10 @@
 #include "../constants.h"
 #include "../types.h"
 
-#define PLAINTEXT_REQUEST 0x754bf91b
-#define APP_DATA_REQUEST 0x54b58535
-#define MAX_PLAINTEXT_LENGTH 250
-#define MAX_APP_DATA_DOMAIN_LENGTH 126 // max allowed domain len as per TON DNS spec
+#define PLAINTEXT_REQUEST          0x754bf91b
+#define APP_DATA_REQUEST           0x54b58535
+#define MAX_PLAINTEXT_LENGTH       250
+#define MAX_APP_DATA_DOMAIN_LENGTH 126  // max allowed domain len as per TON DNS spec
 
 #define SAFE(RES)     \
     if (!RES) {       \
@@ -34,7 +34,7 @@ void encode_domain(BitString_t* self, uint8_t* domain, size_t domain_len) {
     size_t cur_len = domain_len;
     int doffset;
     while ((doffset = roffset(domain, cur_len, '.')) >= 0) {
-        BitString_storeBuffer(self, &domain[doffset+1], cur_len - doffset - 1);
+        BitString_storeBuffer(self, &domain[doffset + 1], cur_len - doffset - 1);
         BitString_storeUint(self, 0, 8);
         cur_len = doffset;
     }
@@ -42,13 +42,13 @@ void encode_domain(BitString_t* self, uint8_t* domain, size_t domain_len) {
     BitString_storeUint(self, 0, 8);
 }
 
-bool sign_data_deserialize(buffer_t *buf, sign_data_ctx_t *ctx) {
+bool sign_data_deserialize(buffer_t* buf, sign_data_ctx_t* ctx) {
     SAFE(buffer_read_u32(buf, &ctx->schema_crc, BE));
     SAFE(buffer_read_u64(buf, &ctx->timestamp, BE));
 
     BitString_t bits;
     BitString_init(&bits);
-    CellRef_t refs[4] = { 0 };
+    CellRef_t refs[4] = {0};
     int cur_ref = 0;
 
     switch (ctx->schema_crc) {

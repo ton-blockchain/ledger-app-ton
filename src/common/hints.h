@@ -46,11 +46,11 @@ typedef struct {
 void add_hint_text(HintHolder_t* hints, const char* title, char* text, size_t text_len);
 void add_hint_hash(HintHolder_t* hints, const char* title, uint8_t* data);
 void add_hint_amount(HintHolder_t* hints,
-                            const char* title,
-                            const char* ticker,
-                            uint8_t* value,
-                            uint8_t value_len,
-                            uint8_t decimals);
+                     const char* title,
+                     const char* ticker,
+                     uint8_t* value,
+                     uint8_t value_len,
+                     uint8_t decimals);
 void add_hint_address(HintHolder_t* hints, const char* title, address_t address);
 
 void print_hint(HintHolder_t* hints,
