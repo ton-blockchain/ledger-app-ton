@@ -25,6 +25,7 @@ typedef enum {
     GET_PUBLIC_KEY = 0x05,     /// public key of corresponding BIP32 path
     SIGN_TX = 0x06,            /// sign transaction with BIP32 path
     GET_ADDRESS_PROOF = 0x08,  /// get an address proof in TON Connect format
+    SIGN_DATA = 0x09,          /// sign data in TON Connect format
 } command_e;
 
 /**
@@ -54,7 +55,8 @@ typedef enum {
 typedef enum {
     CONFIRM_ADDRESS,      /// confirm address derived from public key
     CONFIRM_TRANSACTION,  /// confirm transaction information
-    GET_PROOF             /// confirm address proof information
+    GET_PROOF,            /// confirm address proof information
+    CONFIRM_SIGN_DATA,    /// confirm data for signing in TON Connect format
 } request_type_e;
 
 /**
@@ -88,6 +90,16 @@ typedef struct {
     uint8_t address_hash[HASH_LEN];
 } proof_ctx_t;
 
+typedef struct {
+    uint32_t schema_crc;
+    uint64_t timestamp;
+    size_t raw_data_len;
+    uint8_t raw_data[MAX_DATA_LEN];
+    uint8_t cell_hash[HASH_LEN];
+    uint8_t signature[SIG_LEN];
+    HintHolder_t hints;
+} sign_data_ctx_t;
+
 /**
  * Structure for global context.
  */
@@ -97,6 +109,7 @@ typedef struct {
         pubkey_ctx_t pk_info;       /// public key context
         transaction_ctx_t tx_info;  /// transaction context
         proof_ctx_t proof_info;
+        sign_data_ctx_t sign_data_info;
     };
     request_type_e req_type;              /// user request
     uint32_t bip32_path[MAX_BIP32_PATH];  /// BIP32 path

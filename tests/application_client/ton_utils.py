@@ -1,5 +1,6 @@
 from math import ceil
 from hashlib import sha256
+from typing import List
 
 from tonsdk.utils import Address
 from tonsdk.boc import Cell
@@ -54,3 +55,7 @@ def build_ton_proof_message(workchain: int,
         TON_CONNECT_PREFIX,
         inner_hash
     ])).digest()
+
+
+def split_message(message: bytes, max_size: int) -> List[bytes]:
+    return [message[x:x + max_size] for x in range(0, len(message), max_size)]

@@ -37,3 +37,16 @@ int helper_send_response_sig(void);
  *
  */
 int helper_send_response_sig_proof(void);
+
+/**
+ * Helper to send APDU response with signature of custom data
+ *
+ * response = SIG_LEN (1) ||
+ *            G_context.sign_data_info.signature (SIG_LEN) ||
+ *            HASH_LEN (1) ||
+ *            G_context.sign_data_info.cell_hash (HASH_LEN)
+ *
+ * @return zero or positive integer if success, -1 otherwise.
+ *
+ */
+int helper_send_response_sig_sign_data(void);

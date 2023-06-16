@@ -5,7 +5,7 @@
 
 #include "cell.h"
 
-#include "../common/bits.h"
+#include "bits.h"
 #include "../constants.h"
 
 #define SAFE(RES)         \

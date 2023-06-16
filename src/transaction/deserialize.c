@@ -19,37 +19,18 @@
 #include "types.h"
 #include "../common/buffer.h"
 #include "hash.h"
-#include "cell.h"
-#include "hints.h"
+#include "../common/cell.h"
+#include "transaction_hints.h"
 #include "../constants.h"
+#include "../common/types.h"
 
 #define SAFE(RES, CODE) \
     if (!RES) {         \
         return CODE;    \
     }
 
-bool buffer_read_address(buffer_t *buf, address_t *out) {
-    if (!buffer_read_u8(buf, &out->chain)) {
-        return false;
-    }
-    if (!buffer_read_buffer(buf, out->hash, HASH_LEN)) {
-        return false;
-    }
-    return true;
-}
-
-bool buffer_read_cell_ref(buffer_t *buf, CellRef_t *out) {
-    if (!buffer_read_u16(buf, &out->max_depth, BE)) {
-        return false;
-    }
-    if (!buffer_read_buffer(buf, out->hash, HASH_LEN)) {
-        return false;
-    }
-    return true;
-}
-
 parser_status_e transaction_deserialize(buffer_t *buf, transaction_t *tx) {
-    if (buf->size > MAX_TX_LEN) {
+    if (buf->size > MAX_TRANSACTION_LEN) {
         return WRONG_LENGTH_ERROR;
     }
 

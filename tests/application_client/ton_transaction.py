@@ -4,24 +4,10 @@ from typing import Optional
 from abc import ABC, abstractmethod
 
 from tonsdk.utils import Address
-from tonsdk.boc import Cell, Builder
+from tonsdk.boc import Cell
 
 from .ton_utils import write_varuint, write_address, write_cell
-
-
-class MyBuilder(Builder):
-    def store_maybe_ref(self, src):
-        if src is not None:
-            self.store_bit(1)
-            self.store_ref(src)
-        else:
-            self.store_bit(0)
-
-        return self
-
-
-def begin_cell():
-    return MyBuilder()
+from .my_builder import begin_cell
 
 
 class SendMode(IntFlag):

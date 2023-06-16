@@ -27,6 +27,7 @@
 
 #include "constants.h"
 #include "globals.h"
+#include "common/write.h"
 
 static int crypto_sign(const uint32_t *bip32_path,
                        uint8_t bip32_path_len,
@@ -136,6 +137,24 @@ int crypto_sign_proof() {
                     sizeof(G_context.proof_info.hash),
                     G_context.proof_info.signature,
                     sizeof(G_context.proof_info.signature)) < 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
+int crypto_sign_sign_data() {
+    uint8_t data[4 + 8 + HASH_LEN] = { 0 };
+    write_u32_be(data, 0, G_context.sign_data_info.schema_crc);
+    write_u64_be(data, 4, G_context.sign_data_info.timestamp);
+    memmove(&data[4 + 8], G_context.sign_data_info.cell_hash, HASH_LEN);
+
+    if (crypto_sign(G_context.bip32_path,
+                    G_context.bip32_path_len,
+                    data,
+                    sizeof(data),
+                    G_context.sign_data_info.signature,
+                    sizeof(G_context.sign_data_info.signature)) < 0) {
         return -1;
     }
 

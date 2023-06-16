@@ -5,7 +5,7 @@
 
 #define G_ADDRESS_LEN   49
 #define G_OPERATION_LEN 64
-#define G_AMOUNT_LEN    40
+#define G_AMOUNT_LEN    44
 #define G_PAYLOAD_LEN   64
 
 #define HINT_TITLE_SIZE 32
@@ -39,3 +39,11 @@ int ui_display_transaction(void);
  *
  */
 int ui_display_proof(uint8_t flags);
+
+/**
+ * Display custom data information on the device and ask confirmation to sign.
+ *
+ * @return 0 if success, negative integer otherwise.
+ *
+ */
+int ui_display_sign_data(void);

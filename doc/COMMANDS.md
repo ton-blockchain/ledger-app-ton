@@ -8,7 +8,8 @@
 | `GET_APP_NAME` | 0x04 | Get ASCII encoded application name |
 | `GET_PUBLIC_KEY` | 0x05 | Get public key given BIP32 path |
 | `SIGN_TX` | 0x06 | Sign transaction given BIP32 path and raw transaction |
-| `GET_ADDRESS_PROOF` | 0x08 | Sign an address proof in TON Connect 2 compatible format given BIP32 path and proof parameters |
+| `GET_ADDRESS_PROOF` | 0x08 | Sign an address proof in TON Connect 2 compliant format given BIP32 path and proof parameters |
+| `SIGN_DATA` | 0x09 | Sign custom data in TON Connect 2 compliant format |
 
 ## GET_VERSION
 
@@ -66,7 +67,7 @@ Sent as series of packages. First one contains bip32 path:
 | --- | --- | --- | --- | --- | --- |
 | 0xE0 | 0x06 | 0x00 | 0x03 (first & more) | 1 + 4n | `len(bip32_path) (1)` \|\|<br> `bip32_path{1} (4)` \|\|<br>`...` \|\|<br>`bip32_path{n} (4)` |
 
-Then an arbitrary number of chunks with transaction data, up to a total of 510 bytes (currently, max valid transaction data length is 299 bytes).
+Then an arbitrary number of chunks with transaction data (see [TRANSACTION.md](./TRANSACTION.md)), up to a total of 510 bytes (currently, max valid transaction data length is 299 bytes).
 
 | CLA | INS | P1 | P2 | Lc | CData |
 | --- | --- | --- | --- | --- | --- |
@@ -100,6 +101,30 @@ Proofs are generated according to this [spec](https://github.com/ton-blockchain/
 | --- | --- | --- |
 | 98 | 0x9000 | `len(signature) (1)` \|\| <br> `signature (64)` \|\| <br> `len(hash) (1)` \|\| <br> `hash (32)` \|\||
 
+## SIGN_DATA
+
+### Command
+
+Signatures are generated according to this [spec](https://github.com/ton-blockchain/ton-connect/blob/main/requests-responses.md#sign-data-experimental).
+
+Sent as series of packages. First one contains bip32 path:
+
+| CLA | INS | P1 | P2 | Lc | CData |
+| --- | --- | --- | --- | --- | --- |
+| 0xE0 | 0x09 | 0x00 | 0x03 (first & more) | 1 + 4n | `len(bip32_path) (1)` \|\|<br> `bip32_path{1} (4)` \|\|<br>`...` \|\|<br>`bip32_path{n} (4)` |
+
+Then an arbitrary number of chunks with serialized custom data (see [CUSTOM_DATA.md](./CUSTOM_DATA.md)), up to a total of 510 bytes.
+
+| CLA | INS | P1 | P2 | Lc | CData |
+| --- | --- | --- | --- | --- | --- |
+| 0xE0 | 0x09 | 0x00 | 0x02 (more) <br> 0x00 (last) | `len(chunk)` | `chunk` |
+
+### Response
+
+| Response length (bytes) | SW | RData |
+| --- | --- | --- |
+| 98 | 0x9000 | `len(signature) (1)` \|\| <br> `signature (64)` \|\| <br> `len(hash) (1)` \|\| <br> `hash (32)` \|\||
+
 ## Status Words
 
 | SW | SW name | Description |
@@ -113,7 +138,9 @@ Proofs are generated according to this [spec](https://github.com/ton-blockchain/
 | 0xB002 | `SW_DISPLAY_ADDRESS_FAIL` | Address conversion to string failed |
 | 0xB003 | `SW_DISPLAY_AMOUNT_FAIL` | Amount conversion to string failed |
 | 0xB004 | `SW_WRONG_TX_LENGTH` | Wrong raw transaction length |
-| 0xB005 | `SW_TX_PARSING_FAIL` | Failed to parse raw transaction |
+| 0xB010 | `SW_TX_PARSING_FAIL` | Failed to parse raw transaction |
+| 0xB005 | `SW_WRONG_SIGN_DATA_LENGTH` | Wrong raw custom data length |
+| 0xB011 | `SW_SIGN_DATA_PARSING_FAIL` | Failed to parse raw custom data |
 | 0xB007 | `SW_BAD_STATE` | Security issue with bad state |
 | 0xB008 | `SW_SIGNATURE_FAIL` | Signature of raw transaction failed |
 | 0xB00B | `SW_REQUEST_TOO_LONG` | The request is too long |

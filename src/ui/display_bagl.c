@@ -37,7 +37,7 @@
 #include "../common/format_bigint.h"
 #include "../common/format_address.h"
 #include "../common/encoding.h"
-#include "../transaction/hints.h"
+#include "../common/hints.h"
 #include "helpers/display_address.h"
 #include "helpers/display_proof.h"
 #include "helpers/display_transaction.h"
@@ -47,9 +47,14 @@ static char g_operation[G_OPERATION_LEN];
 static char g_amount[G_AMOUNT_LEN];
 static char g_address[G_ADDRESS_LEN];
 static char g_payload[G_PAYLOAD_LEN];
+static char g_domain[MAX_DOMAIN_LEN + 1];
+
+const ux_flow_step_t *ux_approval_flow[64];
+
+static HintHolder_t *g_hint_holder;
+static int g_hint_offset;
 static char g_hint_title[HINT_TITLE_SIZE];
 static char g_hint_body[HINT_BODY_SIZE];
-static char g_domain[MAX_DOMAIN_LEN + 1];
 
 // Step with icon and text
 UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Address"});
@@ -183,8 +188,8 @@ UX_STEP_NOCB_INIT(ux_display_hint_step,
                   bnnn_paging,
                   {
                       size_t step_index = G_ux.flow_stack[stack_slot].index;
-                      print_hint(&G_context.tx_info.transaction,
-                                 step_index - 2,
+                      print_hint(g_hint_holder,
+                                 step_index + g_hint_offset,
                                  g_hint_title,
                                  sizeof(g_hint_title),
                                  g_hint_body,
@@ -195,7 +200,6 @@ UX_STEP_NOCB_INIT(ux_display_hint_step,
                       .text = g_hint_body,
                   });
 
-const ux_flow_step_t *ux_approval_tx_flow[64];
 int ui_display_transaction() {
     if (G_context.req_type != CONFIRM_TRANSACTION || G_context.state != STATE_PARSED) {
         G_context.state = STATE_NONE;
@@ -215,28 +219,64 @@ int ui_display_transaction() {
 
     // Configure Flow
     int step = 0;
-    ux_approval_tx_flow[step++] = &ux_display_review_step;
+    ux_approval_flow[step++] = &ux_display_review_step;
     if (G_context.tx_info.transaction.is_blind) {
-        ux_approval_tx_flow[step++] = &ux_display_blind_signing_warning_step;
+        ux_approval_flow[step++] = &ux_display_blind_signing_warning_step;
     }
-    ux_approval_tx_flow[step++] = &ux_display_address_step;
+    ux_approval_flow[step++] = &ux_display_address_step;
+    ux_approval_flow[step++] = &ux_display_amount_step;
     if (G_context.tx_info.transaction.has_payload) {
         if (G_context.tx_info.transaction.is_blind) {
-            ux_approval_tx_flow[step++] = &ux_display_payload_step;
+            ux_approval_flow[step++] = &ux_display_payload_step;
         } else {
-            for (uint16_t i = 0; i < G_context.tx_info.transaction.hints_count; i++) {
-                ux_approval_tx_flow[step++] = &ux_display_hint_step;
+            g_hint_holder = &G_context.tx_info.transaction.hints;
+            g_hint_offset = -3;
+            for (uint16_t i = 0; i < G_context.tx_info.transaction.hints.hints_count; i++) {
+                ux_approval_flow[step++] = &ux_display_hint_step;
             }
         }
     }
-    ux_approval_tx_flow[step++] = &ux_display_amount_step;
-    ux_approval_tx_flow[step++] = &ux_display_approve_step;
-    ux_approval_tx_flow[step++] = &ux_display_reject_step;
-    ux_approval_tx_flow[step++] = FLOW_END_STEP;
+    ux_approval_flow[step++] = &ux_display_approve_step;
+    ux_approval_flow[step++] = &ux_display_reject_step;
+    ux_approval_flow[step++] = FLOW_END_STEP;
 
     // Start flow
     g_validate_callback = &ui_action_validate_transaction;
-    ux_flow_init(0, ux_approval_tx_flow, NULL);
+    ux_flow_init(0, ux_approval_flow, NULL);
+
+    return 0;
+}
+
+// Step with icon and text
+UX_STEP_NOCB(ux_display_sign_custom_data_step,
+             pnn,
+             {
+                 &C_icon_eye,
+                 "Sign",
+                 "Custom data",
+             });
+
+int ui_display_sign_data() {
+    if (G_context.req_type != CONFIRM_SIGN_DATA || G_context.state != STATE_PARSED) {
+        G_context.state = STATE_NONE;
+        return io_send_sw(SW_BAD_STATE);
+    }
+
+    // Configure Flow
+    int step = 0;
+    ux_approval_flow[step++] = &ux_display_sign_custom_data_step;
+    g_hint_holder = &G_context.sign_data_info.hints;
+    g_hint_offset = -1;
+    for (uint16_t i = 0; i < G_context.sign_data_info.hints.hints_count; i++) {
+        ux_approval_flow[step++] = &ux_display_hint_step;
+    }
+    ux_approval_flow[step++] = &ux_display_approve_step;
+    ux_approval_flow[step++] = &ux_display_reject_step;
+    ux_approval_flow[step++] = FLOW_END_STEP;
+
+    // Start flow
+    g_validate_callback = &ui_action_validate_sign_data;
+    ux_flow_init(0, ux_approval_flow, NULL);
 
     return 0;
 }

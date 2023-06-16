@@ -9,27 +9,24 @@
 #include "nbgl_use_case.h"
 
 #include "display.h"
-#include "constants.h"
+#include "../constants.h"
 #include "../globals.h"
 #include "../io.h"
 #include "../sw.h"
 #include "action/validate.h"
 #include "../transaction/types.h"
-#include "../transaction/hints.h"
 #include "../common/bip32.h"
 #include "../common/base64.h"
 #include "../common/format_bigint.h"
 #include "../common/format_address.h"
 #include "menu.h"
 #include "helpers/display_transaction.h"
+#include "hint_buffers_nbgl.h"
 
 static char g_operation[G_OPERATION_LEN];
 static char g_amount[G_AMOUNT_LEN];
 static char g_address[G_ADDRESS_LEN];
 static char g_payload[G_PAYLOAD_LEN];
-
-static char g_hint_title_buffer[32 * MAX_HINTS];
-static char g_hint_buffer[64 * MAX_HINTS];
 
 static nbgl_layoutTagValue_t pairs[3 + MAX_HINTS];
 static nbgl_layoutTagValueList_t pairList;
@@ -77,29 +74,10 @@ static void start_regular_review(void) {
     pairs[pairIndex].value = g_address;
     pairIndex++;
 
-    size_t hint_buffer_offset = 0;
-    size_t hint_title_buffer_offset = 0;
-    for (uint16_t i = 0; i < G_context.tx_info.transaction.hints_count; i++) {
-        print_hint(&G_context.tx_info.transaction,
-                   i,
-                   &g_hint_title_buffer[hint_title_buffer_offset],
-                   sizeof(g_hint_title_buffer) - hint_title_buffer_offset,
-                   &g_hint_buffer[hint_buffer_offset],
-                   sizeof(g_hint_buffer) - hint_buffer_offset);
-        pairs[pairIndex].item = &g_hint_title_buffer[hint_title_buffer_offset];
-        pairs[pairIndex].value = &g_hint_buffer[hint_buffer_offset];
-        pairIndex++;
-        hint_title_buffer_offset +=
-            strnlen(&g_hint_title_buffer[hint_title_buffer_offset],
-                    sizeof(g_hint_title_buffer) - hint_title_buffer_offset) +
-            1;
-        hint_buffer_offset += strnlen(&g_hint_buffer[hint_buffer_offset],
-                                      sizeof(g_hint_buffer) - hint_buffer_offset) +
-                              1;
-    }
+    print_hints(&G_context.tx_info.transaction.hints, &pairs[pairIndex]);
 
     pairList.pairs = pairs;
-    pairList.nbPairs = pairIndex;
+    pairList.nbPairs = pairIndex + G_context.tx_info.transaction.hints.hints_count;
     pairList.smallCaseForValue = false;
 
     infoLongPress.icon = &C_ledger_stax_ton_64;

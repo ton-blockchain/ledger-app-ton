@@ -53,6 +53,17 @@ def unpack_sign_tx_response(response: bytes) -> Tuple[bytes, bytes]:
 
     return sig, hash_b
 
+def unpack_sign_data_response(response: bytes) -> Tuple[bytes, bytes]:
+    response, sig_len, sig = pop_size_prefixed_buf_from_buf(response)
+    response, hash_len, hash_b = pop_size_prefixed_buf_from_buf(response)
+
+    assert sig_len == len(sig)
+    assert hash_len == len(hash_b)
+
+    assert len(response) == 0
+
+    return sig, hash_b
+
 def unpack_proof_response(response: bytes) -> Tuple[bytes, bytes]:
     response, sig_len, sig = pop_size_prefixed_buf_from_buf(response)
     response, hash_len, hash_b = pop_size_prefixed_buf_from_buf(response)

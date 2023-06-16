@@ -5,7 +5,7 @@
 
 #include "hash.h"
 
-#include "cell.h"
+#include "../common/cell.h"
 #include "../common/bits.h"
 #include "../constants.h"
 

@@ -4,6 +4,8 @@
 #include <stddef.h>   // size_t
 #include <stdbool.h>  // bool
 
+#include "types.h"
+
 /**
  * Enumeration for endianness.
  */
@@ -246,3 +248,29 @@ bool buffer_read_varuint(buffer_t *buffer, uint8_t *out_size, uint8_t *out, size
  *
  */
 size_t buffer_remaining(const buffer_t *buffer);
+
+/**
+ * Read serialized address (33 bytes) from buffer.
+ *
+ * @param[in]  buffer
+ *   Pointer to input buffer struct.
+ * @param[out] out
+ *   Pointer to output address.
+ *
+ * @return true if success, false otherwise.
+ *
+ */
+bool buffer_read_address(buffer_t *buf, address_t *out);
+
+/**
+ * Read serialized cell reference (34 bytes) from buffer.
+ *
+ * @param[in]  buffer
+ *   Pointer to input buffer struct.
+ * @param[out] out
+ *   Pointer to output cell reference.
+ *
+ * @return true if success, false otherwise.
+ *
+ */
+bool buffer_read_cell_ref(buffer_t *buf, CellRef_t *out);

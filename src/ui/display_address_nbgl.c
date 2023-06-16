@@ -8,7 +8,7 @@
 #include "nbgl_use_case.h"
 
 #include "display.h"
-#include "constants.h"
+#include "../constants.h"
 #include "../globals.h"
 #include "../io.h"
 #include "../sw.h"

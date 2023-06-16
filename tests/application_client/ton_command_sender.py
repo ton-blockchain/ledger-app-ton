@@ -1,9 +1,11 @@
 from enum import IntEnum, IntFlag
-from typing import Generator, List, Optional
+from typing import Generator, Optional
 from contextlib import contextmanager
 
 from ragger.backend.interface import BackendInterface, RAPDU
 from ragger.bip import pack_derivation_path
+
+from .ton_utils import split_message
 
 
 MAX_APDU_LEN: int = 255
@@ -30,6 +32,7 @@ class InsType(IntEnum):
     GET_PUBLIC_KEY    = 0x05
     SIGN_TX           = 0x06
     GET_ADDRESS_PROOF = 0x08
+    SIGN_DATA         = 0x09
 
 class Errors(IntEnum):
     SW_DENY                    = 0x6985
@@ -38,12 +41,12 @@ class Errors(IntEnum):
     SW_INS_NOT_SUPPORTED       = 0x6D00
     SW_CLA_NOT_SUPPORTED       = 0x6E00
     SW_WRONG_RESPONSE_LENGTH   = 0xB000
-    SW_DISPLAY_BIP32_PATH_FAIL = 0xB001
     SW_DISPLAY_ADDRESS_FAIL    = 0xB002
     SW_DISPLAY_AMOUNT_FAIL     = 0xB003
     SW_WRONG_TX_LENGTH         = 0xB004
-    SW_TX_PARSING_FAIL         = 0xB005
-    SW_TX_HASH_FAIL            = 0xB006
+    SW_TX_PARSING_FAIL         = 0xB010
+    SW_WRONG_SIGN_DATA_LENGTH  = 0xB005
+    SW_SIGN_DATA_PARSING_FAIL  = 0xB011
     SW_BAD_STATE               = 0xB007
     SW_SIGNATURE_FAIL          = 0xB008
     SW_REQUEST_TOO_LONG        = 0xB00B
@@ -52,9 +55,6 @@ class AddressDisplayFlags(IntFlag):
     NONE = 0
     TESTNET = 1
     MASTERCHAIN = 2
-
-def split_message(message: bytes, max_size: int) -> List[bytes]:
-    return [message[x:x + max_size] for x in range(0, len(message), max_size)]
 
 
 class BoilerplateCommandSender:
@@ -146,6 +146,29 @@ class BoilerplateCommandSender:
 
         with self.backend.exchange_async(cla=CLA,
                                          ins=InsType.SIGN_TX,
+                                         p1=P1.P1_NONE,
+                                         p2=P2.P2_NONE,
+                                         data=messages[-1]) as response:
+            yield response
+
+    @contextmanager
+    def sign_data(self, path: str, data: bytes) -> Generator[None, None, None]:
+        self.backend.exchange(cla=CLA,
+                              ins=InsType.SIGN_DATA,
+                              p1=P1.P1_NONE,
+                              p2=(P2.P2_FIRST | P2.P2_MORE),
+                              data=pack_derivation_path(path))
+        messages = split_message(data, MAX_APDU_LEN)
+
+        for msg in messages[:-1]:
+            self.backend.exchange(cla=CLA,
+                                  ins=InsType.SIGN_DATA,
+                                  p1=P1.P1_NONE,
+                                  p2=P2.P2_MORE,
+                                  data=msg)
+
+        with self.backend.exchange_async(cla=CLA,
+                                         ins=InsType.SIGN_DATA,
                                          p1=P1.P1_NONE,
                                          p2=P2.P2_NONE,
                                          data=messages[-1]) as response:

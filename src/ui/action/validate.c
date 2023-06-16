@@ -75,3 +75,20 @@ void ui_action_validate_proof(bool choice) {
     ui_menu_main();
 #endif
 }
+
+void ui_action_validate_sign_data(bool choice) {
+    if (choice) {
+        if (crypto_sign_sign_data() < 0) {
+            io_send_sw(SW_SIGNATURE_FAIL);
+        } else {
+            helper_send_response_sig_sign_data();
+        }
+    } else {
+        io_send_sw(SW_DENY);
+    }
+
+#ifdef HAVE_BAGL
+    // only for old devices
+    ui_menu_main();
+#endif
+}

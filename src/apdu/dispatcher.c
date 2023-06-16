@@ -31,6 +31,7 @@
 #include "../handler/get_app_name.h"
 #include "../handler/get_public_key.h"
 #include "../handler/sign_tx.h"
+#include "../handler/sign_data.h"
 
 int apdu_dispatcher(const command_t *cmd) {
     if (cmd->cla != CLA) {
@@ -109,6 +110,28 @@ int apdu_dispatcher(const command_t *cmd) {
             buf.offset = 0;
 
             return handler_get_address_proof(cmd->p2, &buf);
+        case SIGN_DATA:
+            if (cmd->p1 != P1_NONE) {
+                return io_send_sw(SW_WRONG_P1P2);
+            }
+
+            if (cmd->p2 & ~(P2_FIRST | P2_MORE)) {
+                return io_send_sw(SW_WRONG_P1P2);
+            }
+
+            if ((cmd->p2 & P2_FIRST) && !(cmd->p2 & P2_MORE)) {
+                return io_send_sw(SW_WRONG_P1P2);
+            }
+
+            if (!cmd->data) {
+                return io_send_sw(SW_WRONG_DATA_LENGTH);
+            }
+
+            buf.ptr = cmd->data;
+            buf.size = cmd->lc;
+            buf.offset = 0;
+
+            return handler_sign_data(&buf, (bool) (cmd->p2 & P2_FIRST), (bool) (cmd->p2 & P2_MORE));
         default:
             return io_send_sw(SW_INS_NOT_SUPPORTED);
     }

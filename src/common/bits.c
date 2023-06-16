@@ -3,6 +3,7 @@
 
 #include "bits.h"
 #include "../constants.h"
+#include "cell.h"
 
 void BitString_init(BitString_t* self) {
     self->data_cursor = 0;
@@ -84,5 +85,24 @@ void BitString_finalize(BitString_t* self) {
             padBytes = padBytes - 1;
             BitString_storeBit(self, 0);
         }
+    }
+}
+
+void BitString_storeText(BitString_t* self, uint8_t* data, size_t data_len, CellRef_t *out_ref, bool *out_has_ref) {
+    uint8_t storeMax = (1023 - self->data_cursor) / 8;
+    if (data_len > storeMax) {
+        BitString_t inner;
+        CellRef_t innerRef;
+        bool innerHasRef;
+        CellRef_t selfRef;
+        BitString_init(&inner);
+        BitString_storeText(&inner, &data[storeMax], data_len - storeMax, &innerRef, &innerHasRef);
+        hash_Cell(&inner, &innerRef, innerHasRef ? 1 : 0, &selfRef);
+        BitString_storeBuffer(self, data, storeMax);
+        *out_ref = selfRef;
+        *out_has_ref = true;
+    } else {
+        BitString_storeBuffer(self, data, data_len);
+        *out_has_ref = false;
     }
 }

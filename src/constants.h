@@ -74,3 +74,13 @@
  * Max hints in one transaction.
  */
 #define MAX_HINTS 8
+
+/**
+ * Maximum signed data length (bytes).
+ */
+#define MAX_DATA_LEN 510
+
+/**
+ * Length of address in user-friendly form before base64 encoding (bytes).
+ */
+#define ADDRESS_LEN 36

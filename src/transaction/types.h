@@ -3,13 +3,12 @@
 #include <stddef.h>   // size_t
 #include <stdint.h>   // uint*_t
 #include <stdbool.h>  // bool
-#include "cell.h"     // CellRef_t
-#include "../constants.h"
 
-#define MAX_TX_LEN             510
-#define ADDRESS_LEN            36
-#define MAX_MEMO_LEN           120
-#define MAX_STORED_STRING_SIZE 64
+#include "../constants.h"
+#include "../common/types.h"
+#include "../common/hints.h"
+
+#define MAX_MEMO_LEN 120
 
 typedef enum {
     PARSING_OK = 0,
@@ -25,43 +24,6 @@ typedef enum {
     STATE_INIT_PARSING_ERROR = -10,
     HINTS_PARSING_ERROR = -11,
 } parser_status_e;
-
-typedef struct {
-    uint8_t chain;
-    uint8_t hash[HASH_LEN];
-} address_t;
-
-enum HintKind {
-    SummaryItemNone = 0,  // SummaryItemNone always zero
-    SummaryItemAmount,
-    SummaryItemString,
-    SummaryAddress,
-    SummaryHash
-};
-
-typedef struct {
-    char* string;
-    size_t length;
-} SizedString_t;
-
-typedef struct {
-    char ticker[MAX_TICKER_LEN + 1];
-    uint8_t value[MAX_VALUE_BYTES_LEN];
-    uint8_t value_len;
-    uint8_t decimals;
-} Amount_t;
-
-typedef struct {
-    const char* title;
-    enum HintKind kind;
-    union {
-        Amount_t amount;
-        uint64_t u64;
-        SizedString_t string;
-        uint8_t hash[HASH_LEN];
-        address_t address;
-    };
-} Hint_t;
 
 typedef struct {
     uint8_t tag;                             // tag (1 byte)
@@ -81,7 +43,6 @@ typedef struct {
     uint16_t hints_len;                      // hints len if exists
     uint8_t* hints_data;                     // hints data if exists
     bool is_blind;                           // eoes transaction require blind signing
-    Hint_t hints[MAX_HINTS];
-    uint8_t hints_count;
+    HintHolder_t hints;
     char title[128];
 } transaction_t;

@@ -47,55 +47,47 @@ int handler_sign_tx(buffer_t *cdata, bool first, bool more) {
         }
 
         return io_send_sw(SW_OK);
-    } else {  // parse transaction
-        if (G_context.req_type != CONFIRM_TRANSACTION) {
-            return io_send_sw(SW_BAD_STATE);
-        }
-
-        if (more) {  // more APDUs with transaction part
-            if (G_context.tx_info.raw_tx_len + cdata->size > MAX_TRANSACTION_LEN &&  //
-                !buffer_move(cdata,
-                             G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len,
-                             cdata->size)) {
-                return io_send_sw(SW_WRONG_TX_LENGTH);
-            }
-
-            G_context.tx_info.raw_tx_len += cdata->size;
-
-            return io_send_sw(SW_OK);
-        } else {  // last APDU, let's parse and sign
-            if (G_context.tx_info.raw_tx_len + cdata->size > MAX_TRANSACTION_LEN ||  //
-                !buffer_move(cdata,
-                             G_context.tx_info.raw_tx + G_context.tx_info.raw_tx_len,
-                             cdata->size)) {
-                return io_send_sw(SW_WRONG_TX_LENGTH);
-            }
-
-            G_context.tx_info.raw_tx_len += cdata->size;
-
-            buffer_t buf = {.ptr = G_context.tx_info.raw_tx,
-                            .size = G_context.tx_info.raw_tx_len,
-                            .offset = 0};
-
-            // Parse
-            parser_status_e status = transaction_deserialize(&buf, &G_context.tx_info.transaction);
-            PRINTF("Parsing status: %d.\n", status);
-            if (status != PARSING_OK) {
-                return io_send_sw(SW_TX_PARSING_FAIL);
-            }
-
-            // Hash
-            if (!hash_tx(&G_context.tx_info)) {
-                return io_send_sw(SW_TX_PARSING_FAIL);
-            }
-
-            G_context.state = STATE_PARSED;
-
-            PRINTF("Hash: %.*H\n", sizeof(G_context.tx_info.m_hash), G_context.tx_info.m_hash);
-
-            return ui_display_transaction();
-        }
     }
 
-    return 0;
+    if (G_context.req_type != CONFIRM_TRANSACTION) {
+        return io_send_sw(SW_BAD_STATE);
+    }
+
+    if (G_context.tx_info.raw_tx_len + cdata->size > MAX_TRANSACTION_LEN) {
+        return io_send_sw(SW_WRONG_TX_LENGTH);
+    }
+
+    if (!buffer_move(cdata,
+                     &G_context.tx_info.raw_tx[G_context.tx_info.raw_tx_len],
+                     cdata->size)) {
+        return io_send_sw(SW_WRONG_TX_LENGTH);
+    }
+
+    G_context.tx_info.raw_tx_len += cdata->size;
+
+    if (more) {
+        return io_send_sw(SW_OK);
+    }
+
+    buffer_t buf = {.ptr = G_context.tx_info.raw_tx,
+                    .size = G_context.tx_info.raw_tx_len,
+                    .offset = 0};
+
+    // Parse
+    parser_status_e status = transaction_deserialize(&buf, &G_context.tx_info.transaction);
+    PRINTF("Parsing status: %d.\n", status);
+    if (status != PARSING_OK) {
+        return io_send_sw(SW_TX_PARSING_FAIL);
+    }
+
+    // Hash
+    if (!hash_tx(&G_context.tx_info)) {
+        return io_send_sw(SW_TX_PARSING_FAIL);
+    }
+
+    G_context.state = STATE_PARSED;
+
+    PRINTF("Hash: %.*H\n", sizeof(G_context.tx_info.m_hash), G_context.tx_info.m_hash);
+
+    return ui_display_transaction();
 }

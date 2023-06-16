@@ -1,8 +1,10 @@
 #pragma once
 
+#include <stdbool.h>
+
 #include "types.h"
 #include "../common/buffer.h"
-#include "cell.h"
+#include "../common/types.h"
 
 bool buffer_read_address(buffer_t *buf, address_t *out);
 

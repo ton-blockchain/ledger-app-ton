@@ -41,9 +41,17 @@
  */
 #define SW_WRONG_TX_LENGTH 0xB004
 /**
- * Status word for fail of transaction parsing.
+ * Status word for failure of transaction parsing.
  */
 #define SW_TX_PARSING_FAIL 0xB010
+/**
+ * Status word for wrong custom data length.
+ */
+#define SW_WRONG_SIGN_DATA_LENGTH 0xB005
+/**
+ * Status word for failure of custom data parsing.
+ */
+#define SW_SIGN_DATA_PARSING_FAIL 0xB011
 /**
  * Status word for bad state.
  */

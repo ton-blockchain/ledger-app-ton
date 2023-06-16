@@ -22,6 +22,7 @@
 #include "buffer.h"
 #include "read.h"
 #include "bip32.h"
+#include "types.h"
 
 bool buffer_can_read(const buffer_t *buffer, size_t n) {
     return buffer_remaining(buffer) >= n;
@@ -198,5 +199,25 @@ bool buffer_read_varuint(buffer_t *buffer, uint8_t *out_size, uint8_t *out, size
         return false;
     }
     *out_size = size;
+    return true;
+}
+
+bool buffer_read_address(buffer_t *buf, address_t *out) {
+    if (!buffer_read_u8(buf, &out->chain)) {
+        return false;
+    }
+    if (!buffer_read_buffer(buf, out->hash, HASH_LEN)) {
+        return false;
+    }
+    return true;
+}
+
+bool buffer_read_cell_ref(buffer_t *buf, CellRef_t *out) {
+    if (!buffer_read_u16(buf, &out->max_depth, BE)) {
+        return false;
+    }
+    if (!buffer_read_buffer(buf, out->hash, HASH_LEN)) {
+        return false;
+    }
     return true;
 }

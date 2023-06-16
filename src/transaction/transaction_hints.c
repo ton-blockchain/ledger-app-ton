@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "hints.h"
+#include "transaction_hints.h"
 
 #include "../common/buffer.h"
 #include "../common/base64.h"
@@ -10,57 +10,9 @@
 #include "../common/encoding.h"
 #include "../constants.h"
 #include "deserialize.h"
-
-static void add_hint_text(transaction_t* tx, const char* title, char* text, size_t text_len) {
-    // Configure
-    tx->hints[tx->hints_count].title = title;
-    tx->hints[tx->hints_count].kind = SummaryItemString;
-    tx->hints[tx->hints_count].string.string = text;
-    tx->hints[tx->hints_count].string.length = text_len;
-
-    // Next
-    tx->hints_count++;
-}
-
-static void add_hint_hash(transaction_t* tx, const char* title, uint8_t* data) {
-    // Configure
-    tx->hints[tx->hints_count].title = title;
-    tx->hints[tx->hints_count].kind = SummaryHash;
-    memmove(tx->hints[tx->hints_count].hash, data, HASH_LEN);
-
-    // Next
-    tx->hints_count++;
-}
-
-static void add_hint_amount(transaction_t* tx,
-                            const char* title,
-                            const char* ticker,
-                            uint8_t* value,
-                            uint8_t value_len,
-                            uint8_t decimals) {
-    // Configure
-    tx->hints[tx->hints_count].title = title;
-    tx->hints[tx->hints_count].kind = SummaryItemAmount;
-    size_t ticker_len = strnlen(ticker, MAX_TICKER_LEN);
-    memmove(tx->hints[tx->hints_count].amount.ticker, ticker, ticker_len);
-    tx->hints[tx->hints_count].amount.ticker[ticker_len] = '\0';
-    memmove(tx->hints[tx->hints_count].amount.value, value, value_len);
-    tx->hints[tx->hints_count].amount.value_len = value_len;
-    tx->hints[tx->hints_count].amount.decimals = decimals;
-
-    // Next
-    tx->hints_count++;
-}
-
-static void add_hint_address(transaction_t* tx, const char* title, address_t address) {
-    // Configure
-    tx->hints[tx->hints_count].title = title;
-    tx->hints[tx->hints_count].kind = SummaryAddress;
-    tx->hints[tx->hints_count].address = address;
-
-    // Next
-    tx->hints_count++;
-}
+#include "../common/hints.h"
+#include "../common/bits.h"
+#include "../common/cell.h"
 
 #define SAFE(RES)     \
     if (!RES) {       \
@@ -94,7 +46,7 @@ bool process_hints(transaction_t* tx) {
     BitString_t bits;
     bool hasCell = false;
     bool tmp = false;
-    tx->hints_count = 0;
+    tx->hints.hints_count = 0;
     buffer_t buf = {.ptr = tx->hints_data, .size = tx->hints_len, .offset = 0};
 
     //
@@ -123,7 +75,7 @@ bool process_hints(transaction_t* tx) {
         snprintf(tx->title, sizeof(tx->title), "Transfer");
 
         // Add code hints
-        add_hint_text(tx, "Comment", (char*) tx->hints_data, tx->hints_len);
+        add_hint_text(&tx->hints, "Comment", (char*) tx->hints_data, tx->hints_len);
     }
 
     if (tx->hints_type == TRANSACTION_TRANSFER_JETTON ||
@@ -164,7 +116,7 @@ bool process_hints(transaction_t* tx) {
                 return false;
             }
 
-            add_hint_amount(tx,
+            add_hint_amount(&tx->hints,
                             "Jetton amount",
                             (char*) ticker,
                             amount_buf,
@@ -177,7 +129,7 @@ bool process_hints(transaction_t* tx) {
         BitString_storeAddress(&bits, destination.chain, destination.hash);
 
         add_hint_address(
-            tx,
+            &tx->hints,
             tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "Send jetton to" : "New owner",
             destination);
 
@@ -185,14 +137,14 @@ bool process_hints(transaction_t* tx) {
         SAFE(buffer_read_address(&buf, &response));
         BitString_storeAddress(&bits, response.chain, response.hash);
 
-        add_hint_address(tx, "Send excess to", response);
+        add_hint_address(&tx->hints, "Send excess to", response);
 
         // custom payload
         SAFE(buffer_read_bool(&buf, &tmp));
         if (tmp) {
             SAFE(buffer_read_cell_ref(&buf, &refs[ref_count]));
 
-            add_hint_hash(tx, "Custom payload", refs[ref_count].hash);
+            add_hint_hash(&tx->hints, "Custom payload", refs[ref_count].hash);
 
             BitString_storeBit(&bits, 1);
             ref_count++;
@@ -205,7 +157,7 @@ bool process_hints(transaction_t* tx) {
         SAFE(buffer_read_varuint(&buf, &fwd_amount_size, fwd_amount_buf, MAX_VALUE_BYTES_LEN));
         BitString_storeCoinsBuf(&bits, fwd_amount_buf, fwd_amount_size);
 
-        add_hint_amount(tx,
+        add_hint_amount(&tx->hints,
                         "Forward amount",
                         "TON",
                         fwd_amount_buf,
@@ -217,7 +169,7 @@ bool process_hints(transaction_t* tx) {
         if (tmp) {
             SAFE(buffer_read_cell_ref(&buf, &refs[ref_count]));
 
-            add_hint_hash(tx, "Forward payload", refs[ref_count].hash);
+            add_hint_hash(&tx->hints, "Forward payload", refs[ref_count].hash);
 
             BitString_storeBit(&bits, 1);
             ref_count++;
@@ -247,72 +199,4 @@ bool process_hints(transaction_t* tx) {
     }
 
     return true;
-}
-
-int print_string(const char* in, char* out, size_t out_length) {
-    strncpy(out, in, out_length);
-    int rc = (out[--out_length] != '\0');
-    if (rc) {
-        /* ensure the output is NUL terminated */
-        out[out_length] = '\0';
-        if (out_length != 0) {
-            /* signal truncation */
-            out[out_length - 1] = '~';
-        }
-    }
-    return rc;
-}
-
-int print_sized_string(const SizedString_t* string, char* out, size_t out_length) {
-    size_t len = out_length < string->length ? out_length : string->length;
-    strncpy(out, string->string, len);
-    if (string->length < out_length) {
-        out[string->length] = '\0';
-        return 0;
-    } else {
-        out[--out_length] = '\0';
-        if (out_length != 0) {
-            /* signal truncation */
-            out[out_length - 1] = '~';
-        }
-        return 1;
-    }
-}
-
-void print_hint(transaction_t* tx,
-                uint16_t index,
-                char* title,
-                size_t title_len,
-                char* body,
-                size_t body_len) {
-    Hint_t hint = tx->hints[index];
-
-    // Title
-    print_string(hint.title, title, title_len);
-
-    // Body
-    if (hint.kind == SummaryItemString) {
-        print_sized_string(&hint.string, body, body_len);
-    } else if (hint.kind == SummaryHash) {
-        base64_encode(hint.hash, HASH_LEN, body, body_len);
-    } else if (hint.kind == SummaryItemAmount) {
-        amountToString(hint.amount.value,
-                       hint.amount.value_len,
-                       hint.amount.decimals,
-                       hint.amount.ticker,
-                       body,
-                       body_len);
-    } else if (hint.kind == SummaryAddress) {
-        uint8_t address[ADDRESS_LEN] = {0};
-        address_to_friendly(hint.address.chain,
-                            hint.address.hash,
-                            false,
-                            false,
-                            address,
-                            sizeof(address));
-        memset(body, 0, body_len);
-        base64_encode(address, sizeof(address), body, body_len);
-    } else {
-        print_string("<unknown>", body, body_len);
-    }
 }

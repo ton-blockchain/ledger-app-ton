@@ -1,11 +1,10 @@
 #pragma once
 
 #include <stdint.h>  // uint*_t
+#include <stdbool.h>
+#include <stddef.h>
 
-typedef struct BitString_t {
-    uint8_t data[128];
-    uint16_t data_cursor;  // NOTE: In bits
-} BitString_t;
+#include "types.h"
 
 void BitString_init(BitString_t* self);
 void BitString_storeBit(BitString_t* self, int8_t v);
@@ -16,3 +15,4 @@ void BitString_storeBuffer(BitString_t* self, uint8_t* v, uint8_t length);
 void BitString_storeAddress(BitString_t* self, uint8_t chain, uint8_t* hash);
 void BitString_storeAddressNull(BitString_t* self);
 void BitString_finalize(BitString_t* self);
+void BitString_storeText(BitString_t* self, uint8_t* data, size_t data_len, CellRef_t *out_ref, bool *out_has_ref);

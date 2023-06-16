@@ -20,7 +20,7 @@ message#00000000 text:string = MsgBody;
 ```
 
 ### Hints
-| Value | Length | Description |
+| Value | Length or type | Description |
 | --- | --- | --- |
 | `message` | 0-120 | ASCII-only message |
 
@@ -35,7 +35,7 @@ transfer#0f8a7ea5 query_id:uint64 amount:(VarUInteger 16) destination:MsgAddress
 ```
 
 ### Hints
-| Value | Size (bytes) or type | Description |
+| Value | Length or type | Description |
 | --- | --- | --- |
 | `has_query_id` | 1 | Whether `query_id` is present |
 | `query_id` | 0 or 8 | `query_id` for the message, 0 will be used if `!has_query_id` |
@@ -59,7 +59,7 @@ transfer#5fcc3d14 query_id:uint64 new_owner:MsgAddress response_destination:MsgA
 ```
 
 ### Hints
-| Value | Length | Description |
+| Value | Length or type | Description |
 | --- | --- | --- |
 | `has_query_id` | 1 | Whether `query_id` is present |
 | `query_id` | 0 or 8 | `query_id` for the message, 0 will be used if `!has_query_id` |

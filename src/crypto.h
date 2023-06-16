@@ -42,3 +42,15 @@ int crypto_sign_tx(void);
  *
  */
 int crypto_sign_proof(void);
+
+/**
+ * Sign custom data in global context.
+ *
+ * @see G_context.bip32_path, G_context.sign_data_info.cell_hash,
+ * G_context.sign_data_info.schema_crc, G_context.sign_data_info.timestamp,
+ * G_context.sign_data_info.signature.
+ *
+ * @return 0 if success, -1 otherwise.
+ *
+ */
+int crypto_sign_sign_data(void);
