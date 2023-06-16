@@ -70,7 +70,12 @@ def encode_domain(d: str) -> Cell:
 
 
 class AppDataSignDataRequest(SignDataRequest):
-    def __init__(self, data: Cell, address: Optional[Address] = None, domain: Optional[str] = None, ext: Optional[Cell] = None, timestamp=int(time())):
+    def __init__(self,
+                 data: Cell,
+                 address: Optional[Address] = None,
+                 domain: Optional[str] = None,
+                 ext: Optional[Cell] = None,
+                 timestamp=int(time())):
         if address is None and domain is None:
             raise ValueError("address and domain cannot both be None")
         super().__init__(timestamp)
