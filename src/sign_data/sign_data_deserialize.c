@@ -42,6 +42,29 @@ void encode_domain(BitString_t* self, uint8_t* domain, size_t domain_len) {
     BitString_storeUint(self, 0, 8);
 }
 
+void encode_text(BitString_t* self,
+                 uint8_t* data,
+                 size_t data_len,
+                 CellRef_t* out_ref,
+                 bool* out_has_ref) {
+    uint8_t storeMax = (1023 - self->data_cursor) / 8;
+    if (data_len > storeMax) {
+        BitString_t inner;
+        CellRef_t innerRef;
+        bool innerHasRef;
+        CellRef_t selfRef;
+        BitString_init(&inner);
+        encode_text(&inner, &data[storeMax], data_len - storeMax, &innerRef, &innerHasRef);
+        hash_Cell(&inner, &innerRef, innerHasRef ? 1 : 0, &selfRef);
+        BitString_storeBuffer(self, data, storeMax);
+        *out_ref = selfRef;
+        *out_has_ref = true;
+    } else {
+        BitString_storeBuffer(self, data, data_len);
+        *out_has_ref = false;
+    }
+}
+
 bool sign_data_deserialize(buffer_t* buf, sign_data_ctx_t* ctx) {
     SAFE(buffer_read_u32(buf, &ctx->schema_crc, BE));
     SAFE(buffer_read_u64(buf, &ctx->timestamp, BE));
@@ -62,7 +85,7 @@ bool sign_data_deserialize(buffer_t* buf, sign_data_ctx_t* ctx) {
             SAFE(check_ascii(data, len));
             add_hint_text(&ctx->hints, "Text", (char*) data, len);
             bool has_ref;
-            BitString_storeText(&bits, data, len, &refs[cur_ref], &has_ref);
+            encode_text(&bits, data, len, &refs[cur_ref], &has_ref);
             if (has_ref) {
                 cur_ref++;
             }

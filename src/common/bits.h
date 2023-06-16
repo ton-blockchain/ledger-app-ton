@@ -15,8 +15,3 @@ void BitString_storeBuffer(BitString_t* self, uint8_t* v, uint8_t length);
 void BitString_storeAddress(BitString_t* self, uint8_t chain, uint8_t* hash);
 void BitString_storeAddressNull(BitString_t* self);
 void BitString_finalize(BitString_t* self);
-void BitString_storeText(BitString_t* self,
-                         uint8_t* data,
-                         size_t data_len,
-                         CellRef_t* out_ref,
-                         bool* out_has_ref);
