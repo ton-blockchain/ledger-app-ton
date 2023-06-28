@@ -27,6 +27,9 @@ static char g_operation[G_OPERATION_LEN];
 static char g_amount[G_AMOUNT_LEN];
 static char g_address[G_ADDRESS_LEN];
 static char g_payload[G_PAYLOAD_LEN];
+static char g_address_title[G_ADDRESS_TITLE_LEN];
+
+static char g_transaction_title[64];
 
 static nbgl_layoutTagValue_t pairs[3 + MAX_HINTS];
 static nbgl_layoutTagValueList_t pairList;
@@ -70,7 +73,7 @@ static void start_regular_review(void) {
     pairs[pairIndex].value = g_amount;
     pairIndex++;
 
-    pairs[pairIndex].item = "Address";
+    pairs[pairIndex].item = g_address_title;
     pairs[pairIndex].value = g_address;
     pairIndex++;
 
@@ -80,8 +83,13 @@ static void start_regular_review(void) {
     pairList.nbPairs = pairIndex + G_context.tx_info.transaction.hints.hints_count;
     pairList.smallCaseForValue = false;
 
+    snprintf(g_transaction_title,
+             sizeof(g_transaction_title),
+             "Sign transaction\nto %s",
+             G_context.tx_info.transaction.action);
+
     infoLongPress.icon = &C_ledger_stax_ton_64;
-    infoLongPress.text = "Sign transaction\nto send TON";
+    infoLongPress.text = g_transaction_title;
     infoLongPress.longPressText = "Hold to sign";
 
     nbgl_useCaseStaticReview(&pairList, &infoLongPress, "Reject transaction", on_review_choice);
@@ -119,13 +127,20 @@ int ui_display_transaction() {
                              g_address,
                              sizeof(g_address),
                              g_payload,
-                             sizeof(g_payload))) {
+                             sizeof(g_payload),
+                             g_address_title,
+                             sizeof(g_address_title))) {
         return -1;
     }
 
+    snprintf(g_transaction_title,
+             sizeof(g_transaction_title),
+             "Review transaction\nto %s",
+             G_context.tx_info.transaction.action);
+
     // Start review
     nbgl_useCaseReviewStart(&C_ledger_stax_ton_64,
-                            "Review transaction\nto send TON",
+                            g_transaction_title,
                             NULL,
                             "Reject transaction",
                             show_blind_warning_if_needed,

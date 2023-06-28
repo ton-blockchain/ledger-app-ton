@@ -48,6 +48,7 @@ static char g_amount[G_AMOUNT_LEN];
 static char g_address[G_ADDRESS_LEN];
 static char g_payload[G_PAYLOAD_LEN];
 static char g_domain[MAX_DOMAIN_LEN + 1];
+static char g_address_title[G_ADDRESS_TITLE_LEN];
 
 const ux_flow_step_t *ux_approval_flow[64];
 
@@ -62,7 +63,7 @@ UX_STEP_NOCB(ux_display_confirm_addr_step, pn, {&C_icon_eye, "Confirm Address"})
 UX_STEP_NOCB(ux_display_address_step,
              bnnn_paging,
              {
-                 .title = "Address",
+                 .title = g_address_title,
                  .text = g_address,
              });
 // Step with approve button
@@ -101,7 +102,11 @@ int ui_display_address(uint8_t flags) {
     }
 
     // Format address
-    if (!display_address(flags, g_address, sizeof(g_address))) {
+    if (!display_address(flags,
+                         g_address,
+                         sizeof(g_address),
+                         g_address_title,
+                         sizeof(g_address_title))) {
         return -1;
     }
 
@@ -142,7 +147,13 @@ int ui_display_proof(uint8_t flags) {
         return io_send_sw(SW_BAD_STATE);
     }
 
-    if (!display_proof(flags, g_address, sizeof(g_address), g_domain, sizeof(g_domain))) {
+    if (!display_proof(flags,
+                       g_address,
+                       sizeof(g_address),
+                       g_domain,
+                       sizeof(g_domain),
+                       g_address_title,
+                       sizeof(g_address_title))) {
         return -1;
     }
 
@@ -213,7 +224,9 @@ int ui_display_transaction() {
                              g_address,
                              sizeof(g_address),
                              g_payload,
-                             sizeof(g_payload))) {
+                             sizeof(g_payload),
+                             g_address_title,
+                             sizeof(g_address_title))) {
         return -1;
     }
 

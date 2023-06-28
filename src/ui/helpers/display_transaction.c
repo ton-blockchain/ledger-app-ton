@@ -21,7 +21,9 @@ bool display_transaction(char *g_operation,
                          char *g_address,
                          size_t g_address_len,
                          char *g_payload,
-                         size_t g_payload_len) {
+                         size_t g_payload_len,
+                         char *g_address_title,
+                         size_t g_address_title_len) {
     // Operation
     memset(g_operation, 0, g_operation_len);
     snprintf(g_operation, g_operation_len, "%s", G_context.tx_info.transaction.title);
@@ -65,6 +67,15 @@ bool display_transaction(char *g_operation,
                       g_payload_len);
     } else {
         snprintf(g_payload, g_payload_len, "Nothing");
+    }
+
+    size_t recipient_len = strnlen(G_context.tx_info.transaction.recipient,
+                                   sizeof(G_context.tx_info.transaction.recipient));
+    if (recipient_len + 1 > g_address_title_len) {
+        memmove(g_address_title, G_context.tx_info.transaction.recipient, g_address_title_len - 1);
+        g_address_title[g_address_title_len - 1] = '\0';
+    } else {
+        memmove(g_address_title, G_context.tx_info.transaction.recipient, recipient_len + 1);
     }
 
     return true;

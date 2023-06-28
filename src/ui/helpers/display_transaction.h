@@ -10,4 +10,6 @@ bool display_transaction(char *g_operation,
                          char *g_address,
                          size_t g_address_len,
                          char *g_payload,
-                         size_t g_payload_len);
+                         size_t g_payload_len,
+                         char *g_address_title,
+                         size_t g_address_title_len);

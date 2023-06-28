@@ -44,5 +44,7 @@ typedef struct {
     uint8_t* hints_data;                     // hints data if exists
     bool is_blind;                           // eoes transaction require blind signing
     HintHolder_t hints;
-    char title[128];
+    char title[32];
+    char action[32];
+    char recipient[32];
 } transaction_t;

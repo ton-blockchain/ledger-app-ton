@@ -3,10 +3,11 @@
 #include <stdbool.h>  // bool
 #include <stdint.h>
 
-#define G_ADDRESS_LEN   49
-#define G_OPERATION_LEN 64
-#define G_AMOUNT_LEN    44
-#define G_PAYLOAD_LEN   64
+#define G_ADDRESS_LEN       49
+#define G_OPERATION_LEN     64
+#define G_AMOUNT_LEN        44
+#define G_PAYLOAD_LEN       64
+#define G_ADDRESS_TITLE_LEN 32
 
 #define HINT_TITLE_SIZE 32
 #define HINT_BODY_SIZE  256

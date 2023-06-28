@@ -18,7 +18,9 @@ bool display_proof(uint8_t flags,
                    char *g_address,
                    size_t g_address_len,
                    char *g_domain,
-                   size_t g_domain_len) {
+                   size_t g_domain_len,
+                   char *g_address_title,
+                   size_t g_address_title_len) {
     memset(g_address, 0, g_address_len);
     uint8_t address[ADDRESS_LEN] = {0};
     bool testnet = false;
@@ -41,6 +43,10 @@ bool display_proof(uint8_t flags,
         g_domain[G_context.proof_info.domain_len] = '\0';
     } else {
         snprintf(g_domain, g_domain_len, "<cannot display>");
+    }
+
+    if (g_address_title != NULL) {
+        snprintf(g_address_title, g_address_title_len, "Address");
     }
 
     return true;

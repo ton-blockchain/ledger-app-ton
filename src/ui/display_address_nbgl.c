@@ -53,7 +53,7 @@ int ui_display_address(uint8_t flags) {
     }
 
     // Format address
-    if (!display_address(flags, g_address, sizeof(g_address))) {
+    if (!display_address(flags, g_address, sizeof(g_address), NULL, 0)) {
         return -1;
     }
 

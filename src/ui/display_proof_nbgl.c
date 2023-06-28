@@ -64,7 +64,7 @@ int ui_display_proof(uint8_t flags) {
         return io_send_sw(SW_BAD_STATE);
     }
 
-    if (!display_proof(flags, g_address, sizeof(g_address), g_domain, sizeof(g_domain))) {
+    if (!display_proof(flags, g_address, sizeof(g_address), g_domain, sizeof(g_domain), NULL, 0)) {
         return -1;
     }
 

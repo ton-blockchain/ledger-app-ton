@@ -13,7 +13,11 @@
 #include "../../common/base64.h"
 #include "../../apdu/params.h"
 
-bool display_address(uint8_t flags, char *g_address, size_t g_address_len) {
+bool display_address(uint8_t flags,
+                     char *g_address,
+                     size_t g_address_len,
+                     char *g_address_title,
+                     size_t g_address_title_len) {
     memset(g_address, 0, g_address_len);
     uint8_t address[ADDRESS_LEN] = {0};
     bool testnet = false;
@@ -34,5 +38,8 @@ bool display_address(uint8_t flags, char *g_address, size_t g_address_len) {
         return false;
     }
     base64_encode(address, sizeof(address), g_address, g_address_len);
+    if (g_address_title != NULL) {
+        snprintf(g_address_title, g_address_title_len, "Address");
+    }
     return true;
 }

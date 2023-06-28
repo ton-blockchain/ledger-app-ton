@@ -27,6 +27,8 @@
 bool process_hints(transaction_t* tx) {
     // Default title
     snprintf(tx->title, sizeof(tx->title), "Transaction");
+    snprintf(tx->action, sizeof(tx->action), "send TON");
+    snprintf(tx->recipient, sizeof(tx->recipient), "To");
 
     // No payload
     if (!tx->has_payload) {
@@ -188,6 +190,13 @@ bool process_hints(transaction_t* tx) {
             tx->title,
             sizeof(tx->title),
             tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "Transfer jetton" : "Transfer NFT");
+        snprintf(
+            tx->action,
+            sizeof(tx->action),
+            tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "transfer jetton" : "transfer NFT");
+        snprintf(tx->recipient,
+                 sizeof(tx->recipient),
+                 tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "Jetton wallet" : "NFT Address");
     }
 
     // Check hash
