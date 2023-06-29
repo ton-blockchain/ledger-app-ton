@@ -83,20 +83,13 @@ class JettonTransferPayload(Payload):
     def __init__(self,
                  amount: int,
                  to: Address,
-                 ticker: str = "",
-                 decimals: int = 0,
                  response_destination: Optional[Address] = None,
                  query_id: Optional[int] = None,
                  custom_payload: Optional[Cell] = None,
                  forward_amount: int = 0,
                  forward_payload: Optional[Cell] = None) -> None:
-        if not is_string_ascii_printable(ticker) or len(ticker) > 16:
-            raise ValueError("Ticker string must be a printable ASCII string"
-                             "and must be 16 chars or less")
         self.query_id: int = query_id if query_id is not None else 0
         self.amount: int = amount
-        self.decimals: int = decimals
-        self.ticker: str = ticker
         self.destination: Address = to
         self.response_destionation: Address = (
             response_destination if response_destination is not None else to
@@ -112,8 +105,6 @@ class JettonTransferPayload(Payload):
                 self.query_id.to_bytes(8, byteorder="big")
             ]) if self.query_id != 0 else bytes([0])),
             write_varuint(self.amount),
-            bytes([self.decimals, len(self.ticker)]),
-            bytes(self.ticker, "utf8"),
             write_address(self.destination),
             write_address(self.response_destionation),
             (b"".join([

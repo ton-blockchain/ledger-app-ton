@@ -40,9 +40,6 @@ transfer#0f8a7ea5 query_id:uint64 amount:(VarUInteger 16) destination:MsgAddress
 | `has_query_id` | 1 | Whether `query_id` is present |
 | `query_id` | 0 or 8 | `query_id` for the message, 0 will be used if `!has_query_id` |
 | `amount` | `varuint` | Jetton amount |
-| `decimals` | 1 | Digits after decimal point (for display purposes only) |
-| `ticker_len` | 1 | Length of `ticker` |
-| `ticker` | `ticker_len` | Short jetton name (for display purposes only) |
 | `destination` | `address` | Whom to transfer jettons to |
 | `response_destination` | `address` | Whom to transfer the excess of TON to |
 | `has_custom_payload` | 1 | Whether `custom_payload` is present |

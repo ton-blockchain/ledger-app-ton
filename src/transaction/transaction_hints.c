@@ -104,26 +104,13 @@ bool process_hints(transaction_t* tx) {
             uint8_t amount_buf[MAX_VALUE_BYTES_LEN];
             SAFE(buffer_read_varuint(&buf, &amount_size, amount_buf, MAX_VALUE_BYTES_LEN));
             BitString_storeCoinsBuf(&bits, amount_buf, amount_size);
-            uint8_t amount_decimals;
-            SAFE(buffer_read_u8(&buf, &amount_decimals));
-            uint8_t ticker_size;
-            SAFE(buffer_read_u8(&buf, &ticker_size));
-            if (ticker_size > MAX_TICKER_LEN) {
-                return false;
-            }
-            uint8_t ticker[MAX_TICKER_LEN + 1];
-            SAFE(buffer_read_buffer(&buf, ticker, ticker_size));
-            ticker[ticker_size] = 0;
-            if (!check_ascii(ticker, ticker_size)) {
-                return false;
-            }
 
             add_hint_amount(&tx->hints,
-                            "Jetton amount",
-                            (char*) ticker,
+                            "Jetton units",
+                            "",
                             amount_buf,
                             amount_size,
-                            amount_decimals);
+                            0);
         }
 
         address_t destination;

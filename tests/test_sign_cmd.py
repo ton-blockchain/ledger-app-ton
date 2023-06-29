@@ -67,7 +67,7 @@ def test_sign_tx_with_payload(firmware, backend, navigator, test_name):
     payloads: List[Payload] = [
         CustomUnsafePayload(Cell()),
         CommentPayload("test"),
-        JettonTransferPayload(100, Address("0:" + "0" * 64), "TEST", 9, forward_amount=1),
+        JettonTransferPayload(100, Address("0:" + "0" * 64), forward_amount=1),
         NFTTransferPayload(Address("0:" + "0" * 64), forward_amount=1)
     ]
 
