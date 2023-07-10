@@ -24,7 +24,104 @@
 #include "../globals.h"
 #include "menu.h"
 
+static const char* settings_submenu_getter(unsigned int idx);
+static void settings_submenu_selector(unsigned int idx);
+
+static const char* const no_yes_data_getter_values[] = {"No", "Yes", "Back"};
+
+static const char* no_yes_data_getter(unsigned int idx) {
+    if (idx < ARRAYLEN(no_yes_data_getter_values)) {
+        return no_yes_data_getter_values[idx];
+    }
+    return NULL;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+// Allow blind signing submenu
+
+static void allow_blind_sign_data_change(bool value) {
+    nvm_write((void*) &N_storage.blind_signing_enabled, (void*) &value, sizeof(value));
+}
+
+static void allow_blind_sign_data_selector(unsigned int idx) {
+    switch (idx) {
+        case 0:
+            allow_blind_sign_data_change(false);
+            break;
+        case 1:
+            allow_blind_sign_data_change(true);
+            break;
+        default:
+            break;
+    }
+    ux_menulist_init_select(0, settings_submenu_getter, settings_submenu_selector, 0);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+// Expert mode submenu
+
+static void expert_mode_data_change(bool value) {
+    nvm_write((void*) &N_storage.expert_mode, (void*) &value, sizeof(value));
+}
+
+static void expert_mode_data_selector(unsigned int idx) {
+    switch (idx) {
+        case 0:
+            expert_mode_data_change(false);
+            break;
+        case 1:
+            expert_mode_data_change(true);
+            break;
+        default:
+            break;
+    }
+    ux_menulist_init_select(0, settings_submenu_getter, settings_submenu_selector, 1);
+}
+
+static const char* const settings_submenu_getter_values[] = {
+    "Allow blind sign",
+    "Expert mode",
+    "Back",
+};
+
+static const char* settings_submenu_getter(unsigned int idx) {
+    if (idx < ARRAYLEN(settings_submenu_getter_values)) {
+        return settings_submenu_getter_values[idx];
+    }
+    return NULL;
+}
+
+static void settings_submenu_selector(unsigned int idx) {
+    switch (idx) {
+        case 0:
+            ux_menulist_init_select(0,
+                                    no_yes_data_getter,
+                                    allow_blind_sign_data_selector,
+                                    N_storage.blind_signing_enabled);
+            break;
+        case 1:
+            ux_menulist_init_select(0,
+                                    no_yes_data_getter,
+                                    expert_mode_data_selector,
+                                    N_storage.expert_mode);
+            break;
+        default:
+            ui_menu_main();
+    }
+}
+
+void ui_menu_settings() {
+    ux_menulist_init(0, settings_submenu_getter, settings_submenu_selector);
+}
+
 UX_STEP_NOCB(ux_menu_ready_step, pb, {&C_ton_logo, "TON is ready"});
+UX_STEP_CB(ux_menu_settings_step,
+           pb,
+           ui_menu_settings(),
+           {
+               &C_icon_coggle,
+               "Settings",
+           });
 UX_STEP_CB(ux_menu_about_step, pb, ui_menu_about(), {&C_icon_certificate, "About"});
 UX_STEP_VALID(ux_menu_exit_step, pb, os_sched_exit(-1), {&C_icon_dashboard_x, "Quit"});
 
@@ -33,7 +130,12 @@ UX_STEP_VALID(ux_menu_exit_step, pb, os_sched_exit(-1), {&C_icon_dashboard_x, "Q
 // #2 screen: version of the app
 // #3 screen: about submenu
 // #4 screen: quit
-UX_FLOW(ux_menu_main_flow, &ux_menu_ready_step, &ux_menu_about_step, &ux_menu_exit_step, FLOW_LOOP);
+UX_FLOW(ux_menu_main_flow,
+        &ux_menu_ready_step,
+        &ux_menu_settings_step,
+        &ux_menu_about_step,
+        &ux_menu_exit_step,
+        FLOW_LOOP);
 
 void ui_menu_main() {
     if (G_ux.stack_count == 0) {

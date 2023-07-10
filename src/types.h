@@ -2,6 +2,7 @@
 
 #include <stddef.h>  // size_t
 #include <stdint.h>  // uint*_t
+#include <stdbool.h>
 
 #include "constants.h"
 #include "transaction/types.h"
@@ -115,3 +116,9 @@ typedef struct {
     uint32_t bip32_path[MAX_BIP32_PATH];  /// BIP32 path
     uint8_t bip32_path_len;               /// length of BIP32 path
 } global_ctx_t;
+
+typedef struct {
+    bool blind_signing_enabled;
+    bool expert_mode;
+    bool initialized;
+} internalStorage_t;

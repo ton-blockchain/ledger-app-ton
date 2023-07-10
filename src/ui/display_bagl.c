@@ -25,6 +25,7 @@
 #include "glyphs.h"
 
 #include "display.h"
+#include "menu.h"
 #include "../constants.h"
 #include "../globals.h"
 #include "../io.h"
@@ -292,6 +293,31 @@ int ui_display_sign_data() {
     ux_flow_init(0, ux_approval_flow, NULL);
 
     return 0;
+}
+
+#ifdef TARGET_NANOS
+UX_STEP_CB(ux_warning_contract_data_step,
+           bnnn_paging,
+           ui_menu_main(),
+           {
+               "Error",
+               "Blind signing must be enabled in Settings",
+           });
+#else
+UX_STEP_CB(ux_warning_contract_data_step,
+           pnn,
+           ui_menu_main(),
+           {
+               &C_icon_crossmark,
+               "Blind signing must be",
+               "enabled in Settings",
+           });
+#endif
+
+UX_FLOW(ux_warning_contract_data_flow, &ux_warning_contract_data_step);
+
+void ui_blind_signing_error() {
+    ux_flow_init(0, ux_warning_contract_data_flow, NULL);
 }
 
 #endif

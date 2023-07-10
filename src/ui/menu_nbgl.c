@@ -35,20 +35,83 @@ void ui_menu_main(void) {
 
 // 'About' menu
 
-static const char* const INFO_TYPES[] = {"Version", "Developer"};
-static const char* const INFO_CONTENTS[] = {APPVERSION, "TonTech"};
+static const char *const INFO_TYPES[] = {"Version", "Developer"};
+static const char *const INFO_CONTENTS[] = {APPVERSION, "TonTech"};
 
-static bool nav_callback(uint8_t page, nbgl_pageContent_t* content) {
-    UNUSED(page);
-    content->type = INFOS_LIST;
-    content->infosList.nbInfos = 2;
-    content->infosList.infoTypes = (const char**) INFO_TYPES;
-    content->infosList.infoContents = (const char**) INFO_CONTENTS;
+enum {
+    BLIND_SIGNING_TOKEN = FIRST_USER_TOKEN,
+    EXPERT_MODE_TOKEN,
+};
+
+static nbgl_layoutSwitch_t switches[2];
+
+static bool nav_callback(uint8_t page, nbgl_pageContent_t *content) {
+    switch (page) {
+        case 0: {
+            int sw = 0;
+            switches[sw++] = (nbgl_layoutSwitch_t){
+                .initState = N_storage.blind_signing_enabled ? ON_STATE : OFF_STATE,
+                .text = "Blind signing",
+                .subText = "Enable transaction blind\nsigning",
+                .token = BLIND_SIGNING_TOKEN,
+                .tuneId = TUNE_TAP_CASUAL};
+            switches[sw++] = (nbgl_layoutSwitch_t){
+                .initState = N_storage.expert_mode ? ON_STATE : OFF_STATE,
+                .text = "Expert mode",
+                .subText = "Show more information\nwhen reviewing transactions",
+                .token = EXPERT_MODE_TOKEN,
+                .tuneId = TUNE_TAP_CASUAL};
+            content->type = SWITCHES_LIST;
+            content->switchesList.nbSwitches = sw;
+            content->switchesList.switches = switches;
+            break;
+        }
+        case 1: {
+            content->type = INFOS_LIST;
+            content->infosList.nbInfos = 2;
+            content->infosList.infoTypes = (const char **) INFO_TYPES;
+            content->infosList.infoContents = (const char **) INFO_CONTENTS;
+            break;
+        }
+        default: {
+            return false;
+        }
+    }
+
     return true;
 }
 
+static void controls_callback(int token, uint8_t index) {
+    (void) index;
+    bool value;
+    switch (token) {
+        case BLIND_SIGNING_TOKEN:
+            value = N_storage.blind_signing_enabled ? false : true;
+            nvm_write((void *) &N_storage.blind_signing_enabled, (void *) &value, sizeof(bool));
+            break;
+        case EXPERT_MODE_TOKEN:
+            value = N_storage.expert_mode ? false : true;
+            nvm_write((void *) &N_storage.expert_mode, (void *) &value, sizeof(bool));
+            break;
+    }
+}
+
+static void ui_menu_settings_common() {
+    nbgl_useCaseSettings(APPNAME " settings",
+                         0,
+                         2,
+                         false,
+                         ui_menu_main,
+                         nav_callback,
+                         controls_callback);
+}
+
+void ui_menu_settings() {
+    ui_menu_settings_common();
+}
+
 void ui_menu_about() {
-    nbgl_useCaseSettings(APPNAME, 0, 1, false, ui_menu_main, nav_callback, NULL);
+    ui_menu_settings_common();
 }
 
 #endif

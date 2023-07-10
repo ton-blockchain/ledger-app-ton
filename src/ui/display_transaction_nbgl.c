@@ -149,4 +149,21 @@ int ui_display_transaction() {
     return 0;
 }
 
+static void ui_blind_signing_error_choice(bool confirm) {
+    if (confirm) {
+        ui_menu_main();
+    } else {
+        ui_menu_settings();
+    }
+}
+
+void ui_blind_signing_error() {
+    nbgl_useCaseChoice(&C_warning64px,
+                       "This message cannot\nbe clear-signed",
+                       "Enable blind-signing in\nthe settings to sign\nthis transaction.",
+                       "Exit",
+                       "Go to settings",
+                       ui_blind_signing_error_choice);
+}
+
 #endif

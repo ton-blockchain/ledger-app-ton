@@ -17,6 +17,7 @@
 
 #include <stdint.h>  // uint*_t
 #include <string.h>  // memset, explicit_bzero
+#include <stdbool.h>
 
 #include "os.h"
 #include "ux.h"
@@ -34,6 +35,18 @@ io_state_e G_io_state;
 ux_state_t G_ux;
 bolos_ux_params_t G_ux_params;
 global_ctx_t G_context;
+
+const internalStorage_t N_storage_real;
+
+void nv_init() {
+    if (!N_storage.initialized) {
+        internalStorage_t storage;
+        storage.initialized = true;
+        storage.blind_signing_enabled = false;
+        storage.expert_mode = false;
+        nvm_write((void *) &N_storage, (void *) &storage, sizeof(internalStorage_t));
+    }
+}
 
 /**
  * Handle APDU command received and send back APDU response using handlers.
@@ -125,6 +138,8 @@ __attribute__((section(".boot"))) int main() {
         BEGIN_TRY {
             TRY {
                 io_seproxyhal_init();
+
+                nv_init();
 
 #ifdef HAVE_BLE
                 G_io_app.plane_mode = os_setting_get(OS_SETTING_PLANEMODE, NULL, 0);

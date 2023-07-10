@@ -13,6 +13,7 @@
 #include "../common/hints.h"
 #include "../common/bits.h"
 #include "../common/cell.h"
+#include "../globals.h"
 
 #define SAFE(RES)     \
     if (!RES) {       \
@@ -121,14 +122,18 @@ bool process_hints(transaction_t* tx) {
         SAFE(buffer_read_address(&buf, &response));
         BitString_storeAddress(&bits, response.chain, response.hash);
 
-        add_hint_address(&tx->hints, "Send excess to", response);
+        if (N_storage.expert_mode) {
+            add_hint_address(&tx->hints, "Send excess to", response);
+        }
 
         // custom payload
         SAFE(buffer_read_bool(&buf, &tmp));
         if (tmp) {
             SAFE(buffer_read_cell_ref(&buf, &refs[ref_count]));
 
-            add_hint_hash(&tx->hints, "Custom payload", refs[ref_count].hash);
+            if (N_storage.expert_mode) {
+                add_hint_hash(&tx->hints, "Custom payload", refs[ref_count].hash);
+            }
 
             BitString_storeBit(&bits, 1);
             ref_count++;
@@ -141,19 +146,23 @@ bool process_hints(transaction_t* tx) {
         SAFE(buffer_read_varuint(&buf, &fwd_amount_size, fwd_amount_buf, MAX_VALUE_BYTES_LEN));
         BitString_storeCoinsBuf(&bits, fwd_amount_buf, fwd_amount_size);
 
-        add_hint_amount(&tx->hints,
-                        "Forward amount",
-                        "TON",
-                        fwd_amount_buf,
-                        fwd_amount_size,
-                        EXPONENT_SMALLEST_UNIT);
+        if (N_storage.expert_mode) {
+            add_hint_amount(&tx->hints,
+                            "Forward amount",
+                            "TON",
+                            fwd_amount_buf,
+                            fwd_amount_size,
+                            EXPONENT_SMALLEST_UNIT);
+        }
 
         // forward payload
         SAFE(buffer_read_bool(&buf, &tmp));
         if (tmp) {
             SAFE(buffer_read_cell_ref(&buf, &refs[ref_count]));
 
-            add_hint_hash(&tx->hints, "Forward payload", refs[ref_count].hash);
+            if (N_storage.expert_mode) {
+                add_hint_hash(&tx->hints, "Forward payload", refs[ref_count].hash);
+            }
 
             BitString_storeBit(&bits, 1);
             ref_count++;
