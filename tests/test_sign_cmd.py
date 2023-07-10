@@ -74,6 +74,7 @@ def test_sign_tx_blind_error(firmware, backend, navigator, test_name):
                     navigator.navigate_and_compare(ROOT_SCREENSHOT_PATH,
                                                     test_name,
                                                     [
+                                                        NavIns(NavInsID.WAIT_FOR_TEXT_ON_SCREEN, ("Error", )),
                                                         NavInsID.RIGHT_CLICK,
                                                         NavInsID.BOTH_CLICK
                                                     ])
