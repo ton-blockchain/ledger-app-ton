@@ -50,7 +50,6 @@ class Errors(IntEnum):
     SW_BAD_STATE               = 0xB007
     SW_SIGNATURE_FAIL          = 0xB008
     SW_REQUEST_TOO_LONG        = 0xB00B
-    SW_BLIND_SIGNING_DISABLED  = 0xBD00
 
 class AddressDisplayFlags(IntFlag):
     NONE = 0

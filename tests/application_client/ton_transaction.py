@@ -138,17 +138,6 @@ class JettonTransferPayload(Payload):
         )
 
 
-class CustomUnsafePayload(Payload):
-    def __init__(self, cell: Cell) -> None:
-        self.cell: Cell = cell
-
-    def to_request_bytes(self) -> Optional[bytes]:
-        return None
-
-    def to_message_body_cell(self) -> Cell:
-        return self.cell
-
-
 class NFTTransferPayload(Payload):
     def __init__(self,
                  to: Address,

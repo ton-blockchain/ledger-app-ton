@@ -118,7 +118,6 @@ typedef struct {
 } global_ctx_t;
 
 typedef struct {
-    bool blind_signing_enabled;
-    bool expert_mode;
     bool initialized;
+    bool expert_mode;
 } internalStorage_t;

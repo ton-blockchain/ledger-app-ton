@@ -144,5 +144,4 @@ Then an arbitrary number of chunks with serialized custom data (see [CUSTOM_DATA
 | 0xB007 | `SW_BAD_STATE` | Security issue with bad state |
 | 0xB008 | `SW_SIGNATURE_FAIL` | Signature of raw transaction failed |
 | 0xB00B | `SW_REQUEST_TOO_LONG` | The request is too long |
-| 0xBD00 | `SW_BLIND_SIGNING_DISABLED` | A blind transaction was requested, but blind signing is disabled |
 | 0x9000 | `OK` | Success |

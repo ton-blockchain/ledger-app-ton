@@ -46,7 +46,7 @@ Note that `payload` may be passed without `hints`, but `hints` cannot be passed 
 | `has_payload` | `has_hints` | Transaction type |
 | --- | --- | --- |
 | &cross; | &cross; | A simple transfer without any payload |
-| &check; | &cross; | Blind transaction signing, Ledger will display a warning and the payload hash but none of the message fields other than recipient and amount of TON transferred |
+| &check; | &cross; | An invalid request, an error will be thrown |
 | &check; | &check; | A transaction of some known types, see [MESSAGES.md](./MESSAGES.md) to learn about known types. Ledger will display all important fields |
 | &cross; | &check; | An invalid request, an error will be thrown |
 

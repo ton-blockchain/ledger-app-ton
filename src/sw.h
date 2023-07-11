@@ -64,7 +64,3 @@
  * Status word for a request that is too long.
  */
 #define SW_REQUEST_TOO_LONG 0xB00B
-/**
- * Status word for a blind signing request when blind signing is disabled.
- */
-#define SW_BLIND_SIGNING_DISABLED 0xBD00
