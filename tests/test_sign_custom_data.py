@@ -41,7 +41,7 @@ def test_sign_data(firmware, backend, navigator, test_name):
                 navigator.navigate_until_text_and_compare(NavInsID.USE_CASE_REVIEW_TAP,
                                                             [NavInsID.USE_CASE_REVIEW_CONFIRM,
                                                             NavInsID.USE_CASE_STATUS_DISMISS],
-                                                            "Holdtosign",
+                                                            "Hold to sign",
                                                             ROOT_SCREENSHOT_PATH,
                                                             test_name + f"/part{i}")
 
