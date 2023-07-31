@@ -51,11 +51,12 @@ void add_hint_amount(HintHolder_t* hints,
     hints->hints_count++;
 }
 
-void add_hint_address(HintHolder_t* hints, const char* title, address_t address) {
+void add_hint_address(HintHolder_t* hints, const char* title, address_t address, bool bounceable) {
     // Configure
     hints->hints[hints->hints_count].title = title;
     hints->hints[hints->hints_count].kind = SummaryAddress;
-    hints->hints[hints->hints_count].address = address;
+    hints->hints[hints->hints_count].address.address = address;
+    hints->hints[hints->hints_count].address.bounceable = bounceable;
 
     // Next
     hints->hints_count++;
@@ -116,9 +117,9 @@ void print_hint(HintHolder_t* hints,
                        body_len);
     } else if (hint.kind == SummaryAddress) {
         uint8_t address[ADDRESS_LEN] = {0};
-        address_to_friendly(hint.address.chain,
-                            hint.address.hash,
-                            false,
+        address_to_friendly(hint.address.address.chain,
+                            hint.address.address.hash,
+                            hint.address.bounceable,
                             false,
                             address,
                             sizeof(address));

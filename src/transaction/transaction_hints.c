@@ -111,14 +111,15 @@ bool process_hints(transaction_t* tx) {
         add_hint_address(
             &tx->hints,
             tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "Send jetton to" : "New owner",
-            destination);
+            destination,
+            true);
 
         address_t response;
         SAFE(buffer_read_address(&buf, &response));
         BitString_storeAddress(&bits, response.chain, response.hash);
 
         if (N_storage.expert_mode) {
-            add_hint_address(&tx->hints, "Send excess to", response);
+            add_hint_address(&tx->hints, "Send excess to", response, false);
         }
 
         // custom payload

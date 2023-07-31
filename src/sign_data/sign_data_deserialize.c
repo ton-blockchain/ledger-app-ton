@@ -97,7 +97,7 @@ bool sign_data_deserialize(buffer_t* buf, sign_data_ctx_t* ctx) {
             if (has_address) {
                 address_t addr;
                 SAFE(buffer_read_address(buf, &addr));
-                add_hint_address(&ctx->hints, "Contract address", addr);
+                add_hint_address(&ctx->hints, "Contract address", addr, true);
                 BitString_storeBit(&bits, 1);
                 BitString_storeAddress(&bits, addr.chain, addr.hash);
             } else {

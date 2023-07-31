@@ -2,6 +2,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "../constants.h"
 #include "types.h"
@@ -27,6 +28,11 @@ typedef struct {
 } Amount_t;
 
 typedef struct {
+    address_t address;
+    bool bounceable;
+} HintAddress_t;
+
+typedef struct {
     const char* title;
     enum HintKind kind;
     union {
@@ -34,7 +40,7 @@ typedef struct {
         uint64_t u64;
         SizedString_t string;
         uint8_t hash[HASH_LEN];
-        address_t address;
+        HintAddress_t address;
     };
 } Hint_t;
 
@@ -51,7 +57,7 @@ void add_hint_amount(HintHolder_t* hints,
                      uint8_t* value,
                      uint8_t value_len,
                      uint8_t decimals);
-void add_hint_address(HintHolder_t* hints, const char* title, address_t address);
+void add_hint_address(HintHolder_t* hints, const char* title, address_t address, bool bounceable);
 
 void print_hint(HintHolder_t* hints,
                 uint16_t index,
