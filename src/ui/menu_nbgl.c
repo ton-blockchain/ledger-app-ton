@@ -30,7 +30,7 @@ void app_quit(void) {
 }
 
 void ui_menu_main(void) {
-    nbgl_useCaseHome(APPNAME, &C_ledger_stax_ton_64, NULL, false, ui_menu_about, app_quit);
+    nbgl_useCaseHome(APPNAME, &C_ledger_stax_ton_64, NULL, true, ui_menu_about, app_quit);
 }
 
 // 'About' menu
