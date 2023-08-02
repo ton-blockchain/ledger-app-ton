@@ -171,17 +171,9 @@ bool process_hints(transaction_t* tx) {
         SAFE(hash_Cell(&bits, refs, ref_count, &cell));
 
         // Operation
-        snprintf(
-            tx->title,
-            sizeof(tx->title),
-            "Transfer jetton");
-        snprintf(
-            tx->action,
-            sizeof(tx->action),
-            "transfer jetton");
-        snprintf(tx->recipient,
-                 sizeof(tx->recipient),
-                 "Jetton wallet");
+        snprintf(tx->title, sizeof(tx->title), "Transfer jetton");
+        snprintf(tx->action, sizeof(tx->action), "transfer jetton");
+        snprintf(tx->recipient, sizeof(tx->recipient), "Jetton wallet");
     }
 
     if (memcmp(cell.hash, tx->payload.hash, HASH_LEN) != 0) {
