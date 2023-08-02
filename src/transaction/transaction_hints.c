@@ -76,8 +76,7 @@ bool process_hints(transaction_t* tx) {
         add_hint_text(&tx->hints, "Comment", (char*) tx->hints_data, tx->hints_len);
     }
 
-    if (tx->hints_type == TRANSACTION_TRANSFER_JETTON ||
-        tx->hints_type == TRANSACTION_TRANSFER_NFT) {
+    if (tx->hints_type == TRANSACTION_TRANSFER_JETTON) {
         int ref_count = 0;
         CellRef_t refs[2] = {0};
 
@@ -175,14 +174,14 @@ bool process_hints(transaction_t* tx) {
         snprintf(
             tx->title,
             sizeof(tx->title),
-            tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "Transfer jetton" : "Transfer NFT");
+            "Transfer jetton");
         snprintf(
             tx->action,
             sizeof(tx->action),
-            tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "transfer jetton" : "transfer NFT");
+            "transfer jetton");
         snprintf(tx->recipient,
                  sizeof(tx->recipient),
-                 tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "Jetton wallet" : "NFT Address");
+                 "Jetton wallet");
     }
 
     if (memcmp(cell.hash, tx->payload.hash, HASH_LEN) != 0) {
