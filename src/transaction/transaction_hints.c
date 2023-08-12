@@ -111,7 +111,7 @@ bool process_hints(transaction_t* tx) {
             &tx->hints,
             tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "Send jetton to" : "New owner",
             destination,
-            true);
+            false);
 
         address_t response;
         SAFE(buffer_read_address(&buf, &response));
