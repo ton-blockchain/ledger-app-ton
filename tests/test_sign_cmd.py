@@ -88,6 +88,7 @@ def test_sign_tx_with_payload(firmware, backend, navigator, test_name):
                                         test_name + "/pretest",
                                         [
                                             NavInsID.USE_CASE_HOME_INFO,
+                                            NavInsID.USE_CASE_SETTINGS_NEXT,
                                             NavIns(NavInsID.TOUCH, (354, 125)),
                                             NavInsID.USE_CASE_SETTINGS_MULTI_PAGE_EXIT,
                                         ],

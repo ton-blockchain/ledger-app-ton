@@ -47,6 +47,13 @@ static nbgl_layoutSwitch_t switches[2];
 static bool nav_callback(uint8_t page, nbgl_pageContent_t *content) {
     switch (page) {
         case 0: {
+            content->type = INFOS_LIST;
+            content->infosList.nbInfos = 2;
+            content->infosList.infoTypes = (const char **) INFO_TYPES;
+            content->infosList.infoContents = (const char **) INFO_CONTENTS;
+            break;
+        }
+        case 1: {
             int sw = 0;
             switches[sw++] = (nbgl_layoutSwitch_t){
                 .initState = N_storage.expert_mode ? ON_STATE : OFF_STATE,
@@ -57,13 +64,6 @@ static bool nav_callback(uint8_t page, nbgl_pageContent_t *content) {
             content->type = SWITCHES_LIST;
             content->switchesList.nbSwitches = sw;
             content->switchesList.switches = switches;
-            break;
-        }
-        case 1: {
-            content->type = INFOS_LIST;
-            content->infosList.nbInfos = 2;
-            content->infosList.infoTypes = (const char **) INFO_TYPES;
-            content->infosList.infoContents = (const char **) INFO_CONTENTS;
             break;
         }
         default: {
