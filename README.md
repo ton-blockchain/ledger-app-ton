@@ -33,7 +33,7 @@ There are some experimental (but stable) libraries:
 
 Use the ledger app builder docker image:
 ```bash
-docker run --rm -ti -v "$(realpath .):/app" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:latest
+docker run --rm -ti  -v "$(realpath .):/app" --privileged -v "/dev/bus/usb:/dev/bus/usb" ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-lite:latest
 ```
 
 Inside the container:
