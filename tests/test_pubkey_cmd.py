@@ -77,3 +77,15 @@ def test_get_public_key_confirm_refused(firmware, backend, navigator, test_name)
             # Assert that we have received a refusal
             assert e.value.status == Errors.SW_DENY
             assert len(e.value.data) == 0
+
+def test_get_public_key_bad_path(firmware, backend, navigator, test_name):
+    client = BoilerplateCommandSender(backend)
+    paths = ["m/44'/608'/0'/0'/0'/0'", "m/44'/607'"]
+
+    for path in paths:
+        with pytest.raises(ExceptionRAPDU) as e:
+            with client.get_public_key_with_confirmation(path, AddressDisplayFlags.NONE):
+                pass
+        # Assert that we have received a refusal
+        assert e.value.status == Errors.SW_BAD_BIP32_PATH
+        assert len(e.value.data) == 0

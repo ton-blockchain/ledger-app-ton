@@ -64,3 +64,7 @@
  * Status word for a request that is too long.
  */
 #define SW_REQUEST_TOO_LONG 0xB00B
+/**
+ * Status word for bad bip32 path.
+ */
+#define SW_BAD_BIP32_PATH 0xB0BD

@@ -29,6 +29,7 @@
 #include "../sw.h"
 #include "../crypto.h"
 #include "../common/buffer.h"
+#include "../common/bip32_check.h"
 #include "../ui/display.h"
 #include "../helper/send_response.h"
 
@@ -40,6 +41,10 @@ int handler_get_public_key(uint8_t flags, buffer_t *cdata, bool display) {
     if (!buffer_read_u8(cdata, &G_context.bip32_path_len) ||
         !buffer_read_bip32_path(cdata, G_context.bip32_path, (size_t) G_context.bip32_path_len)) {
         return io_send_sw(SW_WRONG_DATA_LENGTH);
+    }
+
+    if (!check_global_bip32_path()) {
+        return io_send_sw(SW_BAD_BIP32_PATH);
     }
 
     if (crypto_derive_public_key(G_context.bip32_path,

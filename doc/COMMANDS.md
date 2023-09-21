@@ -47,6 +47,8 @@ Use P2 to control what kind of address to present to user:
 * set bit 0x01 to make address testnet only
 * set bit 0x02 to use masterchain instead of basechain for the address
 
+The bip32 path must be at least 3 elements long and must start with the prefix `m/44'/607'/`.
+
 | CLA | INS | P1 | P2 | Lc | CData |
 | --- | --- | --- | --- | --- | --- |
 | 0xE0 | 0x05 | 0x00 (no display) <br> 0x01 (display) | 0x00-0x03 | 1 + 4n | `len(bip32_path) (1)` \|\|<br> `bip32_path{1} (4)` \|\|<br>`...` \|\|<br>`bip32_path{n} (4)` |
@@ -61,7 +63,7 @@ Use P2 to control what kind of address to present to user:
 
 ### Command
 
-Sent as series of packages. First one contains bip32 path:
+Sent as series of packages. First one contains bip32 path, which must be at least 3 elements long and must start with the prefix `m/44'/607'/`:
 
 | CLA | INS | P1 | P2 | Lc | CData |
 | --- | --- | --- | --- | --- | --- |
@@ -87,6 +89,8 @@ Use P2 to control what kind of address to present to user:
 * set bit 0x01 to make address testnet only
 * set bit 0x02 to use masterchain instead of basechain for the address
 
+The bip32 path must be at least 3 elements long and must start with the prefix `m/44'/607'/`.
+
 Payload's length is implicitly calculated from buffer length.
 
 Proofs are generated according to this [spec](https://github.com/ton-blockchain/ton-connect/blob/main/requests-responses.md#address-proof-signature-ton_proof).
@@ -107,7 +111,7 @@ Proofs are generated according to this [spec](https://github.com/ton-blockchain/
 
 Signatures are generated according to this [spec](https://github.com/ton-blockchain/ton-connect/blob/main/requests-responses.md#sign-data-experimental).
 
-Sent as series of packages. First one contains bip32 path:
+Sent as series of packages. First one contains bip32 path, which must be at least 3 elements long and must start with the prefix `m/44'/607'/`:
 
 | CLA | INS | P1 | P2 | Lc | CData |
 | --- | --- | --- | --- | --- | --- |
@@ -144,4 +148,5 @@ Then an arbitrary number of chunks with serialized custom data (see [CUSTOM_DATA
 | 0xB007 | `SW_BAD_STATE` | Security issue with bad state |
 | 0xB008 | `SW_SIGNATURE_FAIL` | Signature of raw transaction failed |
 | 0xB00B | `SW_REQUEST_TOO_LONG` | The request is too long |
+| 0xB0BD | `SW_BAD_BIP32_PATH` | The bip32 derivation path is invalid |
 | 0x9000 | `OK` | Success |

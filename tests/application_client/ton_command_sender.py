@@ -50,6 +50,7 @@ class Errors(IntEnum):
     SW_BAD_STATE               = 0xB007
     SW_SIGNATURE_FAIL          = 0xB008
     SW_REQUEST_TOO_LONG        = 0xB00B
+    SW_BAD_BIP32_PATH          = 0XB0BD
 
 class AddressDisplayFlags(IntFlag):
     NONE = 0

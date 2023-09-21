@@ -7,6 +7,7 @@
 #include "proof_deserialize.h"
 
 #include "../common/buffer.h"
+#include "../common/bip32_check.h"
 #include "../types.h"
 #include "../globals.h"
 #include "../io.h"
@@ -28,6 +29,11 @@ bool deserialize_proof(buffer_t *cdata, uint8_t flags) {
     if (!buffer_read_u8(cdata, &G_context.bip32_path_len) ||
         !buffer_read_bip32_path(cdata, G_context.bip32_path, (size_t) G_context.bip32_path_len)) {
         io_send_sw(SW_WRONG_DATA_LENGTH);
+        return false;
+    }
+
+    if (!check_global_bip32_path()) {
+        io_send_sw(SW_BAD_BIP32_PATH);
         return false;
     }
 

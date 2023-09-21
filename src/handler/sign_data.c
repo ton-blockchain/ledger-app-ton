@@ -29,13 +29,12 @@
 #include "../crypto.h"
 #include "../ui/display.h"
 #include "../common/buffer.h"
+#include "../common/bip32_check.h"
 #include "../sign_data/sign_data_deserialize.h"
 
 int handler_sign_data(buffer_t *cdata, bool first, bool more) {
     if (first) {  // first APDU, parse BIP32 path
         explicit_bzero(&G_context, sizeof(G_context));
-        G_context.req_type = CONFIRM_SIGN_DATA;
-        G_context.state = STATE_NONE;
 
         if (!buffer_read_u8(cdata, &G_context.bip32_path_len) ||
             !buffer_read_bip32_path(cdata,
@@ -43,6 +42,13 @@ int handler_sign_data(buffer_t *cdata, bool first, bool more) {
                                     (size_t) G_context.bip32_path_len)) {
             return io_send_sw(SW_WRONG_DATA_LENGTH);
         }
+
+        if (!check_global_bip32_path()) {
+            return io_send_sw(SW_BAD_BIP32_PATH);
+        }
+
+        G_context.req_type = CONFIRM_SIGN_DATA;
+        G_context.state = STATE_NONE;
 
         return io_send_sw(SW_OK);
     }
