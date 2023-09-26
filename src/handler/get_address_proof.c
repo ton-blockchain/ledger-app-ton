@@ -27,12 +27,13 @@
 
 int handler_get_address_proof(uint8_t flags, buffer_t *cdata) {
     explicit_bzero(&G_context, sizeof(G_context));
-    G_context.req_type = GET_PROOF;
-    G_context.state = STATE_NONE;
 
     if (!deserialize_proof(cdata, flags)) {
-        return -1;
+        return 0;
     }
+
+    G_context.req_type = GET_PROOF;
+    G_context.state = STATE_NONE;
 
     return ui_display_proof(flags);
 }
