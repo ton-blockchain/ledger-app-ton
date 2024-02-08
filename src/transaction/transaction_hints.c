@@ -191,6 +191,64 @@ bool process_hints(transaction_t* tx) {
                  tx->hints_type == TRANSACTION_TRANSFER_JETTON ? "Jetton wallet" : "NFT Address");
     }
 
+    if (tx->hints_type == TRANSACTION_BURN_JETTON) {
+        int ref_count = 0;
+        CellRef_t refs[1] = {0};
+
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0x595f07bc, 32);
+
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t query_id;
+            SAFE(buffer_read_u64(&buf, &query_id, BE));
+            BitString_storeUint(&bits, query_id, 64);
+        } else {
+            BitString_storeUint(&bits, 0, 64);
+        }
+
+        uint8_t amount_size;
+        uint8_t amount_buf[MAX_VALUE_BYTES_LEN];
+        SAFE(buffer_read_varuint(&buf, &amount_size, amount_buf, MAX_VALUE_BYTES_LEN));
+        BitString_storeCoinsBuf(&bits, amount_buf, amount_size);
+
+        add_hint_amount(&tx->hints, "Jetton units", "", amount_buf, amount_size, 0);
+
+        address_t response;
+        SAFE(buffer_read_address(&buf, &response));
+        BitString_storeAddress(&bits, response.chain, response.hash);
+
+        if (N_storage.expert_mode) {
+            add_hint_address(&tx->hints, "Send excess to", response, false);
+        }
+
+        // custom payload
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            SAFE(buffer_read_cell_ref(&buf, &refs[ref_count]));
+
+            if (N_storage.expert_mode) {
+                add_hint_hash(&tx->hints, "Custom payload", refs[ref_count].hash);
+            }
+
+            BitString_storeBit(&bits, 1);
+            ref_count++;
+        } else {
+            BitString_storeBit(&bits, 0);
+        }
+
+        CHECK_END();
+
+        // Build cell
+        SAFE(hash_Cell(&bits, refs, ref_count, &cell));
+        hasCell = true;
+
+        // Operation
+        snprintf(tx->title, sizeof(tx->title), "Burn jetton");
+        snprintf(tx->action, sizeof(tx->action), "burn jetton");
+        snprintf(tx->recipient, sizeof(tx->recipient), "Jetton wallet");
+    }
+
     // Check hash
     if (hasCell) {
         if (memcmp(cell.hash, tx->payload.hash, HASH_LEN) != 0) {

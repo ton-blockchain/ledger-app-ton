@@ -58,6 +58,7 @@ class PayloadID(IntEnum):
     COMMENT = 0
     JETTON_TRANSFER = 1
     NFT_TRANSFER = 2
+    JETTON_BURN = 3
 
 
 class CommentPayload(Payload):
@@ -200,6 +201,48 @@ class NFTTransferPayload(Payload):
             .store_maybe_ref(self.custom_payload)
             .store_coins(self.forward_amount)
             .store_maybe_ref(self.forward_payload)
+            .end_cell()
+        )
+
+
+class JettonBurnPayload(Payload):
+    def __init__(self,
+                 amount: int,
+                 response_destination: Address,
+                 query_id: Optional[int] = None,
+                 custom_payload: Optional[Cell] = None) -> None:
+        self.query_id: int = query_id if query_id is not None else 0
+        self.amount: int = amount
+        self.response_destionation: Address = response_destination
+        self.custom_payload: Optional[Cell] = custom_payload
+
+    def to_request_bytes(self) -> bytes:
+        main_body = b"".join([
+            (b"".join([
+                bytes([1]),
+                self.query_id.to_bytes(8, byteorder="big")
+            ]) if self.query_id != 0 else bytes([0])),
+            write_varuint(self.amount),
+            write_address(self.response_destionation),
+            (b"".join([
+                bytes([1]),
+                write_cell(self.custom_payload)
+            ]) if self.custom_payload is not None else bytes([0]))
+        ])
+        return b"".join([
+            (PayloadID.JETTON_BURN).to_bytes(4, byteorder="big"),
+            len(main_body).to_bytes(2, byteorder="big"),
+            main_body
+        ])
+
+    def to_message_body_cell(self) -> Cell:
+        return (
+            begin_cell()
+            .store_uint(0x595f07bc, 32)
+            .store_uint(self.query_id, 64)
+            .store_coins(self.amount)
+            .store_address(self.response_destionation)
+            .store_maybe_ref(self.custom_payload)
             .end_cell()
         )
 
