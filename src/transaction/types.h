@@ -42,6 +42,7 @@ typedef struct {
     uint32_t hints_type;                     // hints type if exists
     uint16_t hints_len;                      // hints len if exists
     uint8_t* hints_data;                     // hints data if exists
+    bool is_blind;                           // does transaction require blind signing
     HintHolder_t hints;
     char title[32];
     char action[32];

@@ -34,16 +34,20 @@ bool process_hints(transaction_t* tx) {
     // No payload
     if (!tx->has_payload) {
         snprintf(tx->title, sizeof(tx->title), "Transfer");
+        tx->is_blind = false;
         return true;
     }
     // No hints
     if (!tx->has_hints) {
-        return false;
+        tx->is_blind = true;
+        return true;
     }
 
     // Default state
+    tx->is_blind = true;
     CellRef_t cell;
     BitString_t bits;
+    bool hasCell = false;
     bool tmp = false;
     tx->hints.hints_count = 0;
     buffer_t buf = {.ptr = tx->hints_data, .size = tx->hints_len, .offset = 0};
@@ -68,6 +72,7 @@ bool process_hints(transaction_t* tx) {
         BitString_storeUint(&bits, 0, 32);
         BitString_storeBuffer(&bits, tx->hints_data, tx->hints_len);
         SAFE(hash_Cell(&bits, NULL, 0, &cell));
+        hasCell = true;
 
         // Change title of operation
         snprintf(tx->title, sizeof(tx->title), "Transfer");
@@ -169,6 +174,7 @@ bool process_hints(transaction_t* tx) {
 
         // Build cell
         SAFE(hash_Cell(&bits, refs, ref_count, &cell));
+        hasCell = true;
 
         // Operation
         snprintf(tx->title, sizeof(tx->title), "Transfer jetton");
@@ -176,8 +182,12 @@ bool process_hints(transaction_t* tx) {
         snprintf(tx->recipient, sizeof(tx->recipient), "Jetton wallet");
     }
 
-    if (memcmp(cell.hash, tx->payload.hash, HASH_LEN) != 0) {
-        return false;
+    // Check hash
+    if (hasCell) {
+        if (memcmp(cell.hash, tx->payload.hash, HASH_LEN) != 0) {
+            return false;
+        }
+        tx->is_blind = false;
     }
 
     return true;

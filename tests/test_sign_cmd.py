@@ -1,6 +1,6 @@
 import pytest
 
-from application_client.ton_transaction import Transaction, SendMode, CommentPayload, Payload, JettonTransferPayload
+from application_client.ton_transaction import Transaction, SendMode, CommentPayload, Payload, JettonTransferPayload, CustomUnsafePayload
 from application_client.ton_command_sender import BoilerplateCommandSender, Errors
 from application_client.ton_response_unpacker import unpack_sign_tx_response
 from ragger.error import ExceptionRAPDU
@@ -55,6 +55,46 @@ def test_sign_tx_no_payload(firmware, backend, navigator, test_name):
     assert check_signature_validity(pubkey, sig, hash_b)
 
 
+def test_sign_tx_blind_error(firmware, backend, navigator, test_name):
+    # Use the app interface instead of raw interface
+    client = BoilerplateCommandSender(backend)
+    # The path used for this entire test
+    path: str = "m/44'/607'/0'/0'/0'/0'"
+
+    payload = CustomUnsafePayload(Cell())
+
+    tx = Transaction(Address("0:" + "0" * 64), SendMode.PAY_GAS_SEPARATLY, 0, 1686176000, True, 100000000, payload=payload)
+    tx_bytes = tx.to_request_bytes()
+
+    with pytest.raises(ExceptionRAPDU) as e:
+        with client.sign_tx(path=path, transaction=tx_bytes):
+            # Validate the on-screen request by performing the navigation appropriate for this device
+            if firmware.device.startswith("nano"):
+                if firmware.device == "nanos":
+                    navigator.navigate_and_compare(ROOT_SCREENSHOT_PATH,
+                                                    test_name,
+                                                    [
+                                                        NavIns(NavInsID.WAIT_FOR_TEXT_ON_SCREEN, ("Error", )),
+                                                        NavInsID.RIGHT_CLICK,
+                                                        NavInsID.BOTH_CLICK
+                                                    ])
+                else:
+                    navigator.navigate_and_compare(ROOT_SCREENSHOT_PATH,
+                                                    test_name,
+                                                    [
+                                                        NavInsID.BOTH_CLICK
+                                                    ])
+            else:
+                navigator.navigate_and_compare(ROOT_SCREENSHOT_PATH,
+                                                test_name,
+                                                [
+                                                    NavInsID.USE_CASE_CHOICE_CONFIRM
+                                                ])
+
+    assert e.value.status == Errors.SW_BLIND_SIGNING_DISABLED
+    assert len(e.value.data) == 0
+
+
 def test_sign_tx_with_payload(firmware, backend, navigator, test_name):
     # Use the app interface instead of raw interface
     client = BoilerplateCommandSender(backend)
@@ -65,17 +105,22 @@ def test_sign_tx_with_payload(firmware, backend, navigator, test_name):
     pubkey = client.get_public_key(path=path).data
 
     payloads: List[Payload] = [
+        CustomUnsafePayload(Cell()),
         CommentPayload("test"),
         JettonTransferPayload(100, Address("0:" + "0" * 64), forward_amount=1)
     ]
 
-    # Enable expert mode
+    # Enable blind signing
     if firmware.device.startswith("nano"):
         navigator.navigate_and_compare(ROOT_SCREENSHOT_PATH,
                                         test_name + "/pretest",
                                         [
                                             NavInsID.RIGHT_CLICK,
                                             NavInsID.BOTH_CLICK,
+                                            NavInsID.BOTH_CLICK,
+                                            NavInsID.RIGHT_CLICK,
+                                            NavInsID.BOTH_CLICK,
+                                            NavInsID.RIGHT_CLICK,
                                             NavInsID.BOTH_CLICK,
                                             NavInsID.RIGHT_CLICK,
                                             NavInsID.BOTH_CLICK,
@@ -90,6 +135,7 @@ def test_sign_tx_with_payload(firmware, backend, navigator, test_name):
                                             NavInsID.USE_CASE_HOME_INFO,
                                             NavInsID.USE_CASE_SETTINGS_NEXT,
                                             NavIns(NavInsID.TOUCH, (354, 125)),
+                                            NavIns(NavInsID.TOUCH, (354, 272)),
                                             NavInsID.USE_CASE_SETTINGS_MULTI_PAGE_EXIT,
                                         ],
                                         screen_change_before_first_instruction=False)
@@ -109,14 +155,14 @@ def test_sign_tx_with_payload(firmware, backend, navigator, test_name):
                                                             [NavInsID.BOTH_CLICK],
                                                             "Approve",
                                                             ROOT_SCREENSHOT_PATH,
-                                                            test_name + f"/part{i+1}")
+                                                            test_name + f"/part{i}")
             else:
                 navigator.navigate_until_text_and_compare(NavInsID.USE_CASE_REVIEW_TAP,
                                                             [NavInsID.USE_CASE_REVIEW_CONFIRM,
                                                             NavInsID.USE_CASE_STATUS_DISMISS],
                                                             "Hold to sign",
                                                             ROOT_SCREENSHOT_PATH,
-                                                            test_name + f"/part{i+1}")
+                                                            test_name + f"/part{i}")
 
         # The device as yielded the result, parse it and ensure that the signature is correct
         response = client.get_async_response().data

@@ -51,6 +51,7 @@ class Errors(IntEnum):
     SW_SIGNATURE_FAIL          = 0xB008
     SW_REQUEST_TOO_LONG        = 0xB00B
     SW_BAD_BIP32_PATH          = 0XB0BD
+    SW_BLIND_SIGNING_DISABLED  = 0xBD00
 
 class AddressDisplayFlags(IntFlag):
     NONE = 0

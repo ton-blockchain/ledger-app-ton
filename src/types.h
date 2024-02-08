@@ -120,4 +120,5 @@ typedef struct {
 typedef struct {
     bool initialized;
     bool expert_mode;
+    bool blind_signing_enabled;
 } internalStorage_t;
