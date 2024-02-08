@@ -1,6 +1,6 @@
 import pytest
 
-from application_client.ton_transaction import Transaction, SendMode, CommentPayload, Payload, JettonTransferPayload, CustomUnsafePayload
+from application_client.ton_transaction import Transaction, SendMode, CommentPayload, Payload, JettonTransferPayload, NFTTransferPayload, CustomUnsafePayload
 from application_client.ton_command_sender import BoilerplateCommandSender, Errors
 from application_client.ton_response_unpacker import unpack_sign_tx_response
 from ragger.error import ExceptionRAPDU
@@ -107,10 +107,11 @@ def test_sign_tx_with_payload(firmware, backend, navigator, test_name):
     payloads: List[Payload] = [
         CustomUnsafePayload(Cell()),
         CommentPayload("test"),
-        JettonTransferPayload(100, Address("0:" + "0" * 64), forward_amount=1)
+        JettonTransferPayload(100, Address("0:" + "0" * 64), forward_amount=1),
+        NFTTransferPayload(Address("0:" + "0" * 64), forward_amount=1)
     ]
 
-    # Enable blind signing
+    # Enable blind signing and expert mode
     if firmware.device.startswith("nano"):
         navigator.navigate_and_compare(ROOT_SCREENSHOT_PATH,
                                         test_name + "/pretest",
