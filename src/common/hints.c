@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "hints.h"
 
@@ -57,6 +58,15 @@ void add_hint_address(HintHolder_t* hints, const char* title, address_t address,
     hints->hints[hints->hints_count].kind = SummaryAddress;
     hints->hints[hints->hints_count].address.address = address;
     hints->hints[hints->hints_count].address.bounceable = bounceable;
+
+    // Next
+    hints->hints_count++;
+}
+
+void add_hint_number(HintHolder_t* hints, const char* title, uint32_t number) {
+    hints->hints[hints->hints_count].title = title;
+    hints->hints[hints->hints_count].kind = SummaryNumber;
+    hints->hints[hints->hints_count].number = number;
 
     // Next
     hints->hints_count++;
@@ -125,6 +135,8 @@ void print_hint(HintHolder_t* hints,
                             sizeof(address));
         memset(body, 0, body_len);
         base64_encode(address, sizeof(address), body, body_len);
+    } else if (hint.kind == SummaryNumber) {
+        snprintf(body, body_len, "%u", hint.number);
     } else {
         print_string("<unknown>", body, body_len);
     }

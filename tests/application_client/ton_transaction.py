@@ -257,7 +257,9 @@ class Transaction:
                  bounce: bool,
                  amount: int,
                  state_init: Optional[StateInit] = None,
-                 payload: Optional[Payload] = None) -> None:
+                 payload: Optional[Payload] = None,
+                 subwallet_id: Optional[int] = None,
+                 include_wallet_op: bool = True) -> None:
         self.to: Address = to
         self.send_mode: SendMode = send_mode
         self.seqno: int = seqno
@@ -266,10 +268,22 @@ class Transaction:
         self.amount: int = amount
         self.state_init: Optional[StateInit] = state_init
         self.payload: Optional[Payload] = payload
+        self.subwallet_id: Optional[int] = subwallet_id
+        self.include_wallet_op: bool = include_wallet_op
+
+    def header_bytes(self) -> bytes:
+        if not self.include_wallet_op or self.subwallet_id != None:
+            return b"".join([
+                bytes([1]),
+                (self.subwallet_id if self.subwallet_id != None else 698983191).to_bytes(4, byteorder="big"),
+                bytes([1 if self.include_wallet_op else 0])
+            ])
+        else:
+            return bytes([0])
 
     def to_request_bytes(self) -> bytes:
         return b"".join([
-            bytes([0]),
+            self.header_bytes(),
             self.seqno.to_bytes(4, byteorder="big"),
             self.timeout.to_bytes(4, byteorder="big"),
             write_varuint(self.amount),
@@ -323,12 +337,18 @@ class Transaction:
         return b.end_cell()
 
     def transfer_cell(self) -> Cell:
-        return (
+        b = (
             begin_cell()
-            .store_uint(698983191, 32)
+            .store_uint(698983191 if self.subwallet_id == None else self.subwallet_id, 32)
             .store_uint(self.timeout, 32)
             .store_uint(self.seqno, 32)
-            .store_uint(0, 8)
+        )
+
+        if self.include_wallet_op:
+            b = b.store_uint(0, 8)
+
+        return (
+            b
             .store_uint(self.send_mode, 8)
             .store_ref(self.order_cell())
             .end_cell()

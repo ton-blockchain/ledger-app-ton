@@ -24,7 +24,9 @@ Address is serialized by appending a single byte of chain - 0x00 or 0xff and the
 
 | Field | Size (bytes) or type | Description |
 | --- | :---: | --- |
-| `tag` | 1 | 0x00. Reserved for future. |
+| `tag` | 1 | 0x00 for app versions <2.1.0, 0x00 or 0x01 for app versions >=2.1.0. Higher values enable more features |
+| `subwallet_id` | 0 or 4 | Subwallet id. Only present when `tag == 0x01` |
+| `include_wallet_op` | 0 or 1 | Whether to include the 8-bit wallet op (0x01 to include, 0x00 to not include). Only present when `tag == 0x01` |
 | `seqno` | 4 | A sequence number used to prevent message replay |
 | `timeout` | 4 | Message timeout |
 | `value` | `varuint` | The amount in nanotons to send to the destination address encoded as described above |
