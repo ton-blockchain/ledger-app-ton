@@ -8,6 +8,7 @@ This list contains a number of messages that ledger could assemble and display c
 | 0x01 | Jetton transfer | [TEP-74 transfer message](https://github.com/ton-blockchain/TEPs/blob/master/text/0074-jettons-standard.md#1-transfer) |
 | 0x02 | NFT transfer | [TEP-62 transfer message](https://github.com/ton-blockchain/TEPs/blob/master/text/0062-nft-standard.md#1-transfer) |
 | 0x03 | Jetton burn | [TEP-74 burn message](https://github.com/ton-blockchain/TEPs/blob/master/text/0074-jettons-standard.md#2-burn) |
+| 0x04 | Add whitelist | [Vesting add whitelist message](https://github.com/ton-blockchain/vesting-contract?tab=readme-ov-file#whitelist) |
 
 # 0x00: Message with comment
 
@@ -87,3 +88,17 @@ burn#595f07bc query_id:uint64 amount:(VarUInteger 16)
 | `response_destination` | `address` | Whom to transfer the excess of TON to |
 | `has_custom_payload` | 1 | Whether `custom_payload` is present |
 | `custom_payload` | 0 or `cell_ref` | `custom_payload` for the message |
+
+# 0x04: Add whitelist
+
+### TL-B
+```
+add_whitelist#7258a69b query_id:uint64 address:MsgAddress = InternalMsgBody;
+```
+
+### Hints
+| Value | Length or type | Description |
+| --- | --- | --- |
+| `has_query_id` | 1 | Whether `query_id` is present |
+| `query_id` | 0 or 8 | `query_id` for the message, 0 will be used if `!has_query_id` |
+| `address` | `address` | Whom to add to the whitelist |

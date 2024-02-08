@@ -59,6 +59,7 @@ class PayloadID(IntEnum):
     JETTON_TRANSFER = 1
     NFT_TRANSFER = 2
     JETTON_BURN = 3
+    ADD_WHITELIST = 4
 
 
 class CommentPayload(Payload):
@@ -243,6 +244,37 @@ class JettonBurnPayload(Payload):
             .store_coins(self.amount)
             .store_address(self.response_destionation)
             .store_maybe_ref(self.custom_payload)
+            .end_cell()
+        )
+
+
+class AddWhitelistPayload(Payload):
+    def __init__(self,
+                 address: Address,
+                 query_id: Optional[int] = None) -> None:
+        self.query_id: int = query_id if query_id is not None else 0
+        self.address: Address = address
+
+    def to_request_bytes(self) -> bytes:
+        main_body = b"".join([
+            (b"".join([
+                bytes([1]),
+                self.query_id.to_bytes(8, byteorder="big")
+            ]) if self.query_id != 0 else bytes([0])),
+            write_address(self.address)
+        ])
+        return b"".join([
+            (PayloadID.ADD_WHITELIST).to_bytes(4, byteorder="big"),
+            len(main_body).to_bytes(2, byteorder="big"),
+            main_body
+        ])
+
+    def to_message_body_cell(self) -> Cell:
+        return (
+            begin_cell()
+            .store_uint(0x7258a69b, 32)
+            .store_uint(self.query_id, 64)
+            .store_address(self.address)
             .end_cell()
         )
 
