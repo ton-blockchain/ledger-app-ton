@@ -347,9 +347,6 @@ bool process_hints(transaction_t* tx) {
     }
 
     if (tx->hints_type == TRANSACTION_JETTON_DAO_VOTE) {
-        int ref_count = 0;
-        CellRef_t refs[1] = {0};
-
         BitString_init(&bits);
         BitString_storeUint(&bits, 0x69fb306c, 32);
 
@@ -387,7 +384,7 @@ bool process_hints(transaction_t* tx) {
         CHECK_END();
 
         // Build cell
-        SAFE(hash_Cell(&bits, refs, ref_count, &cell));
+        SAFE(hash_Cell(&bits, NULL, 0, &cell));
         hasCell = true;
 
         // Operation
