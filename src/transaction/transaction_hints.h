@@ -11,6 +11,7 @@ typedef enum {
     TRANSACTION_BURN_JETTON = 3,
     TRANSACTION_ADD_WHITELIST = 4,
     TRANSACTION_SINGLE_NOMINATOR_WITHDRAW = 5,
+    TRANSACTION_SINGLE_NOMINATOR_CHANGE_VALIDATOR = 6,
 } transaction_hint_type_e;
 
 bool process_hints(transaction_t* tx);

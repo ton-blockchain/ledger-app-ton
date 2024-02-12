@@ -1,6 +1,6 @@
 import pytest
 
-from application_client.ton_transaction import Transaction, SendMode, CommentPayload, Payload, JettonTransferPayload, NFTTransferPayload, CustomUnsafePayload, JettonBurnPayload, AddWhitelistPayload, SingleNominatorWithdrawPayload
+from application_client.ton_transaction import Transaction, SendMode, CommentPayload, Payload, JettonTransferPayload, NFTTransferPayload, CustomUnsafePayload, JettonBurnPayload, AddWhitelistPayload, SingleNominatorWithdrawPayload, ChangeValidatorPayload
 from application_client.ton_command_sender import BoilerplateCommandSender, Errors
 from application_client.ton_response_unpacker import unpack_sign_tx_response
 from ragger.error import ExceptionRAPDU
@@ -114,6 +114,7 @@ def test_sign_tx_with_payload(firmware, backend, navigator, test_name):
         JettonBurnPayload(100, Address("0:" + "0" * 64), custom_payload=Cell()),
         AddWhitelistPayload(Address("0:" + "0" * 64)),
         SingleNominatorWithdrawPayload(1_000_000_000),
+        ChangeValidatorPayload(Address("0:" + "0" * 64)),
     ]
 
     # Enable blind signing and expert mode

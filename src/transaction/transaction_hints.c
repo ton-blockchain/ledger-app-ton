@@ -249,9 +249,9 @@ bool process_hints(transaction_t* tx) {
         snprintf(tx->recipient, sizeof(tx->recipient), "Jetton wallet");
     }
 
-    if (tx->hints_type == TRANSACTION_ADD_WHITELIST) {
+    if (tx->hints_type == TRANSACTION_ADD_WHITELIST || tx->hints_type == TRANSACTION_SINGLE_NOMINATOR_CHANGE_VALIDATOR) {
         BitString_init(&bits);
-        BitString_storeUint(&bits, 0x7258a69b, 32);
+        BitString_storeUint(&bits, tx->hints_type == TRANSACTION_ADD_WHITELIST ? 0x7258a69b : 0x1001, 32);
 
         SAFE(buffer_read_bool(&buf, &tmp));
         if (tmp) {
@@ -266,7 +266,7 @@ bool process_hints(transaction_t* tx) {
         SAFE(buffer_read_address(&buf, &addr));
         BitString_storeAddress(&bits, addr.chain, addr.hash);
 
-        add_hint_address(&tx->hints, "New whitelist", addr, false);
+        add_hint_address(&tx->hints, tx->hints_type == TRANSACTION_ADD_WHITELIST ? "New whitelist" : "New validator", addr, false);
 
         CHECK_END();
 
@@ -275,9 +275,9 @@ bool process_hints(transaction_t* tx) {
         hasCell = true;
 
         // Operation
-        snprintf(tx->title, sizeof(tx->title), "Add whitelist");
-        snprintf(tx->action, sizeof(tx->action), "add whitelist");
-        snprintf(tx->recipient, sizeof(tx->recipient), "Vesting wallet");
+        snprintf(tx->title, sizeof(tx->title), tx->hints_type == TRANSACTION_ADD_WHITELIST ? "Add whitelist" : "Edit validator");
+        snprintf(tx->action, sizeof(tx->action), tx->hints_type == TRANSACTION_ADD_WHITELIST ? "add whitelist" : "change validator");
+        snprintf(tx->recipient, sizeof(tx->recipient), tx->hints_type == TRANSACTION_ADD_WHITELIST ? "Vesting wallet" : "Single Nominator");
     }
 
     if (tx->hints_type == TRANSACTION_SINGLE_NOMINATOR_WITHDRAW) {
