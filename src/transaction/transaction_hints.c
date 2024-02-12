@@ -489,6 +489,38 @@ bool process_hints(transaction_t* tx) {
         snprintf(tx->recipient, sizeof(tx->recipient), "DNS resolver");
     }
 
+    if (tx->hints_type == TRANSACTION_TOKEN_BRIDGE_PAY_SWAP) {
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0x8, 32);
+
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t query_id;
+            SAFE(buffer_read_u64(&buf, &query_id, BE));
+            BitString_storeUint(&bits, query_id, 64);
+        } else {
+            BitString_storeUint(&bits, 0, 64);
+        }
+
+        uint8_t swap_id[32];
+        SAFE(buffer_read_buffer(&buf, swap_id, sizeof(swap_id)));
+
+        BitString_storeBuffer(&bits, swap_id, sizeof(swap_id));
+
+        add_hint_hash(&tx->hints, "Transfer ID", swap_id);
+
+        CHECK_END();
+
+        // Build cell
+        SAFE(hash_Cell(&bits, NULL, 0, &cell));
+        hasCell = true;
+
+        // Operation
+        snprintf(tx->title, sizeof(tx->title), "Bridge tokens");
+        snprintf(tx->action, sizeof(tx->action), "bridge tokens");
+        snprintf(tx->recipient, sizeof(tx->recipient), "Bridge");
+    }
+
     // Check hash
     if (hasCell) {
         if (memcmp(cell.hash, tx->payload.hash, HASH_LEN) != 0) {

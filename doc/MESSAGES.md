@@ -14,6 +14,7 @@ This list contains a number of messages that ledger could assemble and display c
 | 0x07 | Tonstakers deposit | [Tonstakers deposit message](https://github.com/ton-blockchain/liquid-staking-contract/blob/be2ee6d1e746bd2bb0f13f7b21537fb30ef0bc3b/contracts/interaction.tlb#L52) |
 | 0x08 | Jetton DAO vote for proposal | [Jetton DAO vote for proposal message](https://github.com/EmelyanenkoK/jetton_dao/blob/02fed5d124effd57ea50be77044b209ad800a621/contracts/voting.tlb#L61) |
 | 0x09 | Change DNS record | [Change DNS record message](https://github.com/ton-blockchain/dns-contract/blob/d08131031fb659d2826cccc417ddd9b98476f814/func/nft-item.fc#L204) |
+| 0x0A | Token bridge pay for swap | [Token bridge pay for swap message](https://github.com/ton-blockchain/token-bridge-func/blob/3346a901e3e8e1a1e020fac564c845db3220c238/src/func/jetton-bridge/op-codes.fc#L20) |
 
 # 0x00: Message with comment
 
@@ -174,7 +175,7 @@ vote#69fb306c query_id:uint64 voting_address:MsgAddressInt expiration_date:uint4
 
 # 0x09: Change DNS record
 
-## TL-B
+### TL-B
 ```
 change_dns_record#4eb1f0f9 query_id:uint64 key:uint256 = InternalMsgBody;
 ```
@@ -226,3 +227,17 @@ Used for unknown keys. Key will be converted to base64 and displayed, value cell
 | --- | --- | --- |
 | `key` | 32 | Record key |
 | `value` | 0 or `cell_ref` | Value cell. Only present if `has_value` |
+
+# 0x0A: Token bridge pay for swap
+
+### TL-B
+```
+pay_swap#8 query_id:uint64 swapId:uint256 = InternalMsgBody;
+```
+
+### Hints
+| Value | Length or type | Description |
+| --- | --- | --- |
+| `has_query_id` | 1 | Whether `query_id` is present |
+| `query_id` | 0 or 8 | `query_id` for the message, 0 will be used if `!has_query_id` |
+| `swap_id` | 32 | The swap ID |

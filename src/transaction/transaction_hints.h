@@ -15,6 +15,7 @@ typedef enum {
     TRANSACTION_TONSTAKERS_DEPOSIT = 7,
     TRANSACTION_JETTON_DAO_VOTE = 8,
     TRANSACTION_CHANGE_DNS_RECORD = 9,
+    TRANSACTION_TOKEN_BRIDGE_PAY_SWAP = 10,
 } transaction_hint_type_e;
 
 bool process_hints(transaction_t* tx);

@@ -65,6 +65,7 @@ class PayloadID(IntEnum):
     TONSTAKERS_DEPOSIT = 7
     JETTON_DAO_VOTE = 8
     CHANGE_DNS_RECORD = 9
+    TOKEN_BRIDGE_PAY_SWAP = 10
 
 
 class CommentPayload(Payload):
@@ -527,6 +528,37 @@ class ChangeDNSPayload(Payload):
             b = b.store_ref(self.value)
 
         return b.end_cell()
+
+
+class TokenBridgePaySwapPayload(Payload):
+    def __init__(self,
+                 swap_id: bytes,
+                 query_id: Optional[int] = None) -> None:
+        self.query_id: int = query_id if query_id is not None else 0
+        self.swap_id: bytes = swap_id
+
+    def to_request_bytes(self) -> bytes:
+        main_body = b"".join([
+            (b"".join([
+                bytes([1]),
+                self.query_id.to_bytes(8, byteorder="big")
+            ]) if self.query_id != 0 else bytes([0])),
+            self.swap_id
+        ])
+        return b"".join([
+            (PayloadID.TOKEN_BRIDGE_PAY_SWAP).to_bytes(4, byteorder="big"),
+            len(main_body).to_bytes(2, byteorder="big"),
+            main_body
+        ])
+
+    def to_message_body_cell(self) -> Cell:
+        return (
+            begin_cell()
+            .store_uint(8, 32)
+            .store_uint(self.query_id, 64)
+            .store_bytes(self.swap_id)
+            .end_cell()
+        )
 
 
 # pylint: disable-next=too-many-instance-attributes
