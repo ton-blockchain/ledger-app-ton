@@ -113,7 +113,7 @@ add_whitelist#7258a69b query_id:uint64 address:MsgAddress = InternalMsgBody;
 
 ### TL-B
 ```
-withdraw#1000 queryId:uint64 amount:Coins = InternalMsgBody;
+withdraw#1000 query_id:uint64 amount:Coins = InternalMsgBody;
 ```
 
 ### Hints
@@ -127,7 +127,7 @@ withdraw#1000 queryId:uint64 amount:Coins = InternalMsgBody;
 
 ### TL-B
 ```
-change_validator_adddress#1001 queryId:uint64 new_validator_address:MsgAddress = InternalMsgBody;
+change_validator_adddress#1001 query_id:uint64 new_validator_address:MsgAddress = InternalMsgBody;
 ```
 
 ### Hints
@@ -232,7 +232,7 @@ Used for unknown keys. Key will be converted to base64 and displayed, value cell
 
 ### TL-B
 ```
-pay_swap#8 query_id:uint64 swapId:uint256 = InternalMsgBody;
+pay_swap#8 query_id:uint64 swap_id:uint256 = InternalMsgBody;
 ```
 
 ### Hints
