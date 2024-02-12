@@ -64,6 +64,7 @@ class PayloadID(IntEnum):
     SINGLE_NOMINATOR_CHANGE_VALIDATOR = 6
     TONSTAKERS_DEPOSIT = 7
     JETTON_DAO_VOTE = 8
+    CHANGE_DNS_RECORD = 9
 
 
 class CommentPayload(Payload):
@@ -423,6 +424,109 @@ class JettonDAOVotePayload(Payload):
             .store_bit(self.need_confirmation)
             .end_cell()
         )
+
+
+class ChangeDNSWalletPayload(Payload):
+    def __init__(self,
+                 wallet: Optional[Address],
+                 has_capabilities: bool,
+                 is_wallet: bool,
+                 query_id: Optional[int] = None) -> None:
+        if is_wallet and not has_capabilities:
+            raise Exception("DNS wallet record cannot be a wallet without capabilities")
+        self.query_id: int = query_id if query_id is not None else 0
+        self.wallet: Optional[Address] = wallet
+        self.has_capabilities: bool = has_capabilities
+        self.is_wallet: bool = is_wallet
+
+    def to_request_bytes(self) -> bytes:
+        main_body = b"".join([
+            (b"".join([
+                bytes([1]),
+                self.query_id.to_bytes(8, byteorder="big")
+            ]) if self.query_id != 0 else bytes([0])),
+            bytes([1 if self.wallet != None else 0]),
+            bytes([0]),
+            (b"".join([
+                write_address(self.wallet),
+                bytes([1 if self.has_capabilities else 0]),
+                bytes([1 if self.is_wallet else 0]) if self.has_capabilities else bytes([])
+            ]) if self.wallet != None else bytes([]))
+        ])
+        return b"".join([
+            (PayloadID.CHANGE_DNS_RECORD).to_bytes(4, byteorder="big"),
+            len(main_body).to_bytes(2, byteorder="big"),
+            main_body
+        ])
+
+    def to_message_body_cell(self) -> Cell:
+        b = (
+            begin_cell()
+            .store_uint(0x4eb1f0f9, 32)
+            .store_uint(self.query_id, 64)
+            .store_bytes(bytes([0xe8, 0xd4, 0x40, 0x50, 0x87, 0x3d, 0xba, 0x86, 0x5a, 0xa7, 0xc1, 0x70, 0xab, 0x4c, 0xce, 0x64, 0xd9, 0x08, 0x39, 0xa3, 0x4d, 0xcf, 0xd6, 0xcf, 0x71, 0xd1, 0x4e, 0x02, 0x05, 0x44, 0x3b, 0x1b]))
+        )
+
+        if self.wallet != None:
+            rb = (
+                begin_cell()
+                .store_uint(0x9fd3, 16)
+                .store_address(self.wallet)
+                .store_uint(1 if self.has_capabilities else 0, 8)
+            )
+
+            if self.has_capabilities:
+                if self.is_wallet:
+                    rb = (
+                        rb.store_uint(1, 1)
+                        .store_uint(0x2177, 16)
+                    )
+
+                rb = rb.store_uint(0, 1)
+
+            b = b.store_ref(rb.end_cell())
+
+        return b.end_cell()
+
+
+class ChangeDNSPayload(Payload):
+    def __init__(self,
+                 key: bytes,
+                 value: Optional[Cell],
+                 query_id: Optional[int] = None) -> None:
+        self.query_id: int = query_id if query_id is not None else 0
+        self.key: bytes = key
+        self.value: Optional[Cell] = value
+
+    def to_request_bytes(self) -> bytes:
+        main_body = b"".join([
+            (b"".join([
+                bytes([1]),
+                self.query_id.to_bytes(8, byteorder="big")
+            ]) if self.query_id != 0 else bytes([0])),
+            bytes([1 if self.value != None else 0]),
+            bytes([1]),
+            self.key,
+            write_cell(self.value) if self.value != None else bytes([])
+        ])
+        return b"".join([
+            (PayloadID.CHANGE_DNS_RECORD).to_bytes(4, byteorder="big"),
+            len(main_body).to_bytes(2, byteorder="big"),
+            main_body
+        ])
+
+    def to_message_body_cell(self) -> Cell:
+        b = (
+            begin_cell()
+            .store_uint(0x4eb1f0f9, 32)
+            .store_uint(self.query_id, 64)
+            .store_bytes(self.key)
+        )
+
+        if self.value != None:
+            b = b.store_ref(self.value)
+
+        return b.end_cell()
 
 
 # pylint: disable-next=too-many-instance-attributes

@@ -1,6 +1,6 @@
 import pytest
 
-from application_client.ton_transaction import Transaction, SendMode, CommentPayload, Payload, JettonTransferPayload, NFTTransferPayload, CustomUnsafePayload, JettonBurnPayload, AddWhitelistPayload, SingleNominatorWithdrawPayload, ChangeValidatorPayload, TonstakersDepositPayload, JettonDAOVotePayload
+from application_client.ton_transaction import Transaction, SendMode, CommentPayload, Payload, JettonTransferPayload, NFTTransferPayload, CustomUnsafePayload, JettonBurnPayload, AddWhitelistPayload, SingleNominatorWithdrawPayload, ChangeValidatorPayload, TonstakersDepositPayload, JettonDAOVotePayload, ChangeDNSWalletPayload, ChangeDNSPayload
 from application_client.ton_command_sender import BoilerplateCommandSender, Errors
 from application_client.ton_response_unpacker import unpack_sign_tx_response
 from ragger.error import ExceptionRAPDU
@@ -117,6 +117,8 @@ def test_sign_tx_with_payload(firmware, backend, navigator, test_name):
         ChangeValidatorPayload(Address("0:" + "0" * 64)),
         TonstakersDepositPayload(app_id=123),
         JettonDAOVotePayload(Address("0:" + "0" * 64), 1686176000, True, True),
+        ChangeDNSWalletPayload(Address("0:" + "0" * 64), True, True),
+        ChangeDNSPayload(bytes([0] * 32), None),
     ]
 
     # Enable blind signing and expert mode

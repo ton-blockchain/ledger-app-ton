@@ -11,7 +11,7 @@
 #include "format_bigint.h"
 #include "format_address.h"
 
-void add_hint_text(HintHolder_t* hints, const char* title, char* text, size_t text_len) {
+void add_hint_text(HintHolder_t* hints, const char* title, const char* text, size_t text_len) {
     // Configure
     hints->hints[hints->hints_count].title = title;
     hints->hints[hints->hints_count].kind = SummaryItemString;

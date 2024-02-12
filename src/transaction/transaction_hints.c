@@ -25,6 +25,8 @@
         return false;             \
     }
 
+const uint8_t dns_key_wallet[32] = {0xe8, 0xd4, 0x40, 0x50, 0x87, 0x3d, 0xba, 0x86, 0x5a, 0xa7, 0xc1, 0x70, 0xab, 0x4c, 0xce, 0x64, 0xd9, 0x08, 0x39, 0xa3, 0x4d, 0xcf, 0xd6, 0xcf, 0x71, 0xd1, 0x4e, 0x02, 0x05, 0x44, 0x3b, 0x1b};
+
 bool process_hints(transaction_t* tx) {
     // Default title
     snprintf(tx->title, sizeof(tx->title), "Transaction");
@@ -392,6 +394,102 @@ bool process_hints(transaction_t* tx) {
         snprintf(tx->title, sizeof(tx->title), "Vote proposal");
         snprintf(tx->action, sizeof(tx->action), "vote for proposal");
         snprintf(tx->recipient, sizeof(tx->recipient), "Jetton wallet");
+    }
+
+    if (tx->hints_type == TRANSACTION_CHANGE_DNS_RECORD) {
+        int ref_count = 0;
+        CellRef_t refs[1] = {0};
+
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0x4eb1f0f9, 32);
+
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t query_id;
+            SAFE(buffer_read_u64(&buf, &query_id, BE));
+            BitString_storeUint(&bits, query_id, 64);
+        } else {
+            BitString_storeUint(&bits, 0, 64);
+        }
+
+        bool has_value;
+        SAFE(buffer_read_bool(&buf, &has_value));
+
+        uint8_t type;
+        SAFE(buffer_read_u8(&buf, &type));
+
+        if (type == 0x00) { // wallet
+            add_hint_text(&tx->hints, "Type", "Wallet", 6);
+
+            BitString_storeBuffer(&bits, dns_key_wallet, sizeof(dns_key_wallet));
+
+            if (has_value) {
+                address_t address;
+                SAFE(buffer_read_address(&buf, &address));
+
+                bool has_capabilities;
+                SAFE(buffer_read_bool(&buf, &has_capabilities));
+
+                bool is_wallet = false;
+                if (has_capabilities) {
+                    SAFE(buffer_read_bool(&buf, &is_wallet));
+                }
+
+                add_hint_address(&tx->hints, "Wallet address", address, !is_wallet);
+
+                BitString_t inner_bits;
+                BitString_init(&inner_bits);
+
+                BitString_storeUint(&inner_bits, 0x9fd3, 16);
+
+                BitString_storeAddress(&inner_bits, address.chain, address.hash);
+
+                BitString_storeUint(&inner_bits, has_capabilities ? 0x01 : 0x00, 8);
+
+                if (has_capabilities) {
+                    if (is_wallet) {
+                        BitString_storeBit(&inner_bits, 1);
+                        BitString_storeUint(&inner_bits, 0x2177, 16);
+                    }
+
+                    BitString_storeBit(&inner_bits, 0);
+                }
+
+                hash_Cell(&inner_bits, NULL, 0, &refs[ref_count++]);
+            }
+        } else if (type == 0x01) { // unknown key
+            add_hint_text(&tx->hints, "Type", "Unknown", 7);
+
+            uint8_t key[32];
+            SAFE(buffer_read_buffer(&buf, key, sizeof(key)));
+
+            BitString_storeBuffer(&bits, key, sizeof(key));
+
+            add_hint_hash(&tx->hints, "Key", key);
+
+            if (has_value) {
+                SAFE(buffer_read_cell_ref(&buf, &refs[ref_count++]));
+
+                add_hint_hash(&tx->hints, "Value", refs[ref_count-1].hash);
+            }
+        } else {
+            return false;
+        }
+
+        if (!has_value) {
+            add_hint_bool(&tx->hints, "Delete value", true);
+        }
+
+        CHECK_END();
+
+        // Build cell
+        SAFE(hash_Cell(&bits, refs, ref_count, &cell));
+        hasCell = true;
+
+        // Operation
+        snprintf(tx->title, sizeof(tx->title), "Change DNS");
+        snprintf(tx->action, sizeof(tx->action), "change DNS record");
+        snprintf(tx->recipient, sizeof(tx->recipient), "DNS resolver");
     }
 
     // Check hash

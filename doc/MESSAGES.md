@@ -13,6 +13,7 @@ This list contains a number of messages that ledger could assemble and display c
 | 0x06 | Single Nominator change validator address | [Single nominator change validator message](https://github.com/orbs-network/single-nominator/tree/main?tab=readme-ov-file#2-change-validator) |
 | 0x07 | Tonstakers deposit | [Tonstakers deposit message](https://github.com/ton-blockchain/liquid-staking-contract/blob/be2ee6d1e746bd2bb0f13f7b21537fb30ef0bc3b/contracts/interaction.tlb#L52) |
 | 0x08 | Jetton DAO vote for proposal | [Jetton DAO vote for proposal message](https://github.com/EmelyanenkoK/jetton_dao/blob/02fed5d124effd57ea50be77044b209ad800a621/contracts/voting.tlb#L61) |
+| 0x09 | Change DNS record | [Change DNS record message](https://github.com/ton-blockchain/dns-contract/blob/d08131031fb659d2826cccc417ddd9b98476f814/func/nft-item.fc#L204) |
 
 # 0x00: Message with comment
 
@@ -170,3 +171,58 @@ vote#69fb306c query_id:uint64 voting_address:MsgAddressInt expiration_date:uint4
 | `expiration_date` | 6 | Expiration timestamp |
 | `vote` | 1 | Vote flag |
 | `need_confirmation` | 1 | Need confirmation flag |
+
+# 0x09: Change DNS record
+
+## TL-B
+```
+change_dns_record#4eb1f0f9 query_id:uint64 key:uint256 = InternalMsgBody;
+```
+or
+```
+change_dns_record#4eb1f0f9 query_id:uint64 key:uint256 value:^Cell = InternalMsgBody;
+```
+
+### Hints
+| Value | Length or type | Description |
+| --- | --- | --- |
+| `has_query_id` | 1 | Whether `query_id` is present |
+| `query_id` | 0 or 8 | `query_id` for the message, 0 will be used if `!has_query_id` |
+| `has_value` | 1 | Whether to set the value. If 0, the record will be deleted |
+| `record_type` | 1 | Record type (see below for available types) |
+| `record_data` | ? | Continued record data, depends on record type (see below for types) |
+
+### Record types
+
+#### 0x00: Wallet
+
+`key` is `sha256("wallet")` (will be set by the device automatically).
+`record_data` layout (if `has_value`):
+| Value | Length or type | Description |
+| --- | --- | --- |
+| `address` | `address` | Wallet address |
+| `has_capabilities` | 1 | Whether capabilities should be stored |
+| `is_wallet` | 0 or 1 | Whether to store the `is_wallet` capability. Only present if `has_capabilities` |
+
+If `!has_value`, then `record_data` is empty (0 bytes long)
+
+##### TL-B
+```
+cap_is_wallet#2177 = SmcCapability;
+
+cap_list_nil$0 = SmcCapList;
+cap_list_next$1 head:SmcCapability tail:SmcCapList = SmcCapList;
+
+dns_smc_address#9fd3 smc_addr:MsgAddressInt flags:(## 8) { flags <= 1 }
+  cap_list:flags . 0?SmcCapList = DNSRecord;
+```
+
+#### 0x01: Unknown
+
+Used for unknown keys. Key will be converted to base64 and displayed, value cell's hash will be converted to base64 and displayed. The key will not be hashed again.
+
+`record_data` layout:
+| Value | Length or type | Description |
+| --- | --- | --- |
+| `key` | 32 | Record key |
+| `value` | 0 or `cell_ref` | Value cell. Only present if `has_value` |

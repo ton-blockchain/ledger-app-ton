@@ -18,7 +18,7 @@ enum HintKind {
 };
 
 typedef struct {
-    char* string;
+    const char* string;
     size_t length;
 } SizedString_t;
 
@@ -52,7 +52,7 @@ typedef struct {
     uint8_t hints_count;
 } HintHolder_t;
 
-void add_hint_text(HintHolder_t* hints, const char* title, char* text, size_t text_len);
+void add_hint_text(HintHolder_t* hints, const char* title, const char* text, size_t text_len);
 void add_hint_hash(HintHolder_t* hints, const char* title, uint8_t* data);
 void add_hint_amount(HintHolder_t* hints,
                      const char* title,
