@@ -280,6 +280,38 @@ bool process_hints(transaction_t* tx) {
         snprintf(tx->recipient, sizeof(tx->recipient), "Vesting wallet");
     }
 
+    if (tx->hints_type == TRANSACTION_SINGLE_NOMINATOR_WITHDRAW) {
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0x1000, 32);
+
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t query_id;
+            SAFE(buffer_read_u64(&buf, &query_id, BE));
+            BitString_storeUint(&bits, query_id, 64);
+        } else {
+            BitString_storeUint(&bits, 0, 64);
+        }
+
+        uint8_t amount_size;
+        uint8_t amount_buf[MAX_VALUE_BYTES_LEN];
+        SAFE(buffer_read_varuint(&buf, &amount_size, amount_buf, MAX_VALUE_BYTES_LEN));
+        BitString_storeCoinsBuf(&bits, amount_buf, amount_size);
+
+        add_hint_amount(&tx->hints, "Withdraw amount", "TON", amount_buf, amount_size, EXPONENT_SMALLEST_UNIT);
+
+        CHECK_END();
+
+        // Build cell
+        SAFE(hash_Cell(&bits, NULL, 0, &cell));
+        hasCell = true;
+
+        // Operation
+        snprintf(tx->title, sizeof(tx->title), "Withdraw stake");
+        snprintf(tx->action, sizeof(tx->action), "withdraw from nominator");
+        snprintf(tx->recipient, sizeof(tx->recipient), "Single Nominator");
+    }
+
     // Check hash
     if (hasCell) {
         if (memcmp(cell.hash, tx->payload.hash, HASH_LEN) != 0) {

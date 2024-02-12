@@ -1,6 +1,6 @@
 import pytest
 
-from application_client.ton_transaction import Transaction, SendMode, CommentPayload, Payload, JettonTransferPayload, NFTTransferPayload, CustomUnsafePayload, JettonBurnPayload, AddWhitelistPayload
+from application_client.ton_transaction import Transaction, SendMode, CommentPayload, Payload, JettonTransferPayload, NFTTransferPayload, CustomUnsafePayload, JettonBurnPayload, AddWhitelistPayload, SingleNominatorWithdrawPayload
 from application_client.ton_command_sender import BoilerplateCommandSender, Errors
 from application_client.ton_response_unpacker import unpack_sign_tx_response
 from ragger.error import ExceptionRAPDU
@@ -96,6 +96,8 @@ def test_sign_tx_blind_error(firmware, backend, navigator, test_name):
 
 
 def test_sign_tx_with_payload(firmware, backend, navigator, test_name):
+    import os
+
     # Use the app interface instead of raw interface
     client = BoilerplateCommandSender(backend)
     # The path used for this entire test
@@ -111,6 +113,7 @@ def test_sign_tx_with_payload(firmware, backend, navigator, test_name):
         NFTTransferPayload(Address("0:" + "0" * 64), forward_amount=1),
         JettonBurnPayload(100, Address("0:" + "0" * 64), custom_payload=Cell()),
         AddWhitelistPayload(Address("0:" + "0" * 64)),
+        SingleNominatorWithdrawPayload(1_000_000_000),
     ]
 
     # Enable blind signing and expert mode
@@ -143,7 +146,7 @@ def test_sign_tx_with_payload(firmware, backend, navigator, test_name):
                                         ],
                                         screen_change_before_first_instruction=False)
 
-    for (i, payload) in enumerate(payloads):
+    for (i, payload) in list(enumerate(payloads))[int(os.environ.get("PAYLOAD_START_INDEX", default="0")):]:
         # Create the transaction that will be sent to the device for signing
         tx = Transaction(Address("0:" + "0" * 64), SendMode.PAY_GAS_SEPARATLY, 0, 1686176000, True, 100000000, payload=payload)
         tx_bytes = tx.to_request_bytes()

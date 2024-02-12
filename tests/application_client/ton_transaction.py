@@ -60,6 +60,7 @@ class PayloadID(IntEnum):
     NFT_TRANSFER = 2
     JETTON_BURN = 3
     ADD_WHITELIST = 4
+    SINGLE_NOMINATOR_WITHDRAW = 5
 
 
 class CommentPayload(Payload):
@@ -275,6 +276,37 @@ class AddWhitelistPayload(Payload):
             .store_uint(0x7258a69b, 32)
             .store_uint(self.query_id, 64)
             .store_address(self.address)
+            .end_cell()
+        )
+
+
+class SingleNominatorWithdrawPayload(Payload):
+    def __init__(self,
+                 amount: int,
+                 query_id: Optional[int] = None) -> None:
+        self.query_id: int = query_id if query_id is not None else 0
+        self.amount: int = amount
+
+    def to_request_bytes(self) -> bytes:
+        main_body = b"".join([
+            (b"".join([
+                bytes([1]),
+                self.query_id.to_bytes(8, byteorder="big")
+            ]) if self.query_id != 0 else bytes([0])),
+            write_varuint(self.amount)
+        ])
+        return b"".join([
+            (PayloadID.SINGLE_NOMINATOR_WITHDRAW).to_bytes(4, byteorder="big"),
+            len(main_body).to_bytes(2, byteorder="big"),
+            main_body
+        ])
+
+    def to_message_body_cell(self) -> Cell:
+        return (
+            begin_cell()
+            .store_uint(0x1000, 32)
+            .store_uint(self.query_id, 64)
+            .store_coins(self.amount)
             .end_cell()
         )
 
