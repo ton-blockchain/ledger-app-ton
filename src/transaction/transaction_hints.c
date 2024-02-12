@@ -344,6 +344,56 @@ bool process_hints(transaction_t* tx) {
         snprintf(tx->recipient, sizeof(tx->recipient), "Pool");
     }
 
+    if (tx->hints_type == TRANSACTION_JETTON_DAO_VOTE) {
+        int ref_count = 0;
+        CellRef_t refs[1] = {0};
+
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0x69fb306c, 32);
+
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t query_id;
+            SAFE(buffer_read_u64(&buf, &query_id, BE));
+            BitString_storeUint(&bits, query_id, 64);
+        } else {
+            BitString_storeUint(&bits, 0, 64);
+        }
+
+        address_t voting_address;
+        SAFE(buffer_read_address(&buf, &voting_address));
+        BitString_storeAddress(&bits, voting_address.chain, voting_address.hash);
+
+        add_hint_address(&tx->hints, "Voting address", voting_address, true);
+
+        uint64_t expiration_date;
+        SAFE(buffer_read_u48(&buf, &expiration_date, BE));
+        BitString_storeUint(&bits, expiration_date, 48);
+
+        add_hint_number(&tx->hints, "Expiration time", (uint32_t) expiration_date);
+
+        // vote
+        SAFE(buffer_read_bool(&buf, &tmp));
+        BitString_storeBit(&bits, tmp);
+
+        add_hint_bool(&tx->hints, "Vote", tmp);
+
+        // need_confirmation
+        SAFE(buffer_read_bool(&buf, &tmp));
+        BitString_storeBit(&bits, tmp);
+
+        CHECK_END();
+
+        // Build cell
+        SAFE(hash_Cell(&bits, refs, ref_count, &cell));
+        hasCell = true;
+
+        // Operation
+        snprintf(tx->title, sizeof(tx->title), "Vote proposal");
+        snprintf(tx->action, sizeof(tx->action), "vote for proposal");
+        snprintf(tx->recipient, sizeof(tx->recipient), "Jetton wallet");
+    }
+
     // Check hash
     if (hasCell) {
         if (memcmp(cell.hash, tx->payload.hash, HASH_LEN) != 0) {

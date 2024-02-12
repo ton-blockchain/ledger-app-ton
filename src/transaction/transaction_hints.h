@@ -13,6 +13,7 @@ typedef enum {
     TRANSACTION_SINGLE_NOMINATOR_WITHDRAW = 5,
     TRANSACTION_SINGLE_NOMINATOR_CHANGE_VALIDATOR = 6,
     TRANSACTION_TONSTAKERS_DEPOSIT = 7,
+    TRANSACTION_JETTON_DAO_VOTE = 8,
 } transaction_hint_type_e;
 
 bool process_hints(transaction_t* tx);

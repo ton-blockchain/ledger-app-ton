@@ -12,6 +12,7 @@ This list contains a number of messages that ledger could assemble and display c
 | 0x05 | Single Nominator withdraw | [Single nominator withdraw message](https://github.com/orbs-network/single-nominator/tree/main?tab=readme-ov-file#1-withdraw) |
 | 0x06 | Single Nominator change validator address | [Single nominator change validator message](https://github.com/orbs-network/single-nominator/tree/main?tab=readme-ov-file#2-change-validator) |
 | 0x07 | Tonstakers deposit | [Tonstakers deposit message](https://github.com/ton-blockchain/liquid-staking-contract/blob/be2ee6d1e746bd2bb0f13f7b21537fb30ef0bc3b/contracts/interaction.tlb#L52) |
+| 0x08 | Jetton DAO vote for proposal | [Jetton DAO vote for proposal message](https://github.com/EmelyanenkoK/jetton_dao/blob/02fed5d124effd57ea50be77044b209ad800a621/contracts/voting.tlb#L61) |
 
 # 0x00: Message with comment
 
@@ -152,3 +153,20 @@ deposit#47d54391 query_id:uint64 = InternalMsgBody;
 | `query_id` | 0 or 8 | `query_id` for the message, 0 will be used if `!has_query_id` |
 | `has_app_id` | 1 | Whether `app_id` is present |
 | `app_id` | 0 or 8 | `app_id` for the message, will not be stored if `!has_app_id` |
+
+# 0x08: Jetton DAO vote for proposal
+
+### TL-B
+```
+vote#69fb306c query_id:uint64 voting_address:MsgAddressInt expiration_date:uint48 vote:Bool need_confirmation:Bool = InternalMsgBody;
+```
+
+### Hints
+| Value | Length or type | Description |
+| --- | --- | --- |
+| `has_query_id` | 1 | Whether `query_id` is present |
+| `query_id` | 0 or 8 | `query_id` for the message, 0 will be used if `!has_query_id` |
+| `voting_address` | `address` | Voting address |
+| `expiration_date` | 6 | Expiration timestamp |
+| `vote` | 1 | Vote flag |
+| `need_confirmation` | 1 | Need confirmation flag |

@@ -63,6 +63,7 @@ class PayloadID(IntEnum):
     SINGLE_NOMINATOR_WITHDRAW = 5
     SINGLE_NOMINATOR_CHANGE_VALIDATOR = 6
     TONSTAKERS_DEPOSIT = 7
+    JETTON_DAO_VOTE = 8
 
 
 class CommentPayload(Payload):
@@ -379,6 +380,49 @@ class TonstakersDepositPayload(Payload):
             b = b.store_uint(self.app_id, 64)
 
         return b.end_cell()
+
+
+class JettonDAOVotePayload(Payload):
+    def __init__(self,
+                 voting_address: Address,
+                 expiration_date: int,
+                 vote: bool,
+                 need_confirmation: bool,
+                 query_id: Optional[int] = None) -> None:
+        self.query_id: int = query_id if query_id is not None else 0
+        self.voting_address: Address = voting_address
+        self.expiration_date: int = expiration_date
+        self.vote: bool = vote
+        self.need_confirmation: bool = need_confirmation
+
+    def to_request_bytes(self) -> bytes:
+        main_body = b"".join([
+            (b"".join([
+                bytes([1]),
+                self.query_id.to_bytes(8, byteorder="big")
+            ]) if self.query_id != 0 else bytes([0])),
+            write_address(self.voting_address),
+            self.expiration_date.to_bytes(6, byteorder="big"),
+            bytes([1 if self.vote else 0]),
+            bytes([1 if self.need_confirmation else 0])
+        ])
+        return b"".join([
+            (PayloadID.JETTON_DAO_VOTE).to_bytes(4, byteorder="big"),
+            len(main_body).to_bytes(2, byteorder="big"),
+            main_body
+        ])
+
+    def to_message_body_cell(self) -> Cell:
+        return (
+            begin_cell()
+            .store_uint(0x69fb306c, 32)
+            .store_uint(self.query_id, 64)
+            .store_address(self.voting_address)
+            .store_uint(self.expiration_date, 48)
+            .store_bit(self.vote)
+            .store_bit(self.need_confirmation)
+            .end_cell()
+        )
 
 
 # pylint: disable-next=too-many-instance-attributes

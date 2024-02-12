@@ -72,6 +72,15 @@ void add_hint_number(HintHolder_t* hints, const char* title, uint32_t number) {
     hints->hints_count++;
 }
 
+void add_hint_bool(HintHolder_t* hints, const char* title, bool value) {
+    hints->hints[hints->hints_count].title = title;
+    hints->hints[hints->hints_count].kind = SummaryBool;
+    hints->hints[hints->hints_count].bool_value = value;
+
+    // Next
+    hints->hints_count++;
+}
+
 int print_string(const char* in, char* out, size_t out_length) {
     strncpy(out, in, out_length);
     int rc = (out[--out_length] != '\0');
@@ -137,6 +146,8 @@ void print_hint(HintHolder_t* hints,
         base64_encode(address, sizeof(address), body, body_len);
     } else if (hint.kind == SummaryNumber) {
         snprintf(body, body_len, "%u", hint.number);
+    } else if (hint.kind == SummaryBool) {
+        snprintf(body, body_len, hint.bool_value ? "Yes" : "No");
     } else {
         print_string("<unknown>", body, body_len);
     }
