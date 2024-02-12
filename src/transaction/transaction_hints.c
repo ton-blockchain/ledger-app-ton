@@ -312,6 +312,38 @@ bool process_hints(transaction_t* tx) {
         snprintf(tx->recipient, sizeof(tx->recipient), "Single Nominator");
     }
 
+    if (tx->hints_type == TRANSACTION_TONSTAKERS_DEPOSIT) {
+        BitString_init(&bits);
+        BitString_storeUint(&bits, 0x47d54391, 32);
+
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t query_id;
+            SAFE(buffer_read_u64(&buf, &query_id, BE));
+            BitString_storeUint(&bits, query_id, 64);
+        } else {
+            BitString_storeUint(&bits, 0, 64);
+        }
+
+        SAFE(buffer_read_bool(&buf, &tmp));
+        if (tmp) {
+            uint64_t app_id;
+            SAFE(buffer_read_u64(&buf, &app_id, BE));
+            BitString_storeUint(&bits, app_id, 64);
+        }
+
+        CHECK_END();
+
+        // Build cell
+        SAFE(hash_Cell(&bits, NULL, 0, &cell));
+        hasCell = true;
+
+        // Operation
+        snprintf(tx->title, sizeof(tx->title), "Deposit stake");
+        snprintf(tx->action, sizeof(tx->action), "deposit stake");
+        snprintf(tx->recipient, sizeof(tx->recipient), "Pool");
+    }
+
     // Check hash
     if (hasCell) {
         if (memcmp(cell.hash, tx->payload.hash, HASH_LEN) != 0) {

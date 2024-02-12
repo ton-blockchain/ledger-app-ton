@@ -11,6 +11,7 @@ This list contains a number of messages that ledger could assemble and display c
 | 0x04 | Add whitelist | [Vesting add whitelist message](https://github.com/ton-blockchain/vesting-contract?tab=readme-ov-file#whitelist) |
 | 0x05 | Single Nominator withdraw | [Single nominator withdraw message](https://github.com/orbs-network/single-nominator/tree/main?tab=readme-ov-file#1-withdraw) |
 | 0x06 | Single Nominator change validator address | [Single nominator change validator message](https://github.com/orbs-network/single-nominator/tree/main?tab=readme-ov-file#2-change-validator) |
+| 0x07 | Tonstakers deposit | [Tonstakers deposit message](https://github.com/ton-blockchain/liquid-staking-contract/blob/be2ee6d1e746bd2bb0f13f7b21537fb30ef0bc3b/contracts/interaction.tlb#L52) |
 
 # 0x00: Message with comment
 
@@ -132,3 +133,22 @@ change_validator_adddress#1001 queryId:uint64 new_validator_address:MsgAddress =
 | `has_query_id` | 1 | Whether `query_id` is present |
 | `query_id` | 0 or 8 | `query_id` for the message, 0 will be used if `!has_query_id` |
 | `address` | `address` | New validator address |
+
+# 0x07: Tonstakers deposit
+
+### TL-B
+```
+deposit#47d54391 query_id:uint64 app_id:uint64 = InternalMsgBody;
+```
+or
+```
+deposit#47d54391 query_id:uint64 = InternalMsgBody;
+```
+
+### Hints
+| Value | Length or type | Description |
+| --- | --- | --- |
+| `has_query_id` | 1 | Whether `query_id` is present |
+| `query_id` | 0 or 8 | `query_id` for the message, 0 will be used if `!has_query_id` |
+| `has_app_id` | 1 | Whether `app_id` is present |
+| `app_id` | 0 or 8 | `app_id` for the message, will not be stored if `!has_app_id` |

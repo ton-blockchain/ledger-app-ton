@@ -62,6 +62,7 @@ class PayloadID(IntEnum):
     ADD_WHITELIST = 4
     SINGLE_NOMINATOR_WITHDRAW = 5
     SINGLE_NOMINATOR_CHANGE_VALIDATOR = 6
+    TONSTAKERS_DEPOSIT = 7
 
 
 class CommentPayload(Payload):
@@ -341,6 +342,43 @@ class ChangeValidatorPayload(Payload):
             .store_address(self.address)
             .end_cell()
         )
+
+
+class TonstakersDepositPayload(Payload):
+    def __init__(self,
+                 app_id: Optional[int] = None,
+                 query_id: Optional[int] = None) -> None:
+        self.query_id: int = query_id if query_id is not None else 0
+        self.app_id: Optional[int] = app_id
+
+    def to_request_bytes(self) -> bytes:
+        main_body = b"".join([
+            (b"".join([
+                bytes([1]),
+                self.query_id.to_bytes(8, byteorder="big")
+            ]) if self.query_id != 0 else bytes([0])),
+            (b"".join([
+                bytes([1]),
+                self.app_id.to_bytes(8, byteorder="big")
+            ]) if self.app_id != None else bytes([0]))
+        ])
+        return b"".join([
+            (PayloadID.TONSTAKERS_DEPOSIT).to_bytes(4, byteorder="big"),
+            len(main_body).to_bytes(2, byteorder="big"),
+            main_body
+        ])
+
+    def to_message_body_cell(self) -> Cell:
+        b = (
+            begin_cell()
+            .store_uint(0x47d54391, 32)
+            .store_uint(self.query_id, 64)
+        )
+
+        if self.app_id != None:
+            b = b.store_uint(self.app_id, 64)
+
+        return b.end_cell()
 
 
 # pylint: disable-next=too-many-instance-attributes
