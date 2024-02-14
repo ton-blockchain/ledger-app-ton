@@ -120,6 +120,7 @@ def test_sign_tx_with_payload(firmware, backend, navigator, test_name):
         ChangeDNSWalletPayload(Address("0:" + "0" * 64), True, True),
         ChangeDNSPayload(bytes([0] * 32), None),
         TokenBridgePaySwapPayload(bytes([0] * 32)),
+        JettonBurnPayload(100, Address("0:" + "0" * 64), custom_payload=bytes([1, 32] * 10)),
     ]
 
     # Enable blind signing and expert mode

@@ -92,8 +92,8 @@ burn#595f07bc query_id:uint64 amount:(VarUInteger 16)
 | `query_id` | 0 or 8 | `query_id` for the message, 0 will be used if `!has_query_id` |
 | `amount` | `varuint` | Jetton amount |
 | `response_destination` | `address` | Whom to transfer the excess of TON to |
-| `has_custom_payload` | 1 | Whether `custom_payload` is present |
-| `custom_payload` | 0 or `cell_ref` | `custom_payload` for the message |
+| `custom_payload_type` | 1 | 0 - none, 1 - `cell_ref`, 2 - `cell_inline` |
+| `custom_payload` | 0 or `cell_ref` or `cell_inline` | `custom_payload` for the message |
 
 # 0x04: Add whitelist
 

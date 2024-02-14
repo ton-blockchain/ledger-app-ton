@@ -25,7 +25,7 @@
         return false;             \
     }
 
-const uint8_t dns_key_wallet[32] = {0xe8, 0xd4, 0x40, 0x50, 0x87, 0x3d, 0xba, 0x86, 0x5a, 0xa7, 0xc1, 0x70, 0xab, 0x4c, 0xce, 0x64, 0xd9, 0x08, 0x39, 0xa3, 0x4d, 0xcf, 0xd6, 0xcf, 0x71, 0xd1, 0x4e, 0x02, 0x05, 0x44, 0x3b, 0x1b};
+static const uint8_t dns_key_wallet[32] = {0xe8, 0xd4, 0x40, 0x50, 0x87, 0x3d, 0xba, 0x86, 0x5a, 0xa7, 0xc1, 0x70, 0xab, 0x4c, 0xce, 0x64, 0xd9, 0x08, 0x39, 0xa3, 0x4d, 0xcf, 0xd6, 0xcf, 0x71, 0xd1, 0x4e, 0x02, 0x05, 0x44, 0x3b, 0x1b};
 
 bool process_hints(transaction_t* tx) {
     // Default title
@@ -225,8 +225,11 @@ bool process_hints(transaction_t* tx) {
         }
 
         // custom payload
-        SAFE(buffer_read_bool(&buf, &tmp));
-        if (tmp) {
+        uint8_t type;
+        SAFE(buffer_read_u8(&buf, &type));
+        if (type == 0x00) {
+            BitString_storeBit(&bits, 0);
+        } else if (type == 0x01) {
             SAFE(buffer_read_cell_ref(&buf, &refs[ref_count]));
 
             if (N_storage.expert_mode) {
@@ -235,8 +238,29 @@ bool process_hints(transaction_t* tx) {
 
             BitString_storeBit(&bits, 1);
             ref_count++;
+        } else if (type == 0x02) {
+            uint8_t len;
+            SAFE(buffer_read_u8(&buf, &len));
+
+            if (len > MAX_CELL_INLINE_LEN) {
+                return false;
+            }
+
+            uint8_t data[MAX_CELL_INLINE_LEN];
+            SAFE(buffer_read_buffer(&buf, data, len));
+
+            add_hint_hex(&tx->hints, "Custom payload", data, len);
+
+            BitString_t inner_bits;
+            BitString_init(&inner_bits);
+            BitString_storeBuffer(&inner_bits, data, len);
+
+            hash_Cell(&inner_bits, NULL, 0, &refs[ref_count]);
+            ref_count++;
+
+            BitString_storeBit(&bits, 1);
         } else {
-            BitString_storeBit(&bits, 0);
+            return false;
         }
 
         CHECK_END();

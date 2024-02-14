@@ -217,11 +217,11 @@ class JettonBurnPayload(Payload):
                  amount: int,
                  response_destination: Address,
                  query_id: Optional[int] = None,
-                 custom_payload: Optional[Cell] = None) -> None:
+                 custom_payload: Optional[Cell | bytes] = None) -> None:
         self.query_id: int = query_id if query_id is not None else 0
         self.amount: int = amount
         self.response_destionation: Address = response_destination
-        self.custom_payload: Optional[Cell] = custom_payload
+        self.custom_payload: Optional[Cell | bytes] = custom_payload
 
     def to_request_bytes(self) -> bytes:
         main_body = b"".join([
@@ -231,10 +231,14 @@ class JettonBurnPayload(Payload):
             ]) if self.query_id != 0 else bytes([0])),
             write_varuint(self.amount),
             write_address(self.response_destionation),
-            (b"".join([
+            ((b"".join([
+                bytes([2]),
+                bytes([len(self.custom_payload)]),
+                self.custom_payload
+            ]) if type(self.custom_payload) == bytes else b"".join([
                 bytes([1]),
                 write_cell(self.custom_payload)
-            ]) if self.custom_payload is not None else bytes([0]))
+            ])) if self.custom_payload is not None else bytes([0]))
         ])
         return b"".join([
             (PayloadID.JETTON_BURN).to_bytes(4, byteorder="big"),
@@ -243,13 +247,17 @@ class JettonBurnPayload(Payload):
         ])
 
     def to_message_body_cell(self) -> Cell:
+        cp = self.custom_payload
+        if type(self.custom_payload) == bytes:
+            cp = begin_cell().store_bytes(self.custom_payload).end_cell()
+
         return (
             begin_cell()
             .store_uint(0x595f07bc, 32)
             .store_uint(self.query_id, 64)
             .store_coins(self.amount)
             .store_address(self.response_destionation)
-            .store_maybe_ref(self.custom_payload)
+            .store_maybe_ref(cp)
             .end_cell()
         )
 

@@ -18,7 +18,11 @@ Address is serialized by appending a single byte of chain - 0x00 or 0xff and the
 
 ## Cells
 
-`Cell` is a fundamental data type used in TON, and everything is stored using it. A Cell can store up to 1023 bits, and up to 4 references to other cells (which themselves can store 4 more references each and so on). When hashing a Cell for signing, in order to reference another cell, only two of its properties need to be known - its depth and its hash. We define a format to serialize cell references in requests: 2 bytes for the max depth, and 32 bytes for the hash, 34 in total. We shall name this format `cell_ref`.
+`Cell` is a fundamental data type used in TON, and everything is stored using it. A Cell can store up to 1023 bits, and up to 4 references to other cells (which themselves can store 4 more references each and so on).
+
+When hashing a Cell for signing, in order to reference another cell, only two of its properties need to be known - its depth and its hash. We define a format to serialize cell references in requests: 2 bytes for the max depth, and 32 bytes for the hash, 34 in total. We shall name this format `cell_ref`.
+
+We shall also have another format for cells - 1 byte for length in bytes (n) and this many bytes as its contents, so n+1 bytes total. Such format may be used to display the stored data in hex, which is useful in a few situations. The cell will be hashed on the device. A non-integer amount of bytes cannot be stored that way. This type shall be named `cell_inline`. Cells of this type will be displayed as their data in hex. Currently, `cell_inline` has a limitation of max 32 bytes as data.
 
 ## Transaction request structure
 

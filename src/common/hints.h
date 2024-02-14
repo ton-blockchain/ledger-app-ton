@@ -15,6 +15,7 @@ enum HintKind {
     SummaryHash,
     SummaryNumber,
     SummaryBool,
+    SummaryHex,
 };
 
 typedef struct {
@@ -35,6 +36,11 @@ typedef struct {
 } HintAddress_t;
 
 typedef struct {
+    uint8_t len;
+    uint8_t data[HASH_LEN];
+} HintHex_t;
+
+typedef struct {
     const char* title;
     enum HintKind kind;
     union {
@@ -44,6 +50,7 @@ typedef struct {
         uint8_t hash[HASH_LEN];
         HintAddress_t address;
         bool bool_value;
+        HintHex_t hex;
     };
 } Hint_t;
 
@@ -63,6 +70,7 @@ void add_hint_amount(HintHolder_t* hints,
 void add_hint_address(HintHolder_t* hints, const char* title, address_t address, bool bounceable);
 void add_hint_number(HintHolder_t* hints, const char* title, uint32_t number);
 void add_hint_bool(HintHolder_t* hints, const char* title, bool value);
+void add_hint_hex(HintHolder_t* hints, const char* title, uint8_t* data, uint8_t data_len);
 
 void print_hint(HintHolder_t* hints,
                 uint16_t index,
