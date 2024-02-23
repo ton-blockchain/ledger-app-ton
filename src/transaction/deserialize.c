@@ -84,7 +84,7 @@ parser_status_e transaction_deserialize(buffer_t *buf, transaction_t *tx) {
     SAFE(process_hints(tx), HINTS_PARSING_ERROR);
 
     if (tx->subwallet_id != DEFAULT_SUBWALLET_ID) {
-        add_hint_number(&tx->hints, "Subwallet ID", tx->subwallet_id);
+        add_hint_number(&tx->hints, "Subwallet ID", (uint64_t) tx->subwallet_id);
     }
 
     return (buf->offset == buf->size) ? PARSING_OK : WRONG_LENGTH_ERROR;

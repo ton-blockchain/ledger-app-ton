@@ -76,7 +76,7 @@ void add_hint_address(HintHolder_t* hints, const char* title, address_t address,
     hints->hints_count++;
 }
 
-void add_hint_number(HintHolder_t* hints, const char* title, uint32_t number) {
+void add_hint_number(HintHolder_t* hints, const char* title, uint64_t number) {
     hints->hints[hints->hints_count].title = title;
     hints->hints[hints->hints_count].kind = SummaryNumber;
     hints->hints[hints->hints_count].number = number;
@@ -158,7 +158,7 @@ void print_hint(HintHolder_t* hints,
         memset(body, 0, body_len);
         base64_encode(address, sizeof(address), body, body_len);
     } else if (hint.kind == SummaryNumber) {
-        snprintf(body, body_len, "%u", hint.number);
+        format_u64(hint.number, body, body_len);
     } else if (hint.kind == SummaryBool) {
         snprintf(body, body_len, hint.bool_value ? "Yes" : "No");
     } else if (hint.kind == SummaryHex) {

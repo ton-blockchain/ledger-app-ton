@@ -45,7 +45,7 @@ typedef struct {
     enum HintKind kind;
     union {
         Amount_t amount;
-        uint32_t number;
+        uint64_t number;
         SizedString_t string;
         uint8_t hash[HASH_LEN];
         HintAddress_t address;
@@ -68,7 +68,7 @@ void add_hint_amount(HintHolder_t* hints,
                      uint8_t value_len,
                      uint8_t decimals);
 void add_hint_address(HintHolder_t* hints, const char* title, address_t address, bool bounceable);
-void add_hint_number(HintHolder_t* hints, const char* title, uint32_t number);
+void add_hint_number(HintHolder_t* hints, const char* title, uint64_t number);
 void add_hint_bool(HintHolder_t* hints, const char* title, bool value);
 void add_hint_hex(HintHolder_t* hints, const char* title, uint8_t* data, uint8_t data_len);
 

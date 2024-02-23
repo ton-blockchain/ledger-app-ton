@@ -19,3 +19,5 @@
  *
  */
 int format_hex(const uint8_t *in, size_t in_len, char *out, size_t out_len);
+
+void format_u64(uint64_t in, char* out, size_t out_len);

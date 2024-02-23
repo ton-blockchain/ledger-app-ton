@@ -46,3 +46,29 @@ int format_hex(const uint8_t *in, size_t in_len, char *out, size_t out_len)
 
     return written + 1;
 }
+
+void format_u64(uint64_t in, char* out, size_t out_len) {
+    int len = 0;
+    if (in == 0) {
+        len = 1;
+    } else {
+        uint64_t x = in;
+        while (x > 0) {
+            len++;
+            x /= 10;
+        }
+    }
+
+    if (out_len < (size_t) len + 1) {
+        if (out_len > 0) {
+            out[0] = '\0';
+        }
+        return;
+    }
+
+    out[len--] = '\0';
+    for (; len >= 0; len--) {
+        out[len] = '0' + ((char) (in % 10));
+        in /= 10;
+    }
+}

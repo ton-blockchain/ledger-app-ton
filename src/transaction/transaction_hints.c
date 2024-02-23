@@ -393,7 +393,7 @@ bool process_hints(transaction_t* tx) {
         SAFE(buffer_read_u48(&buf, &expiration_date, BE));
         BitString_storeUint(&bits, expiration_date, 48);
 
-        add_hint_number(&tx->hints, "Expiration time", (uint32_t) expiration_date);
+        add_hint_number(&tx->hints, "Expiration time", expiration_date);
 
         // vote
         SAFE(buffer_read_bool(&buf, &tmp));
