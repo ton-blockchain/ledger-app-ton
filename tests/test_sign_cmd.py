@@ -195,6 +195,7 @@ def test_sign_tx_subwallet_id(firmware, backend, navigator, test_name):
 
     payloads: List[Payload] = [
         CommentPayload("test"),
+        CustomUnsafePayload(Cell()),
     ]
 
     # Enable blind signing and expert mode

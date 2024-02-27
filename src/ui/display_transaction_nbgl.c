@@ -77,15 +77,13 @@ static void start_regular_review(void) {
     pairs[pairIndex].value = g_address;
     pairIndex++;
 
-    if (G_context.tx_info.transaction.has_payload) {
-        if (G_context.tx_info.transaction.is_blind) {
-            pairs[pairIndex].item = "Payload";
-            pairs[pairIndex].value = g_payload;
-            pairIndex++;
-        } else {
-            print_hints(&G_context.tx_info.transaction.hints, &pairs[pairIndex]);
-        }
+    if (G_context.tx_info.transaction.has_payload && G_context.tx_info.transaction.is_blind) {
+        pairs[pairIndex].item = "Payload";
+        pairs[pairIndex].value = g_payload;
+        pairIndex++;
     }
+
+    print_hints(&G_context.tx_info.transaction.hints, &pairs[pairIndex]);
 
     pairList.pairs = pairs;
     pairList.nbPairs = pairIndex + G_context.tx_info.transaction.hints.hints_count;

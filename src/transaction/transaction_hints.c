@@ -51,7 +51,6 @@ bool process_hints(transaction_t* tx) {
     BitString_t bits;
     bool hasCell = false;
     bool tmp = false;
-    tx->hints.hints_count = 0;
     buffer_t buf = {.ptr = tx->hints_data, .size = tx->hints_len, .offset = 0};
 
     //

@@ -40,6 +40,8 @@ parser_status_e transaction_deserialize(buffer_t *buf, transaction_t *tx) {
         return TAG_PARSING_ERROR;
     }
 
+    tx->hints.hints_count = 0;
+
     if (tx->tag == 0x01) {
         SAFE(buffer_read_u32(buf, &tx->subwallet_id, BE), GENERAL_ERROR);
         SAFE(buffer_read_bool(buf, &tx->include_wallet_op), GENERAL_ERROR);

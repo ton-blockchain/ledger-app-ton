@@ -239,16 +239,13 @@ int ui_display_transaction() {
     }
     ux_approval_flow[step++] = &ux_display_address_step;
     ux_approval_flow[step++] = &ux_display_amount_step;
-    if (G_context.tx_info.transaction.has_payload) {
-        if (G_context.tx_info.transaction.is_blind) {
-            ux_approval_flow[step++] = &ux_display_payload_step;
-        } else {
-            g_hint_holder = &G_context.tx_info.transaction.hints;
-            g_hint_offset = -3;
-            for (uint16_t i = 0; i < G_context.tx_info.transaction.hints.hints_count; i++) {
-                ux_approval_flow[step++] = &ux_display_hint_step;
-            }
-        }
+    if (G_context.tx_info.transaction.has_payload && G_context.tx_info.transaction.is_blind) {
+        ux_approval_flow[step++] = &ux_display_payload_step;
+    }
+    g_hint_holder = &G_context.tx_info.transaction.hints;
+    g_hint_offset = -step;
+    for (uint16_t i = 0; i < G_context.tx_info.transaction.hints.hints_count; i++) {
+        ux_approval_flow[step++] = &ux_display_hint_step;
     }
     ux_approval_flow[step++] = &ux_display_approve_step;
     ux_approval_flow[step++] = &ux_display_reject_step;
