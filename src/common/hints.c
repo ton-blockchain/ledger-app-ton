@@ -37,9 +37,10 @@ void add_hint_hex(HintHolder_t* hints, const char* title, uint8_t* data, uint8_t
     // Configure
     hints->hints[hints->hints_count].title = title;
     hints->hints[hints->hints_count].kind = SummaryHex;
-    memmove(hints->hints[hints->hints_count].hex.data, data, data_len > HASH_LEN ? HASH_LEN : data_len);
+    memmove(hints->hints[hints->hints_count].hex.data,
+            data,
+            data_len > HASH_LEN ? HASH_LEN : data_len);
     hints->hints[hints->hints_count].hex.len = data_len;
-
 
     // Next
     hints->hints_count++;

@@ -27,7 +27,7 @@ typedef enum {
 } parser_status_e;
 
 typedef struct {
-    uint8_t tag;                             // tag (1 byte)
+    uint8_t tag;  // tag (1 byte)
     uint32_t subwallet_id;
     bool include_wallet_op;
     uint32_t seqno;                          // seqno (4 bytes)

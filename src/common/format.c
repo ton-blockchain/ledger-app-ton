@@ -19,23 +19,22 @@
 
 #include "format.h"
 
-int format_hex(const uint8_t *in, size_t in_len, char *out, size_t out_len)
-{
+int format_hex(const uint8_t *in, size_t in_len, char *out, size_t out_len) {
     if (out_len < 2 * in_len + 1) {
         return -1;
     }
 
-    const char hex[]   = "0123456789ABCDEF";
-    size_t     i       = 0;
-    int        written = 0;
+    const char hex[] = "0123456789ABCDEF";
+    size_t i = 0;
+    int written = 0;
 
     while (i < in_len && (i * 2 + (2 + 1)) <= out_len) {
         uint8_t high_nibble = (in[i] & 0xF0) >> 4;
-        *out                = hex[high_nibble];
+        *out = hex[high_nibble];
         out++;
 
         uint8_t low_nibble = in[i] & 0x0F;
-        *out               = hex[low_nibble];
+        *out = hex[low_nibble];
         out++;
 
         i++;
@@ -47,7 +46,7 @@ int format_hex(const uint8_t *in, size_t in_len, char *out, size_t out_len)
     return written + 1;
 }
 
-void format_u64(uint64_t in, char* out, size_t out_len) {
+void format_u64(uint64_t in, char *out, size_t out_len) {
     int len = 0;
     if (in == 0) {
         len = 1;

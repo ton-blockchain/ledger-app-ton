@@ -25,7 +25,9 @@
         return false;             \
     }
 
-static const uint8_t dns_key_wallet[32] = {0xe8, 0xd4, 0x40, 0x50, 0x87, 0x3d, 0xba, 0x86, 0x5a, 0xa7, 0xc1, 0x70, 0xab, 0x4c, 0xce, 0x64, 0xd9, 0x08, 0x39, 0xa3, 0x4d, 0xcf, 0xd6, 0xcf, 0x71, 0xd1, 0x4e, 0x02, 0x05, 0x44, 0x3b, 0x1b};
+static const uint8_t dns_key_wallet[32] = {
+    0xe8, 0xd4, 0x40, 0x50, 0x87, 0x3d, 0xba, 0x86, 0x5a, 0xa7, 0xc1, 0x70, 0xab, 0x4c, 0xce, 0x64,
+    0xd9, 0x08, 0x39, 0xa3, 0x4d, 0xcf, 0xd6, 0xcf, 0x71, 0xd1, 0x4e, 0x02, 0x05, 0x44, 0x3b, 0x1b};
 
 bool process_hints(transaction_t* tx) {
     // Default title
@@ -274,9 +276,12 @@ bool process_hints(transaction_t* tx) {
         snprintf(tx->recipient, sizeof(tx->recipient), "Jetton wallet");
     }
 
-    if (tx->hints_type == TRANSACTION_ADD_WHITELIST || tx->hints_type == TRANSACTION_SINGLE_NOMINATOR_CHANGE_VALIDATOR) {
+    if (tx->hints_type == TRANSACTION_ADD_WHITELIST ||
+        tx->hints_type == TRANSACTION_SINGLE_NOMINATOR_CHANGE_VALIDATOR) {
         BitString_init(&bits);
-        BitString_storeUint(&bits, tx->hints_type == TRANSACTION_ADD_WHITELIST ? 0x7258a69b : 0x1001, 32);
+        BitString_storeUint(&bits,
+                            tx->hints_type == TRANSACTION_ADD_WHITELIST ? 0x7258a69b : 0x1001,
+                            32);
 
         SAFE(buffer_read_bool(&buf, &tmp));
         if (tmp) {
@@ -291,7 +296,11 @@ bool process_hints(transaction_t* tx) {
         SAFE(buffer_read_address(&buf, &addr));
         BitString_storeAddress(&bits, addr.chain, addr.hash);
 
-        add_hint_address(&tx->hints, tx->hints_type == TRANSACTION_ADD_WHITELIST ? "New whitelist" : "New validator", addr, false);
+        add_hint_address(
+            &tx->hints,
+            tx->hints_type == TRANSACTION_ADD_WHITELIST ? "New whitelist" : "New validator",
+            addr,
+            false);
 
         CHECK_END();
 
@@ -300,9 +309,17 @@ bool process_hints(transaction_t* tx) {
         hasCell = true;
 
         // Operation
-        snprintf(tx->title, sizeof(tx->title), tx->hints_type == TRANSACTION_ADD_WHITELIST ? "Add whitelist" : "Edit validator");
-        snprintf(tx->action, sizeof(tx->action), tx->hints_type == TRANSACTION_ADD_WHITELIST ? "add whitelist" : "change validator");
-        snprintf(tx->recipient, sizeof(tx->recipient), tx->hints_type == TRANSACTION_ADD_WHITELIST ? "Vesting wallet" : "Single Nominator");
+        snprintf(tx->title,
+                 sizeof(tx->title),
+                 tx->hints_type == TRANSACTION_ADD_WHITELIST ? "Add whitelist" : "Edit validator");
+        snprintf(
+            tx->action,
+            sizeof(tx->action),
+            tx->hints_type == TRANSACTION_ADD_WHITELIST ? "add whitelist" : "change validator");
+        snprintf(
+            tx->recipient,
+            sizeof(tx->recipient),
+            tx->hints_type == TRANSACTION_ADD_WHITELIST ? "Vesting wallet" : "Single Nominator");
     }
 
     if (tx->hints_type == TRANSACTION_SINGLE_NOMINATOR_WITHDRAW) {
@@ -323,7 +340,12 @@ bool process_hints(transaction_t* tx) {
         SAFE(buffer_read_varuint(&buf, &amount_size, amount_buf, MAX_VALUE_BYTES_LEN));
         BitString_storeCoinsBuf(&bits, amount_buf, amount_size);
 
-        add_hint_amount(&tx->hints, "Withdraw amount", "TON", amount_buf, amount_size, EXPONENT_SMALLEST_UNIT);
+        add_hint_amount(&tx->hints,
+                        "Withdraw amount",
+                        "TON",
+                        amount_buf,
+                        amount_size,
+                        EXPONENT_SMALLEST_UNIT);
 
         CHECK_END();
 
@@ -438,7 +460,7 @@ bool process_hints(transaction_t* tx) {
         uint8_t type;
         SAFE(buffer_read_u8(&buf, &type));
 
-        if (type == 0x00) { // wallet
+        if (type == 0x00) {  // wallet
             add_hint_text(&tx->hints, "Type", "Wallet", 6);
 
             BitString_storeBuffer(&bits, dns_key_wallet, sizeof(dns_key_wallet));
@@ -477,7 +499,7 @@ bool process_hints(transaction_t* tx) {
 
                 hash_Cell(&inner_bits, NULL, 0, &refs[ref_count++]);
             }
-        } else if (type == 0x01) { // unknown key
+        } else if (type == 0x01) {  // unknown key
             add_hint_text(&tx->hints, "Type", "Unknown", 7);
 
             uint8_t key[32];
@@ -490,7 +512,7 @@ bool process_hints(transaction_t* tx) {
             if (has_value) {
                 SAFE(buffer_read_cell_ref(&buf, &refs[ref_count++]));
 
-                add_hint_hash(&tx->hints, "Value", refs[ref_count-1].hash);
+                add_hint_hash(&tx->hints, "Value", refs[ref_count - 1].hash);
             }
         } else {
             return false;
