@@ -235,7 +235,7 @@ class JettonBurnPayload(Payload):
                 bytes([2]),
                 bytes([len(self.custom_payload)]),
                 self.custom_payload
-            ]) if type(self.custom_payload) == bytes else b"".join([
+            ]) if isinstance(self.custom_payload, bytes) else b"".join([
                 bytes([1]),
                 write_cell(self.custom_payload)
             ])) if self.custom_payload is not None else bytes([0]))
@@ -248,7 +248,7 @@ class JettonBurnPayload(Payload):
 
     def to_message_body_cell(self) -> Cell:
         cp = self.custom_payload
-        if type(self.custom_payload) == bytes:
+        if isinstance(self.custom_payload, bytes):
             cp = begin_cell().store_bytes(self.custom_payload).end_cell()
 
         return (
@@ -371,7 +371,7 @@ class TonstakersDepositPayload(Payload):
             (b"".join([
                 bytes([1]),
                 self.app_id.to_bytes(8, byteorder="big")
-            ]) if self.app_id != None else bytes([0]))
+            ]) if self.app_id is not None else bytes([0]))
         ])
         return b"".join([
             (PayloadID.TONSTAKERS_DEPOSIT).to_bytes(4, byteorder="big"),
@@ -386,7 +386,7 @@ class TonstakersDepositPayload(Payload):
             .store_uint(self.query_id, 64)
         )
 
-        if self.app_id != None:
+        if self.app_id is not None:
             b = b.store_uint(self.app_id, 64)
 
         return b.end_cell()
@@ -442,7 +442,7 @@ class ChangeDNSWalletPayload(Payload):
                  is_wallet: bool,
                  query_id: Optional[int] = None) -> None:
         if is_wallet and not has_capabilities:
-            raise Exception("DNS wallet record cannot be a wallet without capabilities")
+            raise ValueError("DNS wallet record cannot be a wallet without capabilities")
         self.query_id: int = query_id if query_id is not None else 0
         self.wallet: Optional[Address] = wallet
         self.has_capabilities: bool = has_capabilities
@@ -454,13 +454,13 @@ class ChangeDNSWalletPayload(Payload):
                 bytes([1]),
                 self.query_id.to_bytes(8, byteorder="big")
             ]) if self.query_id != 0 else bytes([0])),
-            bytes([1 if self.wallet != None else 0]),
+            bytes([1 if self.wallet is not None else 0]),
             bytes([0]),
             (b"".join([
                 write_address(self.wallet),
                 bytes([1 if self.has_capabilities else 0]),
                 bytes([1 if self.is_wallet else 0]) if self.has_capabilities else bytes([])
-            ]) if self.wallet != None else bytes([]))
+            ]) if self.wallet is not None else bytes([]))
         ])
         return b"".join([
             (PayloadID.CHANGE_DNS_RECORD).to_bytes(4, byteorder="big"),
@@ -473,10 +473,12 @@ class ChangeDNSWalletPayload(Payload):
             begin_cell()
             .store_uint(0x4eb1f0f9, 32)
             .store_uint(self.query_id, 64)
-            .store_bytes(bytes([0xe8, 0xd4, 0x40, 0x50, 0x87, 0x3d, 0xba, 0x86, 0x5a, 0xa7, 0xc1, 0x70, 0xab, 0x4c, 0xce, 0x64, 0xd9, 0x08, 0x39, 0xa3, 0x4d, 0xcf, 0xd6, 0xcf, 0x71, 0xd1, 0x4e, 0x02, 0x05, 0x44, 0x3b, 0x1b]))
+            .store_bytes(bytes([0xe8, 0xd4, 0x40, 0x50, 0x87, 0x3d, 0xba, 0x86, 0x5a, 0xa7, 0xc1,
+                                0x70, 0xab, 0x4c, 0xce, 0x64, 0xd9, 0x08, 0x39, 0xa3, 0x4d, 0xcf,
+                                0xd6, 0xcf, 0x71, 0xd1, 0x4e, 0x02, 0x05, 0x44, 0x3b, 0x1b]))
         )
 
-        if self.wallet != None:
+        if self.wallet is not None:
             rb = (
                 begin_cell()
                 .store_uint(0x9fd3, 16)
@@ -513,10 +515,10 @@ class ChangeDNSPayload(Payload):
                 bytes([1]),
                 self.query_id.to_bytes(8, byteorder="big")
             ]) if self.query_id != 0 else bytes([0])),
-            bytes([1 if self.value != None else 0]),
+            bytes([1 if self.value is not None else 0]),
             bytes([1]),
             self.key,
-            write_cell(self.value) if self.value != None else bytes([])
+            write_cell(self.value) if self.value is not None else bytes([])
         ])
         return b"".join([
             (PayloadID.CHANGE_DNS_RECORD).to_bytes(4, byteorder="big"),
@@ -532,7 +534,7 @@ class ChangeDNSPayload(Payload):
             .store_bytes(self.key)
         )
 
-        if self.value != None:
+        if self.value is not None:
             b = b.store_ref(self.value)
 
         return b.end_cell()
@@ -594,14 +596,17 @@ class Transaction:
         self.include_wallet_op: bool = include_wallet_op
 
     def header_bytes(self) -> bytes:
-        if not self.include_wallet_op or self.subwallet_id != None:
+        if not self.include_wallet_op or self.subwallet_id is not None:
             return b"".join([
                 bytes([1]),
-                (self.subwallet_id if self.subwallet_id != None else 698983191).to_bytes(4, byteorder="big"),
+                (
+                    (self.subwallet_id if self.subwallet_id is not None else 698983191)
+                    .to_bytes(4, byteorder="big")
+                ),
                 bytes([1 if self.include_wallet_op else 0])
             ])
-        else:
-            return bytes([0])
+
+        return bytes([0])
 
     def to_request_bytes(self) -> bytes:
         return b"".join([
@@ -661,7 +666,7 @@ class Transaction:
     def transfer_cell(self) -> Cell:
         b = (
             begin_cell()
-            .store_uint(698983191 if self.subwallet_id == None else self.subwallet_id, 32)
+            .store_uint(698983191 if self.subwallet_id is None else self.subwallet_id, 32)
             .store_uint(self.timeout, 32)
             .store_uint(self.seqno, 32)
         )
