@@ -33,6 +33,7 @@ class InsType(IntEnum):
     SIGN_TX           = 0x06
     GET_ADDRESS_PROOF = 0x08
     SIGN_DATA         = 0x09
+    GET_APP_SETTINGS  = 0x0A
 
 class Errors(IntEnum):
     SW_DENY                    = 0x6985
@@ -94,6 +95,14 @@ class BoilerplateCommandSender:
                                      p1=P1.P1_NON_CONFIRM,
                                      p2=AddressDisplayFlags.NONE,
                                      data=pack_derivation_path(path))
+
+
+    def get_app_settings(self) -> RAPDU:
+        return self.backend.exchange(cla=CLA,
+                                     ins=InsType.GET_APP_SETTINGS,
+                                     p1=P1.P1_NONE,
+                                     p2=P2.P2_NONE,
+                                     data=b"")
 
 
     @contextmanager
