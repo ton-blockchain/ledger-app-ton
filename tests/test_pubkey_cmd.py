@@ -1,10 +1,10 @@
 import pytest
 
 from application_client.ton_command_sender import BoilerplateCommandSender, Errors, AddressDisplayFlags
+from ledgered.devices import DeviceType
 from ragger.error import ExceptionRAPDU
 from ragger.navigator import NavInsID, NavIns
 from utils import ROOT_SCREENSHOT_PATH
-
 
 # In this test we check that the GET_PUBLIC_KEY works in non-confirmation mode
 def test_get_public_key_no_confirm(backend):
@@ -15,20 +15,26 @@ def test_get_public_key_no_confirm(backend):
 
 
 # In this test we check that the GET_PUBLIC_KEY works in confirmation mode
-def test_get_public_key_confirm_accepted(firmware, backend, navigator, test_name):
+def test_get_public_key_confirm_accepted(backend, navigator, test_name):
     client = BoilerplateCommandSender(backend)
     path = "m/44'/607'/0'/0'/0'/0'"
     with client.get_public_key_with_confirmation(path, AddressDisplayFlags.NONE):
-        if firmware.device.startswith("nano"):
+        if backend.device.is_nano:
             navigator.navigate_until_text_and_compare(NavInsID.RIGHT_CLICK,
                                                       [NavInsID.BOTH_CLICK],
                                                       "Approve",
                                                       ROOT_SCREENSHOT_PATH,
                                                       test_name)
         else:
+            if backend.device.type == DeviceType.APEX_P:
+                touch_pos = (52, 300) #QR CODE ICON position
+            elif backend.device.type == DeviceType.FLEX:
+                touch_pos = (80, 440) #QR CODE ICON position
+            elif backend.device.type == DeviceType.STAX:
+                touch_pos = (65, 520) #QR CODE ICON position
             instructions = [
                 NavInsID.SWIPE_CENTER_TO_LEFT,
-                NavIns(NavInsID.TOUCH, (65, 520) if firmware.device == "stax" else (80, 440)),
+                NavIns(NavInsID.TOUCH, touch_pos),
                 NavInsID.USE_CASE_ADDRESS_CONFIRMATION_EXIT_QR,
                 NavInsID.USE_CASE_ADDRESS_CONFIRMATION_CONFIRM,
             ]
@@ -39,20 +45,26 @@ def test_get_public_key_confirm_accepted(firmware, backend, navigator, test_name
     assert len(response) == 32
 
 
-def test_get_public_key_confirm_accepted_v3r2(firmware, backend, navigator, test_name):
+def test_get_public_key_confirm_accepted_v3r2(backend, navigator, test_name):
     client = BoilerplateCommandSender(backend)
     path = "m/44'/607'/0'/0'/0'/0'"
     with client.get_public_key_with_confirmation(path, AddressDisplayFlags.NONE, is_v3r2=True):
-        if firmware.device.startswith("nano"):
+        if backend.device.is_nano:
             navigator.navigate_until_text_and_compare(NavInsID.RIGHT_CLICK,
                                                       [NavInsID.BOTH_CLICK],
                                                       "Approve",
                                                       ROOT_SCREENSHOT_PATH,
                                                       test_name)
         else:
+            if backend.device.type == DeviceType.APEX_P:
+                touch_pos = (52, 300)
+            elif backend.device.type == DeviceType.FLEX:
+                touch_pos = (80, 440)
+            elif backend.device.type == DeviceType.STAX:
+                touch_pos = (65, 520)
             instructions = [
                 NavInsID.SWIPE_CENTER_TO_LEFT,
-                NavIns(NavInsID.TOUCH, (65, 520) if firmware.device == "stax" else (80, 440)),
+                NavIns(NavInsID.TOUCH, touch_pos),
                 NavInsID.USE_CASE_ADDRESS_CONFIRMATION_EXIT_QR,
                 NavInsID.USE_CASE_ADDRESS_CONFIRMATION_CONFIRM,
             ]
@@ -64,11 +76,11 @@ def test_get_public_key_confirm_accepted_v3r2(firmware, backend, navigator, test
 
 
 # # In this test we check that the GET_PUBLIC_KEY in confirmation mode replies an error if the user refuses
-def test_get_public_key_confirm_refused(firmware, backend, navigator, test_name):
+def test_get_public_key_confirm_refused(backend, navigator, test_name):
     client = BoilerplateCommandSender(backend)
     path = "m/44'/607'/0'/0'/0'/0'"
 
-    if firmware.device.startswith("nano"):
+    if backend.device.is_nano:
         with pytest.raises(ExceptionRAPDU) as e:
             with client.get_public_key_with_confirmation(path, AddressDisplayFlags.NONE):
                 navigator.navigate_until_text_and_compare(NavInsID.RIGHT_CLICK,
@@ -99,7 +111,7 @@ def test_get_public_key_confirm_refused(firmware, backend, navigator, test_name)
             assert e.value.status == Errors.SW_DENY
             assert len(e.value.data) == 0
 
-def test_get_public_key_bad_path(firmware, backend, navigator, test_name):
+def test_get_public_key_bad_path(backend, navigator, test_name):
     client = BoilerplateCommandSender(backend)
     paths = ["m/44'/607'"]
 

@@ -27,8 +27,8 @@ endif
 
 APPNAME      = "TON"
 APPVERSION_M = 2
-APPVERSION_N = 7
-APPVERSION_P = 0
+APPVERSION_N = 8
+APPVERSION_P = 1
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
 APP_SOURCE_PATH += src
@@ -38,6 +38,7 @@ ICON_NANOSP = icons/nanox_app_ton.gif
 ICON_NANOS = icons/nanos_app_ton.gif
 ICON_STAX = icons/ledger_stax_ton_32.gif
 ICON_FLEX = icons/ledger_flex_ton_40.gif
+ICON_APEX_P = icons/ledger_apex_p_ton_32.png
 
 CURVE_APP_LOAD_PARAMS = ed25519
 

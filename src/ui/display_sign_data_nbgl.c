@@ -44,7 +44,7 @@ int ui_display_sign_data() {
 
     nbgl_useCaseReview(TYPE_MESSAGE,
                        &pairList,
-                       &C_ledger_stax_ton_64,
+                       &ICON_APP_HOME,
                        "Sign custom data",
                        NULL,
                        "Sign custom data",

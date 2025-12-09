@@ -44,7 +44,7 @@ int ui_display_address(uint8_t flags) {
 
     nbgl_useCaseAddressReview(g_address,
                               NULL,
-                              &C_ledger_stax_ton_64,
+                              &ICON_APP_HOME,
                               "Verify TON address",
                               NULL,
                               review_choice);

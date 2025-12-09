@@ -1,7 +1,7 @@
 [app]
 build_directory = "./"
 sdk = "C"
-devices = ["nanos", "nanox", "nanos+", "stax", "flex"]
+devices = ["nanox", "nanos+", "stax", "flex", "apex_p"]
 
 [use_cases]
 debug = "DEBUG=1"

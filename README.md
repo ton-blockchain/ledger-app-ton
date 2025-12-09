@@ -1,6 +1,6 @@
 # TON Ledger App
 
-This is a Nano App for Ledger S/X/S+ for TON blockchain.
+This is app for Ledger devices for TON blockchain.
 
 * 🚀 Compatible with latest Wallet v4 contract
 * 🔎 Absolutely minimal footprint and very straight forward code that easy to audit and contribute

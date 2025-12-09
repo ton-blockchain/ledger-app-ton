@@ -55,7 +55,7 @@ int ui_display_proof(uint8_t flags) {
 
     nbgl_useCaseAddressReview(g_address,
                               &pairList,
-                              &C_ledger_stax_ton_64,
+                              &ICON_APP_HOME,
                               "Verify TON address\nto application",
                               NULL,
                               review_choice);

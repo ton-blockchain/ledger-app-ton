@@ -23,6 +23,7 @@
 
 #include "../globals.h"
 #include "menu.h"
+#include "display.h"
 
 void app_quit(void) {
     // exit app here
@@ -98,7 +99,7 @@ static void ui_menu_common(uint8_t initPage) {
     initialize_switches();
 
     nbgl_useCaseHomeAndSettings(APPNAME,
-                                &C_ledger_stax_ton_64,
+                                &ICON_APP_HOME,
                                 NULL,
                                 initPage,
                                 &settingsContents,

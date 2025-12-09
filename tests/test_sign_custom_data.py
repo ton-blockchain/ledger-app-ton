@@ -5,13 +5,14 @@ from application_client.ton_response_unpacker import unpack_sign_data_response
 from application_client.ton_sign_data import PlaintextSignDataRequest, SignDataRequest, AppDataSignDataRequest
 from ragger.error import ExceptionRAPDU
 from ragger.navigator import NavInsID
+from ledgered.devices import DeviceType
 from utils import ROOT_SCREENSHOT_PATH, check_signature_validity
 from typing import List
 from tonsdk.boc import Cell
 from tonsdk.utils import Address
 
 
-def test_sign_data(firmware, backend, navigator, test_name):
+def test_sign_data(backend, navigator, test_name):
     # Use the app interface instead of raw interface
     client = BoilerplateCommandSender(backend)
     # The path used for this entire test
@@ -31,7 +32,7 @@ def test_sign_data(firmware, backend, navigator, test_name):
         # It will yield the result when the navigation is done
         with client.sign_data(path=path, data=request.to_request_bytes()):
             # Validate the on-screen request by performing the navigation appropriate for this device
-            if firmware.device.startswith("nano"):
+            if backend.device.is_nano:
                 navigator.navigate_until_text_and_compare(NavInsID.RIGHT_CLICK,
                                                             [NavInsID.BOTH_CLICK],
                                                             "Approve",
@@ -56,7 +57,7 @@ def test_sign_data(firmware, backend, navigator, test_name):
         assert check_signature_validity(pubkey, sig, request.to_signed_data())
 
 
-def test_sign_data_refused(firmware, backend, navigator, test_name):
+def test_sign_data_refused(backend, navigator, test_name):
     # Use the app interface instead of raw interface
     client = BoilerplateCommandSender(backend)
     path: str = "m/44'/607'/0'/0'/0'/0'"
@@ -64,7 +65,7 @@ def test_sign_data_refused(firmware, backend, navigator, test_name):
     request = PlaintextSignDataRequest("test")
     rb = request.to_request_bytes()
 
-    if firmware.device.startswith("nano"):
+    if backend.device.is_nano:
         with pytest.raises(ExceptionRAPDU) as e:
             with client.sign_data(path=path, data=rb):
                 navigator.navigate_until_text_and_compare(NavInsID.RIGHT_CLICK,
