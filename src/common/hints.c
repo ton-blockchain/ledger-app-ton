@@ -164,7 +164,7 @@ void print_hint(HintHolder_t* hints,
     } else if (hint.kind == SummaryBool) {
         snprintf(body, body_len, hint.bool_value ? "Yes" : "No");
     } else if (hint.kind == SummaryHex) {
-        if (body_len >= 3 + 2 * hint.hex.len) {
+        if (body_len >= 3 + 2 * (size_t) hint.hex.len) {
             body[0] = '0';
             body[1] = 'x';
             format_hex(hint.hex.data, hint.hex.len, &body[2], body_len - 2);
